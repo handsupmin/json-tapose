@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import type { JsonDiffItem } from "../utils/jsonUtils";
 
 interface JsonDiffViewProps {
@@ -14,11 +14,16 @@ interface DiffLine {
     | "removed"
     | "changed"
     | "header"
-    | "placeholder";
+    | "placeholder"
+    | "expandable"; // New type added: represents a collapsed section
   indentLevel: number; // Indentation level
   isOpening?: boolean; // Whether it's an opening bracket
   isClosing?: boolean; // Whether it's a closing bracket
   isComma?: boolean; // Whether the line has a comma
+  collapsedLines?: number; // Number of collapsed lines
+  originalIndex?: number; // Original line index
+  nextLineNumber?: number; // Line number to be displayed after the expandable line
+  collapsedRange?: { start: number; end: number }; // Collapsed line range (start and end)
 }
 
 // Create diagonal pattern using CSS linear gradient - automatic adaptation to daisyUI theme
@@ -36,12 +41,46 @@ const diagonalPattern = {
 };
 
 const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
+  // State to determine whether to show only differences
+  const [showOnlyDiff, setShowOnlyDiff] = useState<boolean>(false);
+  // Number of context lines
+  const [contextLines, setContextLines] = useState<number>(3);
+  // References for left and right scroll containers
+  const leftScrollRef = React.useRef<HTMLDivElement>(null);
+  const rightScrollRef = React.useRef<HTMLDivElement>(null);
+  // Track whether scroll is being synced to prevent infinite loop
+  const isScrollingSynced = React.useRef<boolean>(false);
+
+  // Synchronize scroll between left and right panels
+  const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
+    if (isScrollingSynced.current) return;
+
+    isScrollingSynced.current = true;
+
+    const sourceElement = event.currentTarget;
+    const targetElement =
+      sourceElement === leftScrollRef.current
+        ? rightScrollRef.current
+        : leftScrollRef.current;
+
+    if (targetElement) {
+      targetElement.scrollTop = sourceElement.scrollTop;
+      targetElement.scrollLeft = sourceElement.scrollLeft;
+    }
+
+    // Use requestAnimationFrame for smoother scrolling
+    requestAnimationFrame(() => {
+      isScrollingSynced.current = false;
+    });
+  };
+
   // Expand the entire JSON tree and convert it to line-by-line format
   const processJsonToLines = (): { left: DiffLine[]; right: DiffLine[] } => {
-    const leftLines: DiffLine[] = [
+    // Generate all lines first
+    const fullLeftLines: DiffLine[] = [
       { content: "{", type: "header", indentLevel: 0, isOpening: true },
     ];
-    const rightLines: DiffLine[] = [
+    const fullRightLines: DiffLine[] = [
       { content: "{", type: "header", indentLevel: 0, isOpening: true },
     ];
 
@@ -53,22 +92,22 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
       switch (item.type) {
         case "unchanged":
           // Add identical lines to both sides
-          addPropertyLines(leftLines, rightLines, item, isLast);
+          addPropertyLines(fullLeftLines, fullRightLines, item, isLast);
           break;
         case "added":
           // Placeholder on the left, added item on the right
-          leftLines.push({
+          fullLeftLines.push({
             content: "", // Empty content
             type: "placeholder", // Mark as placeholder since there's no matching field
             indentLevel: 1,
             isComma: !isLast,
           });
-          addPropertyToSide(rightLines, item, "added", 1, isLast);
+          addPropertyToSide(fullRightLines, item, "added", 1, isLast);
           break;
         case "removed":
           // Removed item on the left, placeholder on the right
-          addPropertyToSide(leftLines, item, "removed", 1, isLast);
-          rightLines.push({
+          addPropertyToSide(fullLeftLines, item, "removed", 1, isLast);
+          fullRightLines.push({
             content: "", // Empty content
             type: "placeholder", // Mark as placeholder since there's no matching field
             indentLevel: 1,
@@ -77,26 +116,114 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
           break;
         case "changed":
           // Changed items on both sides (different content)
-          addChangedPropertyLines(leftLines, rightLines, item, isLast);
+          addChangedPropertyLines(fullLeftLines, fullRightLines, item, isLast);
           break;
       }
     });
 
     // Add closing bracket
-    leftLines.push({
+    fullLeftLines.push({
       content: "}",
       type: "header",
       indentLevel: 0,
       isClosing: true,
     });
-    rightLines.push({
+    fullRightLines.push({
       content: "}",
       type: "header",
       indentLevel: 0,
       isClosing: true,
     });
 
-    return { left: leftLines, right: rightLines };
+    // Filter lines if in "show only diff" mode
+    if (showOnlyDiff) {
+      const { left: filteredLeft, right: filteredRight } = filterDiffLines(
+        fullLeftLines,
+        fullRightLines,
+        contextLines
+      );
+      return { left: filteredLeft, right: filteredRight };
+    } else {
+      return { left: fullLeftLines, right: fullRightLines };
+    }
+  };
+
+  // Filter lines to show only diff and context
+  const filterDiffLines = (
+    leftLines: DiffLine[],
+    rightLines: DiffLine[],
+    context: number
+  ): { left: DiffLine[]; right: DiffLine[] } => {
+    const newLeftLines: DiffLine[] = [];
+    const newRightLines: DiffLine[] = [];
+
+    // Find indices of lines with changes
+    const changedIndices = new Set<number>();
+    for (let i = 0; i < leftLines.length; i++) {
+      if (
+        leftLines[i].type === "added" ||
+        leftLines[i].type === "removed" ||
+        rightLines[i].type === "added" ||
+        rightLines[i].type === "removed"
+      ) {
+        // Add current line and surrounding context lines
+        for (
+          let j = Math.max(0, i - context);
+          j <= Math.min(leftLines.length - 1, i + context);
+          j++
+        ) {
+          changedIndices.add(j);
+        }
+      }
+    }
+
+    // Always show header and footer
+    changedIndices.add(0);
+    changedIndices.add(leftLines.length - 1);
+
+    // Filter lines to include only changed parts and context
+    let collapsedCount = 0;
+    let collapsedStart = -1;
+
+    for (let i = 0; i < leftLines.length; i++) {
+      if (changedIndices.has(i)) {
+        // If there are previously collapsed lines, add a collapsed line count
+        if (collapsedCount > 0) {
+          const collapsedEnd = i - 1; // Last collapsed line index
+
+          newLeftLines.push({
+            content: `... ${collapsedCount} same lines ...`,
+            type: "expandable",
+            indentLevel: 0,
+            collapsedLines: collapsedCount,
+            collapsedRange: { start: collapsedStart, end: collapsedEnd },
+          });
+          newRightLines.push({
+            content: `... ${collapsedCount} same lines ...`,
+            type: "expandable",
+            indentLevel: 0,
+            collapsedLines: collapsedCount,
+            collapsedRange: { start: collapsedStart, end: collapsedEnd },
+          });
+          collapsedCount = 0;
+          collapsedStart = -1;
+        }
+
+        // Add changed line or context line
+        const leftLine = { ...leftLines[i], originalIndex: i };
+        const rightLine = { ...rightLines[i], originalIndex: i };
+        newLeftLines.push(leftLine);
+        newRightLines.push(rightLine);
+      } else {
+        // For unchanged lines, just increment the counter
+        if (collapsedCount === 0) {
+          collapsedStart = i; // Set the start index of collapsed lines
+        }
+        collapsedCount++;
+      }
+    }
+
+    return { left: newLeftLines, right: newRightLines };
   };
 
   // Add property lines (common)
@@ -268,17 +395,18 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
     rightLines: DiffLine[],
     children: JsonDiffItem[]
   ) => {
-    // Show all children for context
+    // Display all child items - highlight only the ones with changes
     children.forEach((child, idx) => {
       const isLast = idx === children.length - 1;
 
       switch (child.type) {
         case "unchanged":
-          // Same content on both sides
+          // Display regular items without changes
           addNestedPropertyLines(leftLines, rightLines, child, 2, isLast);
           break;
+
         case "added":
-          // Added on the right side only
+          // Added items
           leftLines.push({
             content: "", // Empty content
             type: "placeholder", // Mark as placeholder since there's no matching field
@@ -287,8 +415,9 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
           });
           addNestedPropertyToSide(rightLines, child, "added", 2, isLast);
           break;
+
         case "removed":
-          // Display on the left side only
+          // Removed items
           addNestedPropertyToSide(leftLines, child, "removed", 2, isLast);
           rightLines.push({
             content: "", // Empty content
@@ -297,9 +426,9 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
             isComma: !isLast,
           });
           break;
+
         case "changed":
-          // Different content on both sides
-          // For parent-level containers, use "unchanged" type for the container itself
+          // Changed items - parent containers shown as unchanged
           addNestedPropertyAsUnchangedContainer(
             leftLines,
             rightLines,
@@ -318,18 +447,18 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
     rightLines: DiffLine[],
     children: JsonDiffItem[]
   ) => {
-    // 모든 자식 항목 표시 - 변경이 있는 것만 강조 표시
+    // Display all child items - highlight only the ones with changes
     children.forEach((child, idx) => {
       const isLast = idx === children.length - 1;
 
       switch (child.type) {
         case "unchanged":
-          // 변경 없는 일반 항목 표시
+          // Display regular items without changes
           addNestedPropertyLines(leftLines, rightLines, child, 2, isLast);
           break;
 
         case "added":
-          // 추가된 항목
+          // Added items
           leftLines.push({
             content: "", // Empty content
             type: "placeholder", // Mark as placeholder since there's no matching field
@@ -340,7 +469,7 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
           break;
 
         case "removed":
-          // 삭제된 항목
+          // Removed items
           addNestedPropertyToSide(leftLines, child, "removed", 2, isLast);
           rightLines.push({
             content: "", // Empty content
@@ -351,7 +480,7 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
           break;
 
         case "changed":
-          // 변경된 항목 - 부모 컨테이너는 unchanged로 표시
+          // Changed items - parent containers shown as unchanged
           addNestedPropertyAsUnchangedContainer(
             leftLines,
             rightLines,
@@ -532,15 +661,15 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
       isOpening: true,
     });
 
-    // 모든 자식 항목 처리
+    // Display all child items - highlight only the ones with changes
     item.children.forEach((child, idx) => {
       const childIsLast = idx === item.children!.length - 1;
 
       switch (child.type) {
         case "unchanged":
-          // 변경되지 않은 항목은 양쪽에 동일하게 표시
+          // Display unchanged items identically on both sides
           if (!child.children) {
-            // 단순 값
+            // Simple value
             const contentValue = renderSimpleValue(child.value1);
             leftLines.push({
               content: `"${child.key}": ${contentValue}${
@@ -557,7 +686,7 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
               indentLevel: indentLevel + 1,
             });
           } else {
-            // 객체/배열 - 재귀적으로 처리
+            // Object/array - process recursively
             addNestedPropertyLines(
               leftLines,
               rightLines,
@@ -569,7 +698,7 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
           break;
 
         case "added":
-          // 추가된 항목 - 왼쪽에는 빈칸, 오른쪽에는 추가된 항목
+          // Added items - blank on left, added item on right
           leftLines.push({
             content: "",
             type: "placeholder",
@@ -587,7 +716,7 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
           break;
 
         case "removed":
-          // 삭제된 항목 - 왼쪽에는 삭제된 항목, 오른쪽에는 빈칸
+          // Removed items - removed item on left, blank on right
           addNestedPropertyToSide(
             leftLines,
             child,
@@ -605,9 +734,9 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
           break;
 
         case "changed":
-          // 변경된 항목 - 값이나 중첩 객체
+          // Changed items - simple value or nested object
           if (!child.children) {
-            // 단순 값 변경
+            // Simple value change
             const leftValue = renderSimpleValue(child.value1);
             const rightValue = renderSimpleValue(child.value2);
 
@@ -624,7 +753,7 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
               indentLevel: indentLevel + 1,
             });
           } else {
-            // 중첩 객체 변경 - 재귀적으로 처리
+            // Nested object change - process recursively
             addNestedPropertyAsUnchangedContainer(
               leftLines,
               rightLines,
@@ -680,14 +809,24 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
   // Calculate line numbers properly (skip placeholder lines)
   const calculateLineNumbers = (lines: DiffLine[]): number[] => {
     const lineNumbers: number[] = [];
-    let currentLineNumber = 1;
 
-    lines.forEach((line) => {
+    lines.forEach((line, index) => {
       if (line.type === "placeholder") {
         // No line number for placeholder lines
         lineNumbers.push(0);
+      } else if (line.type === "expandable") {
+        // Display collapsed line range (line start and end)
+        if (line.collapsedRange) {
+          const start = line.collapsedRange.start + 1; // 1-indexed
+          lineNumbers.push(start);
+        } else {
+          lineNumbers.push(0);
+        }
       } else {
-        lineNumbers.push(currentLineNumber++);
+        // Calculate line number based on original index if available, otherwise use index + 1
+        lineNumbers.push(
+          line.originalIndex !== undefined ? line.originalIndex + 1 : index + 1
+        );
       }
     });
 
@@ -698,6 +837,38 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
   const leftLineNumbers = calculateLineNumbers(leftLines);
   const rightLineNumbers = calculateLineNumbers(rightLines);
 
+  // Ensure scroll is synchronized even after component updates
+  React.useEffect(() => {
+    const leftEl = leftScrollRef.current;
+    const rightEl = rightScrollRef.current;
+
+    // Keep scrolling positions in sync if one container's height changes
+    if (leftEl && rightEl) {
+      if (leftEl.scrollHeight !== rightEl.scrollHeight) {
+        // Calculate scroll ratio
+        const scrollRatio =
+          leftEl.scrollTop / (leftEl.scrollHeight - leftEl.clientHeight || 1);
+        // Apply ratio to the other container
+        rightEl.scrollTop =
+          scrollRatio * (rightEl.scrollHeight - rightEl.clientHeight || 1);
+      } else {
+        // Heights are the same, just sync positions
+        rightEl.scrollTop = leftEl.scrollTop;
+      }
+      rightEl.scrollLeft = leftEl.scrollLeft;
+    }
+  }, [leftLines, rightLines, showOnlyDiff, contextLines]);
+
+  // Toggle between diff only and show all mode
+  const toggleDiffMode = () => {
+    setShowOnlyDiff(!showOnlyDiff);
+  };
+
+  // Change context lines
+  const handleContextChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setContextLines(parseInt(e.target.value, 10));
+  };
+
   return (
     <div className="font-mono text-sm border border-base-300 rounded-md overflow-hidden github-diff">
       <div className="grid grid-cols-2 divide-x divide-base-300 border-b border-base-300 bg-base-200">
@@ -705,20 +876,78 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
         <div className="px-4 py-2 font-semibold text-left">New Version</div>
       </div>
 
+      {/* GitHub-like controls */}
+      <div className="bg-base-300 px-4 py-2 border-b border-base-300 flex justify-between items-center">
+        <div className="flex gap-2 items-center">
+          <button
+            onClick={toggleDiffMode}
+            className={`btn btn-xs ${
+              showOnlyDiff ? "btn-primary" : "btn-outline"
+            }`}
+          >
+            {showOnlyDiff ? "Show All" : "Diff Only"}
+          </button>
+
+          {showOnlyDiff && (
+            <div className="flex items-center gap-2">
+              <span className="text-xs">Context:</span>
+              <select
+                value={contextLines}
+                onChange={handleContextChange}
+                className="select select-xs select-bordered"
+              >
+                <option value="0">0 lines</option>
+                <option value="1">1 line</option>
+                <option value="2">2 lines</option>
+                <option value="3">3 lines</option>
+                <option value="5">5 lines</option>
+                <option value="10">10 lines</option>
+              </select>
+            </div>
+          )}
+        </div>
+
+        <div className="flex gap-3 text-xs">
+          <span className="flex items-center">
+            <span className="inline-block w-3 h-3 rounded-full bg-error/60 mr-1"></span>{" "}
+            Removed
+          </span>
+          <span className="flex items-center">
+            <span className="inline-block w-3 h-3 rounded-full bg-success/60 mr-1"></span>{" "}
+            Added
+          </span>
+          <span className="flex items-center">
+            <span className="inline-block w-3 h-3 rounded-full bg-base-content/20 mr-1"></span>{" "}
+            Unchanged
+          </span>
+        </div>
+      </div>
+
       <div className="grid grid-cols-2 divide-x divide-base-300 h-full">
         {/* Left side (old version) - single scrollable area */}
-        <div className="max-h-[600px] overflow-y-auto">
+        <div
+          className="max-h-[600px] overflow-auto"
+          ref={leftScrollRef}
+          onScroll={handleScroll}
+        >
           {leftLines.map((line, index) => {
             // Placeholder type gets a gray background
             const isPlaceholder = line.type === "placeholder";
+            const isExpandable = line.type === "expandable";
             const lineNumber = leftLineNumbers[index];
+
+            // Information for displaying collapsed line range
+            let expandableText = line.content;
+            if (isExpandable && line.collapsedRange) {
+              expandableText = `... ${line.collapsedLines} same lines`;
+            }
 
             return (
               <div
                 key={`left-${index}`}
                 className={`flex ${
                   line.type === "removed" ? "bg-error/10" : ""
-                }`}
+                } ${isExpandable ? "bg-base-300/50 text-xs text-center" : ""}`}
               >
                 <div
                   className="w-12 min-w-[48px] text-right pr-2 select-none border-r border-base-300 py-1 line-number"
@@ -726,27 +955,37 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
                     color:
                       line.type === "removed"
                         ? "var(--color-error)"
-                        : isPlaceholder
+                        : isPlaceholder || isExpandable
                         ? "var(--color-base-content)"
                         : "var(--color-base-content)",
-                    opacity: isPlaceholder
-                      ? 0.3
-                      : line.type === "header"
-                      ? 0.5
-                      : 0.7,
+                    opacity:
+                      isPlaceholder || isExpandable
+                        ? 0.3
+                        : line.type === "header"
+                        ? 0.5
+                        : 0.7,
                     backgroundColor:
                       line.type === "removed"
                         ? "rgba(var(--color-error-rgb), 0.1)"
                         : "var(--color-base-200)",
                   }}
                 >
-                  {lineNumber > 0 ? lineNumber : ""}
+                  {isExpandable ? "" : lineNumber > 0 ? lineNumber : ""}
                 </div>
                 <div
-                  className="flex-1 pl-3 py-1 text-left min-h-[28px] flex items-center"
+                  className={`flex-1 pl-3 py-1 text-left min-h-[28px] flex items-center ${
+                    isExpandable
+                      ? "justify-center cursor-pointer hover:bg-base-300"
+                      : ""
+                  }`}
                   style={isPlaceholder ? diagonalPattern : {}}
+                  onClick={isExpandable ? toggleDiffMode : undefined}
                 >
-                  {!isPlaceholder && (
+                  {isExpandable ? (
+                    <span className="text-base-content opacity-60 w-full text-center hover:underline hover:opacity-80">
+                      {expandableText}
+                    </span>
+                  ) : !isPlaceholder ? (
                     <span
                       className={`${
                         line.type === "removed"
@@ -757,7 +996,7 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
                       {getIndent(line.indentLevel)}
                       {line.content}
                     </span>
-                  )}
+                  ) : null}
                 </div>
               </div>
             );
@@ -765,18 +1004,29 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
         </div>
 
         {/* Right side (new version) - single scrollable area */}
-        <div className="max-h-[600px] overflow-y-auto">
+        <div
+          className="max-h-[600px] overflow-auto"
+          ref={rightScrollRef}
+          onScroll={handleScroll}
+        >
           {rightLines.map((line, index) => {
             // Placeholder type gets a gray background
             const isPlaceholder = line.type === "placeholder";
+            const isExpandable = line.type === "expandable";
             const lineNumber = rightLineNumbers[index];
+
+            // Information for displaying collapsed line range
+            let expandableText = line.content;
+            if (isExpandable && line.collapsedRange) {
+              expandableText = `... ${line.collapsedLines} same lines`;
+            }
 
             return (
               <div
                 key={`right-${index}`}
                 className={`flex ${
                   line.type === "added" ? "bg-success/10" : ""
-                }`}
+                } ${isExpandable ? "bg-base-300/50 text-xs text-center" : ""}`}
               >
                 <div
                   className="w-12 min-w-[48px] text-right pr-2 select-none border-r border-base-300 py-1 line-number"
@@ -784,27 +1034,37 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
                     color:
                       line.type === "added"
                         ? "var(--color-success)"
-                        : isPlaceholder
+                        : isPlaceholder || isExpandable
                         ? "var(--color-base-content)"
                         : "var(--color-base-content)",
-                    opacity: isPlaceholder
-                      ? 0.3
-                      : line.type === "header"
-                      ? 0.5
-                      : 0.7,
+                    opacity:
+                      isPlaceholder || isExpandable
+                        ? 0.3
+                        : line.type === "header"
+                        ? 0.5
+                        : 0.7,
                     backgroundColor:
                       line.type === "added"
                         ? "rgba(var(--color-success-rgb), 0.1)"
                         : "var(--color-base-200)",
                   }}
                 >
-                  {lineNumber > 0 ? lineNumber : ""}
+                  {isExpandable ? "" : lineNumber > 0 ? lineNumber : ""}
                 </div>
                 <div
-                  className="flex-1 pl-3 py-1 text-left min-h-[28px] flex items-center"
+                  className={`flex-1 pl-3 py-1 text-left min-h-[28px] flex items-center ${
+                    isExpandable
+                      ? "justify-center cursor-pointer hover:bg-base-300"
+                      : ""
+                  }`}
                   style={isPlaceholder ? diagonalPattern : {}}
+                  onClick={isExpandable ? toggleDiffMode : undefined}
                 >
-                  {!isPlaceholder && (
+                  {isExpandable ? (
+                    <span className="text-base-content opacity-60 w-full text-center hover:underline hover:opacity-80">
+                      {expandableText}
+                    </span>
+                  ) : !isPlaceholder ? (
                     <span
                       className={`${
                         line.type === "added"
@@ -815,7 +1075,7 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
                       {getIndent(line.indentLevel)}
                       {line.content}
                     </span>
-                  )}
+                  ) : null}
                 </div>
               </div>
             );

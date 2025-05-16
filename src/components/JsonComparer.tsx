@@ -285,22 +285,8 @@ const JsonComparer: React.FC = () => {
       {diffResult && (
         <div className="card bg-base-200 shadow-xl overflow-hidden">
           <div className="card-body p-0">
-            <div className="bg-base-300 px-4 py-2 border-b border-base-300 flex justify-between items-center">
+            <div className="bg-base-300 px-4 py-2 border-b border-base-300">
               <h2 className="card-title m-0 text-base">Comparison Result</h2>
-              <div className="flex gap-3 text-xs">
-                <span className="flex items-center">
-                  <span className="inline-block w-3 h-3 rounded-full bg-error/60 mr-1"></span>{" "}
-                  Removed
-                </span>
-                <span className="flex items-center">
-                  <span className="inline-block w-3 h-3 rounded-full bg-success/60 mr-1"></span>{" "}
-                  Added
-                </span>
-                <span className="flex items-center">
-                  <span className="inline-block w-3 h-3 rounded-full bg-base-content/20 mr-1"></span>{" "}
-                  Unchanged
-                </span>
-              </div>
             </div>
             <div className="overflow-auto">
               <JsonDiffView diffItems={diffResult} />
