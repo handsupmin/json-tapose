@@ -29,7 +29,7 @@ A modern JSON comparison tool that displays differences between two JSON objects
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/yourusername/json-tapose.git
+   git clone https://github.com/handsupmin/json-tapose.git
    cd json-tapose
    ```
 
