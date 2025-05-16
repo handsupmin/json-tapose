@@ -77,6 +77,7 @@ Each line has the following attributes:
 - TypeScript for type safety
 - daisyUI/Tailwind CSS for styling
 - Responsive design that works on various screen sizes
+- pnpm for package management
 
 ## Accessibility
 

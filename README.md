@@ -22,7 +22,7 @@ A modern JSON comparison tool that displays differences between two JSON objects
 ### Prerequisites
 
 - Node.js (v14 or later)
-- npm or yarn
+- pnpm
 
 ### Installation
 
@@ -36,17 +36,13 @@ A modern JSON comparison tool that displays differences between two JSON objects
 2. Install dependencies:
 
    ```bash
-   npm install
-   # or
-   yarn
+   pnpm install
    ```
 
 3. Start the development server:
 
    ```bash
-   npm run dev
-   # or
-   yarn dev
+   pnpm dev
    ```
 
 4. Open your browser and navigate to `http://localhost:5173`
