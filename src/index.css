@@ -1,0 +1,115 @@
+@import "tailwindcss";
+@plugin "daisyui" {
+  themes: purplewind --default, light, dark, night, winter, emerald, corporate,
+    synthwave, retro, cyberpunk, dracula, lofi, pastel, fantasy, wireframe,
+    luxury;
+}
+
+@layer base {
+  /* Custom base styles can go here */
+  html {
+    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  }
+}
+
+@layer components {
+  /* Custom styles for JSON diff display */
+  .json-diff-added {
+    @apply bg-success/20 text-success;
+  }
+
+  .json-diff-removed {
+    @apply bg-error/20 text-error;
+  }
+
+  .json-diff-changed {
+    @apply bg-warning/20 text-warning;
+  }
+
+  .json-diff-unchanged {
+    @apply text-base-content;
+  }
+
+  .json-key {
+    @apply font-semibold;
+  }
+
+  .json-editor {
+    @apply font-mono;
+  }
+
+  /* 향상된 GitHub-style diff view */
+  .github-diff {
+    @apply font-mono text-sm;
+  }
+
+  .github-diff-line {
+    @apply flex border-b border-base-300/30;
+  }
+
+  .github-diff-line-number {
+    @apply w-10 text-right pr-2 text-base-content/50 select-none border-r border-base-300 py-1 bg-base-200/50;
+  }
+
+  .github-diff-line-content {
+    @apply flex-1 pl-3 py-1;
+  }
+
+  .github-diff-added {
+    @apply bg-success/10;
+  }
+
+  .github-diff-added .github-diff-line-number {
+    @apply text-success bg-success/20 border-success/30;
+  }
+
+  .github-diff-removed {
+    @apply bg-error/10;
+  }
+
+  .github-diff-removed .github-diff-line-number {
+    @apply text-error bg-error/20 border-error/30;
+  }
+
+  .github-diff-changed {
+    @apply bg-warning/10;
+  }
+
+  .github-diff-changed .github-diff-line-number {
+    @apply text-warning bg-warning/20 border-warning/30;
+  }
+
+  /* 새로운 JSON diff 포맷 스타일 */
+  .json-diff-nested {
+    @apply border-l-2 border-dotted;
+  }
+
+  .json-diff-placeholder {
+    @apply bg-base-300/50 text-base-content/60 italic;
+  }
+
+  /* 중첩된 객체의 들여쓰기를 더 명확하게 */
+  .json-diff-nested .json-diff-nested {
+    @apply border-l border-dotted;
+  }
+
+  /* JSON 키에 quotes를 더 눈에 띄게 */
+  .json-key-quotes {
+    @apply opacity-70;
+  }
+
+  /* 콜론과 콤마 스타일 */
+  .json-syntax {
+    @apply text-base-content/70;
+  }
+}
+
+/* 줄번호 스타일링 */
+.line-number {
+  @apply w-10 text-right pr-2 text-base-content/50 select-none border-r border-base-300 py-1 sticky left-0;
+}
+
+/* 오류나 경고 메시지가 보이는 라인 */
+.placeholder-message {
+  @apply bg-base-300/50 text-base-content/70 italic py-1 px-3;
+}
