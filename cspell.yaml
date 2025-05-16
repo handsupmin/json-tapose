@@ -1,0 +1,5 @@
+words:
+  - JSONtapose
+ignorePaths:
+  - "**/node_modules/**"
+  - cspell.yaml

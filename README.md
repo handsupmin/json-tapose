@@ -1,5 +1,11 @@
 # JSONtapose
 
+<div align="center">
+  <img src="public/logo.svg" alt="JSONtapose Logo" width="120" height="120">
+</div>
+
+> JSON + juxtapose
+
 A modern JSON comparison tool that displays differences between two JSON objects in a side-by-side view, similar to traditional text file diff tools.
 
 ![JSONtapose Screenshot](screenshots/screenshot.png)
