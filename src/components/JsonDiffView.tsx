@@ -45,7 +45,7 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
       { content: "{", type: "header", indentLevel: 0, isOpening: true },
     ];
 
-    // Iterate through all diffItems and convert each item to lines
+    // Process all diff items - Show all top-level elements for context
     diffItems.forEach((item, index) => {
       const isLast = index === diffItems.length - 1;
 
@@ -63,11 +63,11 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
             indentLevel: 1,
             isComma: !isLast,
           });
-          addPropertyToSide(rightLines, item, "added", isLast);
+          addPropertyToSide(rightLines, item, "added", 1, isLast);
           break;
         case "removed":
           // Removed item on the left, placeholder on the right
-          addPropertyToSide(leftLines, item, "removed", isLast);
+          addPropertyToSide(leftLines, item, "removed", 1, isLast);
           rightLines.push({
             content: "", // Empty content
             type: "placeholder", // Mark as placeholder since there's no matching field
@@ -99,7 +99,7 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
     return { left: leftLines, right: rightLines };
   };
 
-  // Add basic properties to both sides
+  // Add property lines (common)
   const addPropertyLines = (
     leftLines: DiffLine[],
     rightLines: DiffLine[],
@@ -180,21 +180,21 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
         indentLevel: 1,
       });
     } else {
-      // Complex object/array change
+      // Complex object/array change - but don't mark parent objects as changed
       const isLeftArray = Array.isArray(item.value1);
       const isRightArray = Array.isArray(item.value2);
 
-      // Left side (old version)
+      // Left side (old version) - use "unchanged" for parent containers
       leftLines.push({
         content: `"${item.key}": ${isLeftArray ? "[" : "{"}`,
-        type: "removed",
+        type: "unchanged",
         indentLevel: 1,
         isOpening: true,
       });
-      // Right side (new version)
+      // Right side (new version) - use "unchanged" for parent containers
       rightLines.push({
         content: `"${item.key}": ${isRightArray ? "[" : "{"}`,
-        type: "added",
+        type: "unchanged",
         indentLevel: 1,
         isOpening: true,
       });
@@ -202,27 +202,28 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
       // Process child items on both sides (showing changes)
       processChangedChildItems(leftLines, rightLines, item.children);
 
-      // Closing brackets
+      // Closing brackets - use "unchanged" for parent containers
       leftLines.push({
         content: `${isLeftArray ? "]" : "}"}${!isLast ? "," : ""}`,
-        type: "removed",
+        type: "unchanged",
         indentLevel: 1,
         isClosing: true,
       });
       rightLines.push({
         content: `${isRightArray ? "]" : "}"}${!isLast ? "," : ""}`,
-        type: "added",
+        type: "unchanged",
         indentLevel: 1,
         isClosing: true,
       });
     }
   };
 
-  // Add property to only one side (added or removed items)
+  // Add property to one side only (added or removed items)
   const addPropertyToSide = (
     lines: DiffLine[],
     item: JsonDiffItem,
     type: "added" | "removed",
+    indentLevel: number,
     isLast: boolean
   ) => {
     const value = type === "removed" ? item.value1 : item.value2;
@@ -234,7 +235,7 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
           !isLast ? "," : ""
         }`,
         type,
-        indentLevel: 1,
+        indentLevel,
       });
     } else {
       // Object/array property
@@ -244,7 +245,7 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
       lines.push({
         content: `"${item.key}": ${isArray ? "[" : "{"}`,
         type,
-        indentLevel: 1,
+        indentLevel,
         isOpening: true,
       });
 
@@ -255,7 +256,7 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
       lines.push({
         content: `${isArray ? "]" : "}"}${!isLast ? "," : ""}`,
         type,
-        indentLevel: 1,
+        indentLevel,
         isClosing: true,
       });
     }
@@ -267,6 +268,7 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
     rightLines: DiffLine[],
     children: JsonDiffItem[]
   ) => {
+    // Show all children for context
     children.forEach((child, idx) => {
       const isLast = idx === children.length - 1;
 
@@ -297,7 +299,8 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
           break;
         case "changed":
           // Different content on both sides
-          addNestedChangedPropertyLines(
+          // For parent-level containers, use "unchanged" type for the container itself
+          addNestedPropertyAsUnchangedContainer(
             leftLines,
             rightLines,
             child,
@@ -315,17 +318,18 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
     rightLines: DiffLine[],
     children: JsonDiffItem[]
   ) => {
+    // 모든 자식 항목 표시 - 변경이 있는 것만 강조 표시
     children.forEach((child, idx) => {
       const isLast = idx === children.length - 1;
 
       switch (child.type) {
         case "unchanged":
-          // Show as changed even if unchanged, as it belongs to a different parent
-          addNestedPropertyToSide(leftLines, child, "removed", 2, isLast);
-          addNestedPropertyToSide(rightLines, child, "added", 2, isLast);
+          // 변경 없는 일반 항목 표시
+          addNestedPropertyLines(leftLines, rightLines, child, 2, isLast);
           break;
+
         case "added":
-          // Placeholder + added line
+          // 추가된 항목
           leftLines.push({
             content: "", // Empty content
             type: "placeholder", // Mark as placeholder since there's no matching field
@@ -334,8 +338,9 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
           });
           addNestedPropertyToSide(rightLines, child, "added", 2, isLast);
           break;
+
         case "removed":
-          // Removed line + placeholder
+          // 삭제된 항목
           addNestedPropertyToSide(leftLines, child, "removed", 2, isLast);
           rightLines.push({
             content: "", // Empty content
@@ -344,10 +349,16 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
             isComma: !isLast,
           });
           break;
+
         case "changed":
-          // Different content on both sides
-          addNestedPropertyToSide(leftLines, child, "removed", 2, isLast);
-          addNestedPropertyToSide(rightLines, child, "added", 2, isLast);
+          // 변경된 항목 - 부모 컨테이너는 unchanged로 표시
+          addNestedPropertyAsUnchangedContainer(
+            leftLines,
+            rightLines,
+            child,
+            2,
+            isLast
+          );
           break;
       }
     });
@@ -432,136 +443,6 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
     }
   };
 
-  // Add nested changed property lines
-  const addNestedChangedPropertyLines = (
-    leftLines: DiffLine[],
-    rightLines: DiffLine[],
-    item: JsonDiffItem,
-    indentLevel: number,
-    isLast: boolean
-  ) => {
-    if (!item.children) {
-      // Case without children (value change only)
-      leftLines.push({
-        content: `"${item.key}": ${renderSimpleValue(item.value1)}${
-          !isLast ? "," : ""
-        }`,
-        type: "removed",
-        indentLevel,
-      });
-      rightLines.push({
-        content: `"${item.key}": ${renderSimpleValue(item.value2)}${
-          !isLast ? "," : ""
-        }`,
-        type: "added",
-        indentLevel,
-      });
-    } else {
-      // Case with changed object/array
-      const isLeftArray = Array.isArray(item.value1);
-      const isRightArray = Array.isArray(item.value2);
-
-      // Opening brackets
-      leftLines.push({
-        content: `"${item.key}": ${isLeftArray ? "[" : "{"}`,
-        type: "removed",
-        indentLevel,
-        isOpening: true,
-      });
-      rightLines.push({
-        content: `"${item.key}": ${isRightArray ? "[" : "{"}`,
-        type: "added",
-        indentLevel,
-        isOpening: true,
-      });
-
-      // Process child items separately for each side
-      if (item.children) {
-        item.children.forEach((child, idx) => {
-          const childIsLast = idx === item.children!.length - 1;
-
-          // Process based on type
-          switch (child.type) {
-            case "unchanged":
-              addNestedPropertyToSide(
-                leftLines,
-                child,
-                "removed",
-                indentLevel + 1,
-                childIsLast
-              );
-              addNestedPropertyToSide(
-                rightLines,
-                child,
-                "added",
-                indentLevel + 1,
-                childIsLast
-              );
-              break;
-            case "added":
-              leftLines.push({
-                content: "", // Empty content
-                type: "placeholder", // Mark as placeholder since there's no matching field
-                indentLevel: indentLevel + 1,
-              });
-              addNestedPropertyToSide(
-                rightLines,
-                child,
-                "added",
-                indentLevel + 1,
-                childIsLast
-              );
-              break;
-            case "removed":
-              addNestedPropertyToSide(
-                leftLines,
-                child,
-                "removed",
-                indentLevel + 1,
-                childIsLast
-              );
-              rightLines.push({
-                content: "", // Empty content
-                type: "placeholder", // Mark as placeholder since there's no matching field
-                indentLevel: indentLevel + 1,
-              });
-              break;
-            case "changed":
-              addNestedPropertyToSide(
-                leftLines,
-                child,
-                "removed",
-                indentLevel + 1,
-                childIsLast
-              );
-              addNestedPropertyToSide(
-                rightLines,
-                child,
-                "added",
-                indentLevel + 1,
-                childIsLast
-              );
-              break;
-          }
-        });
-      }
-
-      // Closing brackets
-      leftLines.push({
-        content: `${isLeftArray ? "]" : "}"}${!isLast ? "," : ""}`,
-        type: "removed",
-        indentLevel,
-        isClosing: true,
-      });
-      rightLines.push({
-        content: `${isRightArray ? "]" : "}"}${!isLast ? "," : ""}`,
-        type: "added",
-        indentLevel,
-        isClosing: true,
-      });
-    }
-  };
-
   // Add nested property to one side only
   const addNestedPropertyToSide = (
     lines: DiffLine[],
@@ -571,6 +452,11 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
     isLast: boolean
   ) => {
     const value = type === "removed" ? item.value1 : item.value2;
+
+    // Skip if value is undefined (property doesn't exist on this side)
+    if (value === undefined) {
+      return;
+    }
 
     if (!item.children) {
       // Basic property
@@ -595,6 +481,7 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
 
       // Recursively process child items
       if (item.children) {
+        // Show all children
         item.children.forEach((child, idx) => {
           const childIsLast = idx === item.children!.length - 1;
           addNestedPropertyToSide(
@@ -617,9 +504,157 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
     }
   };
 
+  // Add nested property as an unchanged container with changed children
+  const addNestedPropertyAsUnchangedContainer = (
+    leftLines: DiffLine[],
+    rightLines: DiffLine[],
+    item: JsonDiffItem,
+    indentLevel: number,
+    isLast: boolean
+  ) => {
+    if (!item.children) return;
+
+    // Object/array property
+    const isLeftArray = Array.isArray(item.value1);
+    const isRightArray = Array.isArray(item.value2);
+
+    // Key and opening bracket line - mark as unchanged
+    leftLines.push({
+      content: `"${item.key}": ${isLeftArray ? "[" : "{"}`,
+      type: "unchanged",
+      indentLevel,
+      isOpening: true,
+    });
+    rightLines.push({
+      content: `"${item.key}": ${isRightArray ? "[" : "{"}`,
+      type: "unchanged",
+      indentLevel,
+      isOpening: true,
+    });
+
+    // 모든 자식 항목 처리
+    item.children.forEach((child, idx) => {
+      const childIsLast = idx === item.children!.length - 1;
+
+      switch (child.type) {
+        case "unchanged":
+          // 변경되지 않은 항목은 양쪽에 동일하게 표시
+          if (!child.children) {
+            // 단순 값
+            const contentValue = renderSimpleValue(child.value1);
+            leftLines.push({
+              content: `"${child.key}": ${contentValue}${
+                !childIsLast ? "," : ""
+              }`,
+              type: "unchanged",
+              indentLevel: indentLevel + 1,
+            });
+            rightLines.push({
+              content: `"${child.key}": ${contentValue}${
+                !childIsLast ? "," : ""
+              }`,
+              type: "unchanged",
+              indentLevel: indentLevel + 1,
+            });
+          } else {
+            // 객체/배열 - 재귀적으로 처리
+            addNestedPropertyLines(
+              leftLines,
+              rightLines,
+              child,
+              indentLevel + 1,
+              childIsLast
+            );
+          }
+          break;
+
+        case "added":
+          // 추가된 항목 - 왼쪽에는 빈칸, 오른쪽에는 추가된 항목
+          leftLines.push({
+            content: "",
+            type: "placeholder",
+            indentLevel: indentLevel + 1,
+            isComma: !childIsLast,
+          });
+          // Add the item on right side
+          addNestedPropertyToSide(
+            rightLines,
+            child,
+            "added",
+            indentLevel + 1,
+            childIsLast
+          );
+          break;
+
+        case "removed":
+          // 삭제된 항목 - 왼쪽에는 삭제된 항목, 오른쪽에는 빈칸
+          addNestedPropertyToSide(
+            leftLines,
+            child,
+            "removed",
+            indentLevel + 1,
+            childIsLast
+          );
+          // Show placeholder on right
+          rightLines.push({
+            content: "",
+            type: "placeholder",
+            indentLevel: indentLevel + 1,
+            isComma: !childIsLast,
+          });
+          break;
+
+        case "changed":
+          // 변경된 항목 - 값이나 중첩 객체
+          if (!child.children) {
+            // 단순 값 변경
+            const leftValue = renderSimpleValue(child.value1);
+            const rightValue = renderSimpleValue(child.value2);
+
+            leftLines.push({
+              content: `"${child.key}": ${leftValue}${!childIsLast ? "," : ""}`,
+              type: "removed",
+              indentLevel: indentLevel + 1,
+            });
+            rightLines.push({
+              content: `"${child.key}": ${rightValue}${
+                !childIsLast ? "," : ""
+              }`,
+              type: "added",
+              indentLevel: indentLevel + 1,
+            });
+          } else {
+            // 중첩 객체 변경 - 재귀적으로 처리
+            addNestedPropertyAsUnchangedContainer(
+              leftLines,
+              rightLines,
+              child,
+              indentLevel + 1,
+              childIsLast
+            );
+          }
+          break;
+      }
+    });
+
+    // Closing bracket line - mark as unchanged
+    leftLines.push({
+      content: `${isLeftArray ? "]" : "}"}${!isLast ? "," : ""}`,
+      type: "unchanged",
+      indentLevel,
+      isClosing: true,
+    });
+    rightLines.push({
+      content: `${isRightArray ? "]" : "}"}${!isLast ? "," : ""}`,
+      type: "unchanged",
+      indentLevel,
+      isClosing: true,
+    });
+  };
+
   // Render simple values (string, number, boolean, etc.)
   const renderSimpleValue = (value: unknown): string => {
-    if (value === undefined) return "undefined";
+    if (value === undefined) return "";
     if (value === null) return "null";
 
     if (typeof value === "string") return `"${value}"`;
