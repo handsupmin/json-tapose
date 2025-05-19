@@ -2,7 +2,7 @@ const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="footer footer-center p-4 bg-base-300 text-base-content">
+    <footer className="footer footer-center p-4 mt-10 bg-base-300 text-base-content">
       <div className="grid grid-flow-row gap-4 md:grid-flow-col">
         <aside className="flex items-center gap-2">
           <img src="/logo.svg" alt="JSONtapose Logo" className="h-5 w-5" />
