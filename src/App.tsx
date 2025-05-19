@@ -5,6 +5,7 @@ import Header from "./components/Header";
 import JsonComparer from "./components/JsonComparer";
 import SEO from "./components/SEO";
 import ThemeController from "./components/ThemeController";
+import { JsonCompareProvider } from "./contexts/JsonCompareContext";
 import { defaultTheme } from "./utils/themeUtils";
 
 function App() {
@@ -21,12 +22,14 @@ function App() {
     <div className="min-h-screen flex flex-col bg-base-100">
       <SEO />
       <Header />
-      <main className="container mx-auto flex-grow p-4">
+      <main id="main-content" className="container mx-auto flex-grow p-4">
         <div className="flex flex-col gap-4">
           <div className="flex justify-end mb-2">
             <ThemeController currentTheme={theme} onChange={setTheme} />
           </div>
-          <JsonComparer />
+          <JsonCompareProvider>
+            <JsonComparer />
+          </JsonCompareProvider>
         </div>
       </main>
       <Footer />

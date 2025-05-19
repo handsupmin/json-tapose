@@ -50,6 +50,25 @@
     <!-- Canonical URL -->
     <link rel="canonical" href="https://json-tapose.vercel.app/" />
 
+    <!-- Accessibility improvements -->
+    <script>
+      // Check for dark mode preference and set theme accordingly
+      if (
+        window.matchMedia &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches
+      ) {
+        document.documentElement.setAttribute("data-theme", "dark");
+      }
+
+      // Listen for changes in color scheme preference
+      window
+        .matchMedia("(prefers-color-scheme: dark)")
+        .addEventListener("change", (event) => {
+          const newTheme = event.matches ? "dark" : "light";
+          document.documentElement.setAttribute("data-theme", newTheme);
+        });
+    </script>
+
     <script
       async
       src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6022353980017733"
@@ -57,6 +76,27 @@
     ></script>
   </head>
   <body>
+    <a
+      href="#main-content"
+      class="skip-link"
+      style="
+        position: absolute;
+        left: -9999px;
+        top: auto;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        z-index: 999;
+        background: white;
+        padding: 0.5rem 1rem;
+        border-radius: 0.25rem;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        color: blue;
+        text-decoration: underline;
+        font-weight: bold;
+      "
+      >Skip to main content</a
+    >
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

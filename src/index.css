@@ -38,7 +38,7 @@
     @apply font-mono;
   }
 
-  /* 향상된 GitHub-style diff view */
+  /* Enhanced GitHub-style diff view */
   .github-diff {
     @apply font-mono text-sm;
   }
@@ -48,7 +48,7 @@
   }
 
   .github-diff-line-number {
-    @apply w-10 text-right pr-2 text-base-content/50 select-none border-r border-base-300 py-1 bg-base-200/50;
+    @apply w-12 text-right pr-2 text-base-content/50 select-none border-r border-base-300 py-1 bg-base-200/50;
   }
 
   .github-diff-line-content {
@@ -79,7 +79,7 @@
     @apply text-warning bg-warning/20 border-warning/30;
   }
 
-  /* 새로운 JSON diff 포맷 스타일 */
+  /* New JSON diff format styles */
   .json-diff-nested {
     @apply border-l-2 border-dotted;
   }
@@ -88,28 +88,76 @@
     @apply bg-base-300/50 text-base-content/60 italic;
   }
 
-  /* 중첩된 객체의 들여쓰기를 더 명확하게 */
+  /* Make nested object indentation clearer */
   .json-diff-nested .json-diff-nested {
     @apply border-l border-dotted;
   }
 
-  /* JSON 키에 quotes를 더 눈에 띄게 */
+  /* Make quotes around JSON keys more visible */
   .json-key-quotes {
     @apply opacity-70;
   }
 
-  /* 콜론과 콤마 스타일 */
+  /* Colon and comma styling */
   .json-syntax {
     @apply text-base-content/70;
   }
+
+  /* Diagonal pattern background for placeholders */
+  .bg-diagonal {
+    background: repeating-linear-gradient(
+      -45deg,
+      color-mix(
+        in srgb,
+        var(--color-base-content) 20%,
+        var(--color-base-100) 80%
+      ),
+      color-mix(
+          in srgb,
+          var(--color-base-content) 20%,
+          var(--color-base-100) 80%
+        )
+        10px,
+      color-mix(
+          in srgb,
+          var(--color-base-content) 5%,
+          var(--color-base-100) 95%
+        )
+        10px,
+      color-mix(
+          in srgb,
+          var(--color-base-content) 5%,
+          var(--color-base-100) 95%
+        )
+        20px
+    );
+  }
+
+  /* Ensure horizontal full-width styling for diff line backgrounds */
+  .diff-line {
+    box-sizing: border-box;
+    min-width: 100%;
+    width: 100%;
+    display: block;
+    position: relative;
+    overflow: visible;
+  }
 }
 
-/* 줄번호 스타일링 */
+/* Line number styling */
 .line-number {
-  @apply w-10 text-right pr-2 text-base-content/50 select-none border-r border-base-300 py-1 sticky left-0;
+  @apply w-12 text-right pr-2 text-base-content/50 select-none border-r border-base-300 py-1 sticky left-0;
+  height: 22px;
+  line-height: 20px;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 3rem; /* 고정된 최소 너비 */
+  width: 3rem; /* 고정된 너비 */
 }
 
-/* 오류나 경고 메시지가 보이는 라인 */
+/* Styling for lines with errors or warnings */
 .placeholder-message {
   @apply bg-base-300/50 text-base-content/70 italic py-1 px-3;
 }

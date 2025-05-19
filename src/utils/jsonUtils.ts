@@ -54,114 +54,154 @@ export const formatJson = (jsonString: string): string => {
 };
 
 /**
- * Compare two JSON objects and generate a difference report
+ * Compare two JSON objects and generate a difference report with improved performance
  */
 export const compareJson = (
   json1: Record<string, unknown> | null,
   json2: Record<string, unknown> | null
 ): JsonDiffItem[] => {
-  const results: JsonDiffItem[] = [];
+  // Map for result caching - performance optimization
+  const cache = new Map<string, JsonDiffItem>();
 
-  // Get all keys from both objects
-  const allKeys = new Set([
-    ...Object.keys(json1 || {}),
-    ...Object.keys(json2 || {}),
-  ]);
+  // Internal function to perform the actual comparison
+  const compareObjects = (
+    obj1: Record<string, unknown> | null,
+    obj2: Record<string, unknown> | null,
+    currentPath: string[] = []
+  ): JsonDiffItem[] => {
+    const results: JsonDiffItem[] = [];
 
-  // Compare each key
-  allKeys.forEach((key) => {
-    const value1 = json1?.[key];
-    const value2 = json2?.[key];
+    if (!obj1 && !obj2) return results;
 
-    // Check if key exists in both objects
-    const inObj1 = json1 && key in json1;
-    const inObj2 = json2 && key in json2;
+    // Handle null as empty objects
+    const safeObj1 = obj1 || {};
+    const safeObj2 = obj2 || {};
 
-    // Key exists only in the second object (added)
-    if (!inObj1 && inObj2) {
-      results.push({
-        key,
-        type: "added",
-        value2,
-        path: [key],
-      });
-      return;
-    }
+    // Efficiently collect all keys (using Set)
+    const allKeys = new Set([
+      ...Object.keys(safeObj1),
+      ...Object.keys(safeObj2),
+    ]);
 
-    // Key exists only in the first object (removed)
-    if (inObj1 && !inObj2) {
-      results.push({
-        key,
-        type: "removed",
-        value1,
-        path: [key],
-      });
-      return;
-    }
+    // Process each key
+    for (const key of allKeys) {
+      // Check if key exists in each object
+      const inObj1 = key in safeObj1;
+      const inObj2 = key in safeObj2;
 
-    // Both are objects or arrays, so compare recursively
-    if (
-      typeof value1 === "object" &&
-      value1 !== null &&
-      typeof value2 === "object" &&
-      value2 !== null
-    ) {
-      // Special case for arrays
-      if (Array.isArray(value1) !== Array.isArray(value2)) {
-        // One is array, one is object - treat as changed
-        results.push({
+      // Calculate path for current key
+      const keyPath = [...currentPath, key];
+      const cacheKey = keyPath.join(".");
+
+      // Check cache for result
+      if (cache.has(cacheKey)) {
+        results.push(cache.get(cacheKey)!);
+        continue;
+      }
+
+      const value1 = inObj1 ? safeObj1[key] : undefined;
+      const value2 = inObj2 ? safeObj2[key] : undefined;
+
+      // Key exists only in the second object (added)
+      if (!inObj1 && inObj2) {
+        const item: JsonDiffItem = {
+          key,
+          type: "added",
+          value2,
+          path: keyPath,
+        };
+        cache.set(cacheKey, item);
+        results.push(item);
+        continue;
+      }
+
+      // Key exists only in the first object (removed)
+      if (inObj1 && !inObj2) {
+        const item: JsonDiffItem = {
+          key,
+          type: "removed",
+          value1,
+          path: keyPath,
+        };
+        cache.set(cacheKey, item);
+        results.push(item);
+        continue;
+      }
+
+      // Both are objects or arrays, so compare recursively
+      if (
+        typeof value1 === "object" &&
+        value1 !== null &&
+        typeof value2 === "object" &&
+        value2 !== null
+      ) {
+        // Special case for arrays
+        if (Array.isArray(value1) !== Array.isArray(value2)) {
+          const item: JsonDiffItem = {
+            key,
+            type: "changed",
+            value1,
+            value2,
+            path: keyPath,
+          };
+          cache.set(cacheKey, item);
+          results.push(item);
+          continue;
+        }
+
+        // Recursively compare objects
+        const v1 = value1 as Record<string, unknown>;
+        const v2 = value2 as Record<string, unknown>;
+        const children = compareObjects(v1, v2, keyPath);
+
+        // Only mark as changed if there are actual differences
+        const hasChanges = children.some((child) => child.type !== "unchanged");
+
+        const item: JsonDiffItem = {
+          key,
+          type: hasChanges ? "changed" : "unchanged",
+          value1,
+          value2,
+          children,
+          path: keyPath,
+        };
+        cache.set(cacheKey, item);
+        results.push(item);
+        continue;
+      }
+
+      // Compare primitive values
+      const val1Str = JSON.stringify(value1);
+      const val2Str = JSON.stringify(value2);
+
+      if (val1Str !== val2Str) {
+        // Values are different
+        const item: JsonDiffItem = {
           key,
           type: "changed",
           value1,
           value2,
-          path: [key],
-        });
-        return;
+          path: keyPath,
+        };
+        cache.set(cacheKey, item);
+        results.push(item);
+      } else {
+        // Values are the same
+        const item: JsonDiffItem = {
+          key,
+          type: "unchanged",
+          value1,
+          path: keyPath,
+        };
+        cache.set(cacheKey, item);
+        results.push(item);
       }
-
-      const v1 = value1 as Record<string, unknown>;
-      const v2 = value2 as Record<string, unknown>;
-      const children = compareJson(v1, v2);
-
-      // Only mark as changed if there are actual differences
-      const hasChanges = children.some((child) => child.type !== "unchanged");
-
-      results.push({
-        key,
-        type: hasChanges ? "changed" : "unchanged",
-        value1,
-        value2,
-        children: children, // Include all children to properly show differences
-        path: [key],
-      });
-      return;
     }
 
-    // Compare primitive values
-    const val1Str = JSON.stringify(value1);
-    const val2Str = JSON.stringify(value2);
+    return results;
+  };
 
-    if (val1Str !== val2Str) {
-      // Values are different
-      results.push({
-        key,
-        type: "changed",
-        value1,
-        value2,
-        path: [key],
-      });
-    } else {
-      // Values are the same
-      results.push({
-        key,
-        type: "unchanged",
-        value1,
-        path: [key],
-      });
-    }
-  });
-
-  return results;
+  return compareObjects(json1, json2);
 };
 
 /**

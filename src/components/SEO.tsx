@@ -16,31 +16,31 @@ const SEO: React.FC<SEOProps> = ({
   url = "https://json-tapose.vercel.app/",
 }) => {
   useEffect(() => {
-    // 기본 메타 태그 업데이트
+    // Update basic meta tags
     document.title = title;
 
-    // 기존 메타 태그 업데이트 또는 생성
+    // Update or create existing meta tags
     updateMetaTag("description", description);
     updateMetaTag("keywords", keywords);
 
-    // Open Graph 태그
+    // Open Graph tags
     updateMetaTag("og:type", "website", "property");
     updateMetaTag("og:url", url, "property");
     updateMetaTag("og:title", title, "property");
     updateMetaTag("og:description", description, "property");
     updateMetaTag("og:image", image, "property");
 
-    // Twitter 태그
+    // Twitter tags
     updateMetaTag("twitter:card", "summary_large_image", "property");
     updateMetaTag("twitter:url", url, "property");
     updateMetaTag("twitter:title", title, "property");
     updateMetaTag("twitter:description", description, "property");
     updateMetaTag("twitter:image", image, "property");
 
-    // 정식 URL 업데이트
+    // Update canonical URL
     updateCanonicalLink(url);
 
-    // 스키마 구조화 데이터 추가
+    // Add schema structured data
     const schemaData = {
       "@context": "https://schema.org",
       "@type": "WebApplication",
@@ -63,10 +63,10 @@ const SEO: React.FC<SEOProps> = ({
 
     updateStructuredData(schemaData);
 
-    // 컴포넌트 언마운트 시 정리 함수는 필요 없음 (페이지 전환시에도 메타 데이터는 유지되어야 함)
+    // No cleanup function needed on component unmount (meta data should persist even during page transitions)
   }, [title, description, keywords, image, url]);
 
-  // 메타 태그 업데이트 또는 생성하는 헬퍼 함수
+  // Helper function to update or create meta tags
   const updateMetaTag = (
     name: string,
     content: string,
@@ -83,7 +83,7 @@ const SEO: React.FC<SEOProps> = ({
     metaTag.setAttribute("content", content);
   };
 
-  // 정식 URL 업데이트 또는 생성하는 헬퍼 함수
+  // Helper function to update or create canonical URL
   const updateCanonicalLink = (href: string) => {
     let linkTag = document.querySelector('link[rel="canonical"]');
 
@@ -96,7 +96,7 @@ const SEO: React.FC<SEOProps> = ({
     linkTag.setAttribute("href", href);
   };
 
-  // 구조화 데이터 업데이트 또는 생성하는 헬퍼 함수
+  // Helper function to update or create structured data
   const updateStructuredData = (data: object) => {
     let scriptTag = document.querySelector(
       'script[type="application/ld+json"]'
@@ -111,7 +111,7 @@ const SEO: React.FC<SEOProps> = ({
     scriptTag.textContent = JSON.stringify(data);
   };
 
-  // 이 컴포넌트는 UI를 렌더링하지 않음
+  // This component doesn't render any UI
   return null;
 };
 
