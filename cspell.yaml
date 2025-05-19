@@ -2,6 +2,7 @@ words:
   - handsupmin
   - JSONtapose
   - tapose
+  - tspan
 ignorePaths:
   - "**/node_modules/**"
   - cspell.yaml

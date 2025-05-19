@@ -1,0 +1,38 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#f8fafc" />
+  <rect x="100" y="100" width="1000" height="430" fill="#f1f5f9" rx="15" ry="15" stroke="#94a3b8" stroke-width="2" />
+
+  <!-- JSON Symbol Left -->
+  <rect x="200" y="195" width="310" height="250" fill="#dbeafe" rx="10" ry="10" stroke="#3b82f6" stroke-width="3" />
+  <text x="220" y="270" font-family="monospace" font-size="24" fill="#1e40af">
+    <tspan x="220" y="230">{</tspan>
+    <tspan x="240" y="270" fill="#dc2626">"name": "JSON",</tspan>
+    <tspan x="240" y="310">"type": "object",</tspan>
+    <tspan x="240" y="350">"compare": true,</tspan>
+    <tspan x="240" y="390" fill="#dc2626">"format": "left"</tspan>
+    <tspan x="220" y="430">}</tspan>
+  </text>
+
+  <!-- JSON Symbol Right -->
+  <rect x="700" y="195" width="310" height="250" fill="#dbeafe" rx="10" ry="10" stroke="#3b82f6" stroke-width="3" />
+  <text x="720" y="270" font-family="monospace" font-size="24" fill="#1e40af">
+    <tspan x="720" y="230">{</tspan>
+    <tspan x="740" y="270" fill="#16a34a">"name": "Tapose",</tspan>
+    <tspan x="740" y="310">"type": "object",</tspan>
+    <tspan x="740" y="350">"compare": true,</tspan>
+    <tspan x="740" y="390" fill="#16a34a">"format": "right"</tspan>
+    <tspan x="720" y="430">}</tspan>
+  </text>
+
+  <!-- Diff Lines -->
+  <line x1="550" y1="260" x2="650" y2="260" stroke="#6366f1" stroke-width="2" />
+  <line x1="550" y1="300" x2="650" y2="300" stroke="#6366f1" stroke-width="2" />
+  <line x1="550" y1="340" x2="650" y2="340" stroke="#6366f1" stroke-width="2" />
+  <line x1="550" y1="380" x2="650" y2="380" stroke="#6366f1" stroke-width="2" />
+
+  <!-- Title -->
+  <text x="600" y="160" font-family="Arial, sans-serif" font-size="48" font-weight="bold" text-anchor="middle" fill="#0f172a">JSONtapose</text>
+
+  <!-- Subtitle -->
+  <text x="600" y="500" font-family="Arial, sans-serif" font-size="28" text-anchor="middle" fill="#475569">Modern JSON Comparison Tool</text>
+</svg>
