@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { JsonDiffItem, SampleType } from "../utils/jsonUtils";
 import {
   compareJson,
@@ -19,6 +19,9 @@ const JsonComparer: React.FC = () => {
     useState<SampleType>("productExample");
   const [leftJsonError, setLeftJsonError] = useState<string | null>(null);
   const [rightJsonError, setRightJsonError] = useState<string | null>(null);
+  const [showSampleDropdown, setShowSampleDropdown] = useState<boolean>(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const handleCompare = () => {
     setError(null);
@@ -104,18 +107,36 @@ const JsonComparer: React.FC = () => {
     }
   };
 
-  const loadSampleData = () => {
-    setLeftJson(getSampleJsonByType(selectedSample, "left"));
-    setRightJson(getSampleJsonByType(selectedSample, "right"));
+  const loadSampleData = (sampleType: SampleType = selectedSample) => {
+    setLeftJson(getSampleJsonByType(sampleType, "left"));
+    setRightJson(getSampleJsonByType(sampleType, "right"));
     setLeftJsonError(null);
     setRightJsonError(null);
     setError(null);
     setDiffResult(null);
   };
 
-  const handleSampleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedSample(e.target.value as SampleType);
+  const handleExampleSelect = (sampleType: SampleType) => {
+    setSelectedSample(sampleType);
+    setIsDropdownOpen(false);
+    loadSampleData(sampleType);
   };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const clearAll = () => {
     setLeftJson("");
@@ -128,25 +149,43 @@ const JsonComparer: React.FC = () => {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap justify-between items-center gap-2">
-        <div className="form-control max-w-xs">
-          <select
-            className="select select-bordered w-full"
-            value={selectedSample}
-            onChange={handleSampleChange}
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="relative" ref={dropdownRef}>
+          <button
+            className="btn btn-secondary btn-sm m-1"
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           >
-            {sampleOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="flex gap-2">
-          <button onClick={loadSampleData} className="btn btn-secondary btn-sm">
-            Load Sample
+            Try Example
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              fill="currentColor"
+              viewBox="0 0 16 16"
+              className="ml-1"
+            >
+              <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z" />
+            </svg>
           </button>
-          <button onClick={clearAll} className="btn btn-ghost btn-sm">
+          {isDropdownOpen && (
+            <ul className="absolute z-[1] mt-1 p-2 shadow bg-base-200 rounded-box w-52">
+              {sampleOptions.map((option) => (
+                <li key={option.value} className="hover:bg-base-300 rounded">
+                  <button
+                    onClick={() =>
+                      handleExampleSelect(option.value as SampleType)
+                    }
+                    className="w-full text-left p-2"
+                  >
+                    {option.label}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+        <div className="ml-auto">
+          <button onClick={clearAll} className="btn btn-accent btn-sm">
             Clear All
           </button>
         </div>
@@ -181,7 +220,7 @@ const JsonComparer: React.FC = () => {
               onClick={() => handleFormat("left")}
               className="btn btn-xs btn-outline"
             >
-              Format
+              Beautify
             </button>
           </div>
           <div className="relative">
@@ -227,7 +266,7 @@ const JsonComparer: React.FC = () => {
               onClick={() => handleFormat("right")}
               className="btn btn-xs btn-outline"
             >
-              Format
+              Beautify
             </button>
           </div>
           <div className="relative">

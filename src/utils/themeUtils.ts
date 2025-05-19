@@ -1,8 +1,8 @@
-export const defaultTheme = "purplewind";
+export const defaultTheme = "light";
 
 export const themeOptions = [
-  { value: "purplewind", label: "PurpleWind" },
   { value: "light", label: "Light" },
+  { value: "purplewind", label: "PurpleWind" },
   { value: "dark", label: "Dark" },
   { value: "night", label: "Night" },
   { value: "winter", label: "Winter" },

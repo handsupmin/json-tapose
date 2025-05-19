@@ -4,10 +4,11 @@ import Footer from "./components/Footer";
 import Header from "./components/Header";
 import JsonComparer from "./components/JsonComparer";
 import ThemeController from "./components/ThemeController";
+import { defaultTheme } from "./utils/themeUtils";
 
 function App() {
   const [theme, setTheme] = useState<string>(() => {
-    return localStorage.getItem("theme") || "purplewind";
+    return localStorage.getItem("theme") || defaultTheme;
   });
 
   useEffect(() => {
