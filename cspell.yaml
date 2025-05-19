@@ -1,5 +1,7 @@
 words:
+  - handsupmin
   - JSONtapose
+  - tapose
 ignorePaths:
   - "**/node_modules/**"
   - cspell.yaml
