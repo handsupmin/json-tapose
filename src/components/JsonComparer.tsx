@@ -19,7 +19,6 @@ const JsonComparer: React.FC = () => {
     useState<SampleType>("productExample");
   const [leftJsonError, setLeftJsonError] = useState<string | null>(null);
   const [rightJsonError, setRightJsonError] = useState<string | null>(null);
-  const [showSampleDropdown, setShowSampleDropdown] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
