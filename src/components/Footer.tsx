@@ -1,5 +1,26 @@
+import { useEffect } from "react";
+
+// Google AdSense를 위한 전역 타입 확장
+declare global {
+  interface Window {
+    adsbygoogle: Array<Record<string, unknown>>;
+  }
+}
+
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
+
+  useEffect(() => {
+    // Google AdSense 광고를 렌더링하기 위한 코드
+    // 이 코드는 컴포넌트가 마운트된 후 광고를 초기화합니다
+    try {
+      if (window.adsbygoogle) {
+        (window.adsbygoogle = window.adsbygoogle || []).push({});
+      }
+    } catch (error) {
+      console.error("AdSense error:", error);
+    }
+  }, []);
 
   return (
     <footer className="footer footer-center p-4 bg-base-300 text-base-content">
@@ -49,6 +70,18 @@ const Footer: React.FC = () => {
             Contact
           </a>
         </div>
+      </div>
+
+      {/* Google AdSense 광고 */}
+      <div className="w-full my-4 overflow-hidden">
+        <ins
+          className="adsbygoogle"
+          style={{ display: "block" }}
+          data-ad-client="ca-pub-6022353980017733"
+          data-ad-slot="footer-ad"
+          data-ad-format="auto"
+          data-full-width-responsive="true"
+        ></ins>
       </div>
 
       <div className="text-sm opacity-70">
