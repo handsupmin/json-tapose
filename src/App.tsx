@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./App.css";
+import AdSenseAd from "./components/AdSenseAd";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
 import JsonComparer from "./components/JsonComparer";
@@ -22,6 +23,9 @@ function App() {
     <div className="min-h-screen flex flex-col bg-base-100">
       <SEO />
       <Header />
+      <div className="container mx-auto mt-4">
+        <AdSenseAd adSlot="header-bottom" adFormat="in-article" />
+      </div>
       <main id="main-content" className="container mx-auto flex-grow p-4">
         <div className="flex flex-col gap-4">
           <div className="flex justify-end mb-2">
@@ -32,6 +36,9 @@ function App() {
           </JsonCompareProvider>
         </div>
       </main>
+      <div className="container mx-auto mb-4">
+        <AdSenseAd adSlot="footer-top" adFormat="in-article" />
+      </div>
       <Footer />
     </div>
   );
