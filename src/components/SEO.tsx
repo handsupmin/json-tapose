@@ -61,7 +61,7 @@ const updateStructuredData = (data: object) => {
 };
 
 // Function to create schema data
-const createSchemaData = (title: string, description: string, url: string) => ({
+const createSchemaData = (description: string, url: string) => ({
   "@context": "https://schema.org",
   "@type": "WebApplication",
   name: "JSONtapose",
@@ -112,7 +112,7 @@ const SEO: React.FC<SEOProps> = ({
     updateCanonicalLink(url);
 
     // Update structured data
-    const schemaData = createSchemaData(title, description, url);
+    const schemaData = createSchemaData(description, url);
     updateStructuredData(schemaData);
 
     // No cleanup function needed as meta data should persist during page transitions
