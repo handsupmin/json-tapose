@@ -1,37 +1,9 @@
 import type { ReactNode } from "react";
-import React, { createContext, useCallback, useContext, useState } from "react";
+import React, { useCallback, useState } from "react";
+import type { JsonCompareContextType } from "../types/contextTypes";
 import type { JsonDiffItem } from "../utils/jsonUtils";
 import { compareJson, formatJson, isValidJson } from "../utils/jsonUtils";
-
-// Context state type
-interface JsonCompareState {
-  leftJson: string;
-  rightJson: string;
-  diffResult: JsonDiffItem[] | null;
-  error: string | null;
-  loading: boolean;
-  leftJsonError: string | null;
-  rightJsonError: string | null;
-}
-
-// Context actions type
-interface JsonCompareActions {
-  setLeftJson: (json: string) => void;
-  setRightJson: (json: string) => void;
-  validateJson: (side: "left" | "right", value: string) => void;
-  compareJson: () => void;
-  formatJson: (side: "left" | "right") => void;
-  clearAll: () => void;
-  loadSampleData: (leftJson: string, rightJson: string) => void;
-}
-
-// Combined context type
-interface JsonCompareContextType extends JsonCompareState, JsonCompareActions {}
-
-// Create context
-const JsonCompareContext = createContext<JsonCompareContextType | undefined>(
-  undefined
-);
+import { JsonCompareContext } from "./JsonCompareContextInstance";
 
 // Provider props type
 interface JsonCompareProviderProps {
@@ -208,13 +180,4 @@ export const JsonCompareProvider: React.FC<JsonCompareProviderProps> = ({
       {children}
     </JsonCompareContext.Provider>
   );
-};
-
-// Custom hook for using the context
-export const useJsonCompare = (): JsonCompareContextType => {
-  const context = useContext(JsonCompareContext);
-  if (context === undefined) {
-    throw new Error("useJsonCompare must be used within a JsonCompareProvider");
-  }
-  return context;
 };

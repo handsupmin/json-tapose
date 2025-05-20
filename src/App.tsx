@@ -9,14 +9,55 @@ import ThemeController from "./components/ThemeController";
 import { JsonCompareProvider } from "./contexts/JsonCompareContext";
 import { defaultTheme } from "./utils/themeUtils";
 
+// Named constants
+const CONTENT_LOAD_DELAY_MS = 1500;
+
+// Separate component for ad container
+const AdContainer = ({
+  adSlot,
+  className,
+}: {
+  adSlot: string;
+  className?: string;
+}) => {
+  const isProduction = import.meta.env.PROD;
+  const [contentLoaded, setContentLoaded] = useState(false);
+
+  // Setup content loaded detection
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setContentLoaded(true);
+    }, CONTENT_LOAD_DELAY_MS);
+
+    window.addEventListener("load", () => {
+      setContentLoaded(true);
+    });
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("load", () => {
+        setContentLoaded(true);
+      });
+    };
+  }, []);
+
+  if (!isProduction || !contentLoaded) {
+    return null;
+  }
+
+  return (
+    <div className={className}>
+      <AdSenseAd adSlot={adSlot} adFormat="in-article" />
+    </div>
+  );
+};
+
 function App() {
   const [theme, setTheme] = useState<string>(() => {
     return localStorage.getItem("theme") || defaultTheme;
   });
 
-  // Check if we're in production environment
-  const isProduction = import.meta.env.PROD;
-
+  // Set theme in document and localStorage
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem("theme", theme);
@@ -26,11 +67,6 @@ function App() {
     <div className="min-h-screen flex flex-col bg-base-100">
       <SEO />
       <Header />
-      {isProduction && (
-        <div className="container mx-auto">
-          <AdSenseAd adSlot="9448272363" adFormat="in-article" />
-        </div>
-      )}
       <main id="main-content" className="container mx-auto flex-grow p-4">
         <div className="flex flex-col gap-4">
           <div className="flex justify-end mb-2">
@@ -39,13 +75,11 @@ function App() {
           <JsonCompareProvider>
             <JsonComparer />
           </JsonCompareProvider>
+
+          <AdContainer adSlot="9448272363" className="mt-6" />
         </div>
       </main>
-      {isProduction && (
-        <div className="container mx-auto">
-          <AdSenseAd adSlot="3301739018" adFormat="in-article" />
-        </div>
-      )}
+      <AdContainer adSlot="3301739018" className="container mx-auto mb-4" />
       <Footer />
     </div>
   );
