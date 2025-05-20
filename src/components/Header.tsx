@@ -18,6 +18,11 @@ const Header: React.FC = () => {
             </span>
           </div>
         </div>
+        <div className="navbar-center hidden md:block">
+          <p className="italic text-sm text-base-content/70">
+            Spot the difference, reveal the truth.
+          </p>
+        </div>
         <div className="navbar-end">
           <button
             className="btn btn-ghost btn-circle"
@@ -63,16 +68,16 @@ const Header: React.FC = () => {
             />
             <h3 className="font-bold text-lg">About JSONtapose</h3>
           </div>
-          <p className="py-2">
+          <p className="py-2 text-left">
             <span className="font-semibold">JSON + juxtapose</span>
           </p>
-          <p className="py-2">
+          <p className="py-2 text-left">
             JSONtapose is a tool for comparing two JSON files and displaying
             their differences visually, similar to GitHub or GitKraken diff
             views. The tool focuses on comparing the data content rather than
             the ordering of fields.
           </p>
-          <div className="py-2">
+          <div className="py-2 text-left">
             <span className="font-semibold">How to use:</span>
             <ol className="list-decimal list-inside mt-2 ml-2">
               <li>
