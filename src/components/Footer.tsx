@@ -14,7 +14,7 @@ const Footer: React.FC = () => {
 
         <div className="flex flex-col md:flex-row gap-4 items-center">
           <a
-            href="https://github.com/handsupmin"
+            href="https://github.com/handsupmin/json-tapose"
             target="_blank"
             rel="noopener noreferrer"
             className="btn btn-sm btn-outline"

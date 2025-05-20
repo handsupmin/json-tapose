@@ -77,7 +77,7 @@ const createSchemaData = (description: string, url: string) => ({
   author: {
     "@type": "Person",
     name: "handsupmin",
-    url: "https://github.com/handsupmin",
+    url: "https://github.com/handsupmin/json-tapose",
   },
 });
 
