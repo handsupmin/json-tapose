@@ -7,7 +7,11 @@ const Header: React.FC = () => {
     <header className="bg-base-300 shadow-md">
       <div className="navbar container mx-auto">
         <div className="navbar-start">
-          <div className="flex items-center">
+          <a
+            href="https://www.jsontapose.com/"
+            className="flex items-center"
+            title="Go to JSONtapose homepage"
+          >
             <img
               src="/logo.svg"
               alt="JSONtapose Logo"
@@ -16,7 +20,7 @@ const Header: React.FC = () => {
             <span className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
               JSONtapose
             </span>
-          </div>
+          </a>
         </div>
         <div className="navbar-center hidden md:block">
           <p className="italic text-sm text-base-content/70">
