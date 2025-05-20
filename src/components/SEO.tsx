@@ -14,8 +14,8 @@ const DEFAULT_DESCRIPTION =
   "JSONtapose is a powerful JSON comparison tool that visualizes differences between two JSON objects in a side-by-side view. Compare, format and analyze JSON data easily.";
 const DEFAULT_KEYWORDS =
   "JSON, compare JSON, JSON diff, JSON comparison, JSON tools, JSON validator, JSON formatter, online JSON tool";
-const DEFAULT_IMAGE = "https://json-tapose.vercel.app/og-image.png";
-const DEFAULT_URL = "https://json-tapose.vercel.app/";
+const DEFAULT_IMAGE = "https://www.jsontapose.com/og-image.png";
+const DEFAULT_URL = "https://www.jsontapose.com/";
 
 // Helper function to update or create meta tags
 const updateMetaTag = (
