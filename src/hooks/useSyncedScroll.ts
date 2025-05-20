@@ -1,5 +1,10 @@
 import { useCallback, useRef } from "react";
 
+// Define the interface for scrollable elements
+interface ScrollableElement {
+  scrollTo: (scrollLeft: number, scrollTop: number) => void;
+}
+
 export const useSyncedScroll = () => {
   // Refs to hold scroll positions (more performant than state)
   const leftScrollRef = useRef<{ top: number; left: number }>({
@@ -15,15 +20,15 @@ export const useSyncedScroll = () => {
   const isScrollingSynced = useRef<boolean>(false);
 
   // Direct references to component containers (used for immediate updates)
-  const leftComponentRef = useRef<any>(null);
-  const rightComponentRef = useRef<any>(null);
+  const leftComponentRef = useRef<ScrollableElement | null>(null);
+  const rightComponentRef = useRef<ScrollableElement | null>(null);
 
   // Register component refs
-  const registerLeftComponent = useCallback((component: any) => {
+  const registerLeftComponent = useCallback((component: ScrollableElement) => {
     leftComponentRef.current = component;
   }, []);
 
-  const registerRightComponent = useCallback((component: any) => {
+  const registerRightComponent = useCallback((component: ScrollableElement) => {
     rightComponentRef.current = component;
   }, []);
 

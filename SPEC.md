@@ -32,14 +32,23 @@ JSONtapose is a high-performance visualization tool for comparing JSON objects w
 - Virtualization: Only renders elements within viewport
 - Memoization: Caches expensive operations and prevents re-renders
 - Efficient diffing algorithm with result caching
-- Code splitting through component modularization
+- Code splitting through component composition
 - Default "Diff Only" mode reduces initial rendering load
+
+### 4. AdSense Integration
+
+- Content-first loading strategy for ads
+- Ad loading only when sufficient content is available
+- Responsive ad placement for different screen sizes
+- Fail-safe mechanisms for ad loading failures
+- Performance optimized ad containers
 
 ## Implementation Architecture
 
 ### Component Structure
 
 - Atomic design approach with focused, single-responsibility components
+- Component composition for complex UI patterns
 - Custom hooks separated by functionality:
   - `useSimpleValueRenderer`: Handles value rendering logic
   - `useLineNumberCalculator`: Manages line number calculation
@@ -62,6 +71,28 @@ JSONtapose is a high-performance visualization tool for comparing JSON objects w
 - `DiffLine`: Represents a line in the diff view with all necessary metadata
 - `ProcessedDiffLines`: Contains processed lines ready for rendering
 
+## Development Requirements
+
+### Code Standards
+
+- Follow Toss Frontend Rules for code structure and patterns
+- Component abstraction for reusable UI elements
+- Naming patterns for consistent code organization
+- Magic numbers should be replaced with named constants
+- Complex boolean expressions should use named variables for clarity
+
+### English-Only Policy
+
+All project code and documentation must be written in English:
+
+- Source code (variable names, function names, class names)
+- Comments and JSDoc documentation
+- Commit messages and pull request descriptions
+- Issue descriptions and discussions
+- All specification and documentation files
+
+This maintains consistency and ensures global collaboration. Non-English should only appear in content intended for localization.
+
 ## Technical Requirements
 
 - React 19 with TypeScript for type safety
@@ -74,5 +105,4 @@ JSONtapose is a high-performance visualization tool for comparing JSON objects w
 
 - Handle JSON files up to 10MB with smooth scrolling
 - Render time under 1 second for typical use cases
-- Efficient memory usage through virtualization
 - 60fps scrolling performance

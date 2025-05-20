@@ -44,18 +44,6 @@ const DiffLineRenderer = forwardRef<
     },
   }));
 
-  // Simple scroll event handler
-  const handleScroll = () => {
-    if (!containerRef.current || isInternalScrollRef.current) return;
-
-    const { scrollTop, scrollLeft } = containerRef.current;
-
-    // Notify parent about scroll position if onScroll callback is provided
-    if (onScroll) {
-      onScroll(scrollTop, scrollLeft);
-    }
-  };
-
   // Update container width when size changes
   useEffect(() => {
     const updateContainer = () => {
@@ -67,19 +55,33 @@ const DiffLineRenderer = forwardRef<
     updateContainer();
     // Use ResizeObserver to detect size changes
     const resizeObserver = new ResizeObserver(updateContainer);
-    if (containerRef.current) {
-      resizeObserver.observe(containerRef.current);
+    const currentRef = containerRef.current; // Store ref in variable for cleanup
+
+    if (currentRef) {
+      resizeObserver.observe(currentRef);
     }
 
     return () => {
-      if (containerRef.current) {
-        resizeObserver.unobserve(containerRef.current);
+      if (currentRef) {
+        resizeObserver.unobserve(currentRef);
       }
     };
   }, []);
 
   // Register scroll event listener
   useEffect(() => {
+    // Simple scroll event handler moved inside useEffect
+    const handleScroll = () => {
+      if (!containerRef.current || isInternalScrollRef.current) return;
+
+      const { scrollTop, scrollLeft } = containerRef.current;
+
+      // Notify parent about scroll position if onScroll callback is provided
+      if (onScroll) {
+        onScroll(scrollTop, scrollLeft);
+      }
+    };
+
     const currentRef = containerRef.current;
     if (currentRef) {
       currentRef.addEventListener("scroll", handleScroll, { passive: true });
@@ -88,7 +90,7 @@ const DiffLineRenderer = forwardRef<
         currentRef.removeEventListener("scroll", handleScroll);
       };
     }
-  }, []);
+  }, [onScroll]);
 
   // Calculate CSS class for each line
   const getLineClass = (line: DiffLine) => {
@@ -100,17 +102,17 @@ const DiffLineRenderer = forwardRef<
       case "added":
         return `${baseClass} ${
           side === "right"
-            ? "bg-success/20 text-success-content"
+            ? "bg-success/20 text-success"
             : "bg-neutral-focus/10 bg-diagonal"
         }`;
       case "removed":
         return `${baseClass} ${
           side === "left"
-            ? "bg-error/20 text-error-content"
+            ? "bg-error/20 text-error"
             : "bg-neutral-focus/10 bg-diagonal"
         }`;
       case "changed":
-        return `${baseClass} bg-warning/20 text-warning-content`;
+        return `${baseClass} bg-warning/20 text-warning`;
       case "expandable":
         return `${baseClass} bg-base-300 italic cursor-pointer hover:bg-base-200 flex justify-center items-center`;
       case "placeholder":
@@ -154,6 +156,7 @@ const DiffLineRenderer = forwardRef<
                     height: `${LINE_HEIGHT}px`,
                     lineHeight: `${LINE_HEIGHT - 2}px`,
                     width: minWidth > 0 ? `${minWidth}px` : "100%",
+                    backgroundPosition: "0 0",
                   }}
                   onClick={() =>
                     onExpandableLineClick && onExpandableLineClick(line, index)
@@ -180,13 +183,14 @@ const DiffLineRenderer = forwardRef<
                     height: `${LINE_HEIGHT}px`,
                     lineHeight: `${LINE_HEIGHT - 2}px`,
                     width: minWidth > 0 ? `${minWidth}px` : "100%",
-                    backgroundPosition: "0 0", // Fix background pattern position
+                    backgroundPosition: "0 0",
                   }}
                 ></div>
               </div>
             );
           }
 
+          // Regular line handling
           return (
             <div key={`${index}-${line.content}`} className="flex flex-row">
               {/* Line number column with fixed width */}
@@ -201,6 +205,7 @@ const DiffLineRenderer = forwardRef<
                   height: `${LINE_HEIGHT}px`,
                   lineHeight: `${LINE_HEIGHT - 2}px`,
                   width: minWidth > 0 ? `${minWidth}px` : "100%",
+                  backgroundPosition: "0 0",
                 }}
               >
                 {line.content}

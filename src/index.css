@@ -105,32 +105,15 @@
 
   /* Diagonal pattern background for placeholders */
   .bg-diagonal {
-    background: repeating-linear-gradient(
+    background-image: repeating-linear-gradient(
       -45deg,
-      color-mix(
-        in srgb,
-        var(--color-base-content) 20%,
-        var(--color-base-100) 80%
-      ),
-      color-mix(
-          in srgb,
-          var(--color-base-content) 20%,
-          var(--color-base-100) 80%
-        )
-        10px,
-      color-mix(
-          in srgb,
-          var(--color-base-content) 5%,
-          var(--color-base-100) 95%
-        )
-        10px,
-      color-mix(
-          in srgb,
-          var(--color-base-content) 5%,
-          var(--color-base-100) 95%
-        )
-        20px
+      rgba(255, 255, 255, 0.4),
+      rgba(255, 255, 255, 0.4) 8px,
+      rgba(200, 200, 200, 0.4) 8px,
+      rgba(200, 200, 200, 0.4) 16px
     );
+    background-size: 22px 22px;
+    background-repeat: repeat;
   }
 
   /* Ensure horizontal full-width styling for diff line backgrounds */

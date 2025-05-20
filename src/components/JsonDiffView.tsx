@@ -1,25 +1,74 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import { useDiffProcessor } from "../hooks/useDiffProcessor";
 import { useSyncedScroll } from "../hooks/useSyncedScroll";
-import type { JsonDiffViewProps } from "../types/diffTypes";
+import type { DiffLine, JsonDiffViewProps } from "../types/diffTypes";
 import DiffControls from "./diff/DiffControls";
 import DiffLineRenderer from "./diff/DiffLineRenderer";
 
+// Named constants
+const DEFAULT_CONTEXT_LINES = 3;
+const SCROLL_TIMEOUT_MS = 0;
+const DIFF_PANEL_HEIGHT = "70vh";
+
+// Define types for the DiffLineRenderer component
+interface DiffLineRendererInstance {
+  scrollTo: (scrollLeft: number, scrollTop: number) => void;
+}
+
+// DiffPanel component for reusability
+type DiffPanelProps = {
+  title: string;
+  lines: DiffLine[];
+  side: "left" | "right";
+  lineNumbers: Array<number>;
+  onScroll: (scrollTop: number, scrollLeft: number) => void;
+  onExpandableLineClick: () => void;
+  registerRef: (node: HTMLDivElement | null) => void;
+  rendererRef: React.MutableRefObject<DiffLineRendererInstance | null>;
+};
+
+const DiffPanel: React.FC<DiffPanelProps> = ({
+  title,
+  lines,
+  side,
+  lineNumbers,
+  onScroll,
+  onExpandableLineClick,
+  registerRef,
+  rendererRef,
+}) => (
+  <div className="border border-base-300 rounded-lg overflow-hidden flex flex-col">
+    <div className="bg-base-200 px-2 py-1 font-semibold border-b border-base-300">
+      {title}
+    </div>
+    <div
+      className="w-full font-mono text-sm"
+      style={{ height: DIFF_PANEL_HEIGHT }}
+    >
+      <DiffLineRenderer
+        ref={(node: DiffLineRendererInstance | null) => {
+          rendererRef.current = node;
+          registerRef(node as unknown as HTMLDivElement);
+        }}
+        lines={lines}
+        side={side}
+        onScroll={onScroll}
+        lineNumbers={lineNumbers}
+        onExpandableLineClick={() => onExpandableLineClick()}
+      />
+    </div>
+  </div>
+);
+
 const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
-  // Default to diff-only mode for better performance and focused comparison
   const [showOnlyDiff, setShowOnlyDiff] = useState<boolean>(true);
-  // Number of context lines
-  const [contextLines, setContextLines] = useState<number>(3);
+  const [contextLines, setContextLines] = useState<number>(
+    DEFAULT_CONTEXT_LINES
+  );
 
-  // Create refs for the diff line renderers
-  const leftRendererRef = useRef<{
-    scrollTo: (scrollLeft: number, scrollTop: number) => void;
-  }>(null);
-  const rightRendererRef = useRef<{
-    scrollTo: (scrollLeft: number, scrollTop: number) => void;
-  }>(null);
+  const leftRendererRef = useRef<DiffLineRendererInstance | null>(null);
+  const rightRendererRef = useRef<DiffLineRendererInstance | null>(null);
 
-  // Use custom hooks for scroll synchronization and diff processing
   const {
     handleLeftScroll,
     handleRightScroll,
@@ -33,22 +82,23 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
     contextLines
   );
 
-  // Scroll both panels to top
   const scrollToTop = useCallback(() => {
-    // Small delay to ensure DOM has updated with new content
     setTimeout(() => {
-      if (leftRendererRef.current) {
+      const shouldScrollLeft = leftRendererRef.current !== null;
+      const shouldScrollRight = rightRendererRef.current !== null;
+
+      if (shouldScrollLeft && leftRendererRef.current) {
         leftRendererRef.current.scrollTo(0, 0);
       }
-      if (rightRendererRef.current) {
+
+      if (shouldScrollRight && rightRendererRef.current) {
         rightRendererRef.current.scrollTo(0, 0);
       }
-    }, 0);
+    }, SCROLL_TIMEOUT_MS);
   }, []);
 
-  // Register component refs after mount
   const leftRefCallback = useCallback(
-    (node: any) => {
+    (node: HTMLDivElement | null) => {
       if (node) {
         registerLeftComponent(node);
       }
@@ -57,7 +107,7 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
   );
 
   const rightRefCallback = useCallback(
-    (node: any) => {
+    (node: HTMLDivElement | null) => {
       if (node) {
         registerRightComponent(node);
       }
@@ -65,40 +115,40 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
     [registerRightComponent]
   );
 
-  // Toggle showing only differences
   const toggleDiffMode = useCallback(() => {
-    setShowOnlyDiff(!showOnlyDiff);
-    // Scroll to top when changing modes
+    setShowOnlyDiff((prev) => !prev);
     scrollToTop();
-  }, [showOnlyDiff, scrollToTop]);
+  }, [scrollToTop]);
 
-  // Handle expandable line click - switches to "show all" mode
   const handleExpandableLineClick = useCallback(() => {
-    // If already in show all mode, do nothing
-    if (!showOnlyDiff) return;
+    const isAlreadyShowingAll = !showOnlyDiff;
+    if (isAlreadyShowingAll) return;
 
-    // Switch to show all mode
     setShowOnlyDiff(false);
-    // Scroll to top when expanding
     scrollToTop();
   }, [showOnlyDiff, scrollToTop]);
 
-  // Handle context lines change
   const handleContextChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
-      setContextLines(Number(e.target.value));
-      // Scroll to top when changing context lines
+      const newContextLines = Number(e.target.value);
+      setContextLines(newContextLines);
       scrollToTop();
     },
     [scrollToTop]
   );
 
-  // Use effect to scroll to top when processed lines change
   useEffect(() => {
-    if (processedLines.left.length > 0 || processedLines.right.length > 0) {
+    const hasProcessedLines =
+      processedLines.left.length > 0 || processedLines.right.length > 0;
+    if (hasProcessedLines) {
       scrollToTop();
     }
-  }, [diffItems, scrollToTop]);
+  }, [
+    diffItems,
+    scrollToTop,
+    processedLines.left.length,
+    processedLines.right.length,
+  ]);
 
   return (
     <div className="flex flex-col gap-4 w-full">
@@ -110,49 +160,30 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2 overflow-hidden">
-        {/* Left Panel */}
-        <div className="border border-base-300 rounded-lg overflow-hidden flex flex-col">
-          <div className="bg-base-200 px-2 py-1 font-semibold border-b border-base-300">
-            Left JSON
-          </div>
-          <div className="h-[70vh] w-full font-mono text-sm">
-            <DiffLineRenderer
-              ref={(node: any) => {
-                leftRendererRef.current = node;
-                leftRefCallback(node);
-              }}
-              lines={processedLines.left}
-              side="left"
-              onScroll={handleLeftScroll}
-              lineNumbers={processedLines.leftLineNumbers}
-              onExpandableLineClick={handleExpandableLineClick}
-            />
-          </div>
-        </div>
+        <DiffPanel
+          title="Left JSON"
+          lines={processedLines.left}
+          side="left"
+          lineNumbers={processedLines.leftLineNumbers}
+          onScroll={handleLeftScroll}
+          onExpandableLineClick={handleExpandableLineClick}
+          registerRef={leftRefCallback}
+          rendererRef={leftRendererRef}
+        />
 
-        {/* Right Panel */}
-        <div className="border border-base-300 rounded-lg overflow-hidden flex flex-col">
-          <div className="bg-base-200 px-2 py-1 font-semibold border-b border-base-300">
-            Right JSON
-          </div>
-          <div className="h-[70vh] w-full font-mono text-sm">
-            <DiffLineRenderer
-              ref={(node: any) => {
-                rightRendererRef.current = node;
-                rightRefCallback(node);
-              }}
-              lines={processedLines.right}
-              side="right"
-              onScroll={handleRightScroll}
-              lineNumbers={processedLines.rightLineNumbers}
-              onExpandableLineClick={handleExpandableLineClick}
-            />
-          </div>
-        </div>
+        <DiffPanel
+          title="Right JSON"
+          lines={processedLines.right}
+          side="right"
+          lineNumbers={processedLines.rightLineNumbers}
+          onScroll={handleRightScroll}
+          onExpandableLineClick={handleExpandableLineClick}
+          registerRef={rightRefCallback}
+          rendererRef={rightRendererRef}
+        />
       </div>
     </div>
   );
 };
 
-// Memoize the component for performance optimization
 export default memo(JsonDiffView);

@@ -20,6 +20,7 @@ A modern, high-performance JSON comparison tool that displays differences betwee
 - **Deep Nested Structure Support**: Properly displays and compares nested objects and arrays
 - **Theme Support**: Multiple themes including light and dark modes
 - **Responsive Design**: Works on devices of all sizes
+- **Google AdSense Integration**: Properly configured content-first advertising
 
 ## Quick Start
 
@@ -63,9 +64,31 @@ src/
 └── utils/          # Utility functions including JSON comparison
 ```
 
+## Development Guidelines
+
+This project follows the [Toss Frontend Rules](./toss-frontend-rules.mdc) for consistent, maintainable code. These guidelines focus on:
+
+- **Readability**: Using named constants, abstractions, and clear conditional logic
+- **Predictability**: Standardizing return types and avoiding hidden side effects
+- **Cohesion**: Organizing code by feature/domain
+- **Coupling**: Minimizing dependencies between components
+- **Documentation**: Following best practices for comments and documentation
+
+### English-Only Codebase
+
+All code, comments, and documentation in this project must be written in English. This includes:
+
+- Variable and function names
+- Code comments and JSDoc
+- Documentation files (README, SPEC, etc.)
+- Commit messages
+- Pull request descriptions
+
+Non-English content should only appear in user-facing text that requires localization.
+
 ## Key Optimizations
 
-- **Component Modularization**: Small, focused components
+- **Component Composition**: Breaking down complex UI into focused components
 - **Custom Hooks**: Separated logic for better reusability
 - **Virtualized Rendering**: Only renders visible items in the viewport
 - **Memoization**: Prevents unnecessary calculations and re-renders
@@ -73,7 +96,7 @@ src/
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Please feel free to submit a Pull Request. Before contributing, please review our development guidelines and ensure all code follows our standards, including the English-only policy.
 
 ## License
 
