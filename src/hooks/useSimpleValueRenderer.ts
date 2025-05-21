@@ -7,7 +7,16 @@ export const useSimpleValueRenderer = () => {
     if (value === undefined) return "";
     if (value === null) return "null";
 
-    if (typeof value === "string") return `"${value}"`;
+    if (typeof value === "string") {
+      // Handle all common escape characters
+      return `"${value
+        .replace(/\\/g, "\\\\") // Escape backslash first
+        .replace(/\n/g, "\\n")
+        .replace(/\r/g, "\\r")
+        .replace(/\t/g, "\\t")
+        .replace(/\f/g, "\\f")
+        .replace(/\v/g, "\\v")}"`;
+    }
     if (typeof value === "object") {
       // Display objects/arrays without abbreviation
       return JSON.stringify(value, null, 2)
