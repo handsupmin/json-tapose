@@ -2,36 +2,68 @@ import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import type { SampleType } from "../utils/jsonUtils";
 import { getSampleJsonByType, sampleOptions } from "../utils/jsonUtils";
 
+/**
+ * Props for the SampleSelector component
+ *
+ * @property selectedSample - Currently selected sample type
+ * @property onSelect - Callback for sample selection
+ * @property mode - Component mode: 'compare' for side-by-side comparison or 'single' for tree view
+ */
 interface SampleSelectorProps {
   selectedSample: SampleType;
   onSelect: (
     sampleType: SampleType,
     leftSample: string,
-    rightSample: string
+    rightSample?: string
   ) => void;
+  mode?: "compare" | "single";
 }
 
+/**
+ * Dropdown component for selecting sample JSON data
+ *
+ * Features:
+ * - Dropdown menu with sample options
+ * - Support for single and compare modes
+ * - Click outside to close
+ * - Keyboard accessibility
+ * - Visual feedback
+ *
+ * The component:
+ * - Manages dropdown state
+ * - Handles sample selection
+ * - Provides consistent styling
+ * - Maintains accessibility
+ */
 const SampleSelector: React.FC<SampleSelectorProps> = ({
   selectedSample,
   onSelect,
+  mode = "compare", // Default to compare mode for backward compatibility
 }) => {
+  // Refs and state for dropdown management
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  // Sample selection handler
+  // Handle sample selection based on mode
   const handleExampleSelect = useCallback(
     (sampleType: SampleType) => {
       setIsDropdownOpen(false);
 
       const leftSample = getSampleJsonByType(sampleType, "left");
-      const rightSample = getSampleJsonByType(sampleType, "right");
 
-      onSelect(sampleType, leftSample, rightSample);
+      if (mode === "single") {
+        // Single mode (TreeViewer) only needs left sample
+        onSelect(sampleType, leftSample);
+      } else {
+        // Compare mode (JsonComparer) needs both samples
+        const rightSample = getSampleJsonByType(sampleType, "right");
+        onSelect(sampleType, leftSample, rightSample);
+      }
     },
-    [onSelect]
+    [onSelect, mode]
   );
 
-  // Detect clicks outside dropdown
+  // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -49,6 +81,7 @@ const SampleSelector: React.FC<SampleSelectorProps> = ({
 
   return (
     <div className="relative" ref={dropdownRef}>
+      {/* Dropdown trigger button */}
       <button
         className="btn btn-secondary btn-sm m-1"
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -68,6 +101,8 @@ const SampleSelector: React.FC<SampleSelectorProps> = ({
           <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z" />
         </svg>
       </button>
+
+      {/* Sample options dropdown */}
       {isDropdownOpen && (
         <ul
           className="absolute z-[1] mt-1 p-2 shadow bg-base-200 rounded-box w-52"

@@ -1,9 +1,26 @@
+/**
+ * Footer Component
+ *
+ * Renders the application footer with:
+ * - Branding and logo
+ * - External links (GitHub, Contact)
+ * - Copyright information
+ *
+ * Features:
+ * - Responsive layout
+ * - Dynamic year update
+ * - Social and contact links
+ * - Consistent styling with theme support
+ */
 const Footer: React.FC = () => {
+  // Get current year for copyright
   const currentYear = new Date().getFullYear();
 
   return (
     <footer className="footer footer-center p-4 mt-10 bg-base-300 text-base-content">
+      {/* Main footer content with branding and links */}
       <div className="grid grid-flow-row gap-4 md:grid-flow-col">
+        {/* Branding section with logo */}
         <aside className="flex items-center gap-2">
           <img src="/logo.svg" alt="JSONtapose Logo" className="h-5 w-5" />
           <p>
@@ -12,6 +29,7 @@ const Footer: React.FC = () => {
           </p>
         </aside>
 
+        {/* External links section */}
         <div className="flex flex-col md:flex-row gap-4 items-center">
           <a
             href="https://github.com/handsupmin/json-tapose"
@@ -51,7 +69,8 @@ const Footer: React.FC = () => {
         </div>
       </div>
 
-      <div className="text-sm opacity-70">
+      {/* Copyright notice */}
+      <div className="text-sm opacity-70" translate="no">
         © {currentYear} All Rights Reserved - handsupmin
       </div>
     </footer>

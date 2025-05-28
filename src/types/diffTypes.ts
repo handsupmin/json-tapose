@@ -1,8 +1,13 @@
+// Types for representing JSON diff lines, processed diff results, and related props
+// Used for rendering and managing JSON diff views in the app
 import type { JsonDiffItem } from "../utils/jsonUtils";
 
-// Line type definition used for JSON comparison
+/**
+ * Represents a single line in the JSON diff view
+ * - Used for rendering lines with type, indentation, and metadata
+ */
 export interface DiffLine {
-  content: string;
+  content: string; // The text content of the line
   type:
     | "unchanged"
     | "added"
@@ -10,18 +15,20 @@ export interface DiffLine {
     | "changed"
     | "header"
     | "placeholder"
-    | "expandable";
-  indentLevel: number;
-  isOpening?: boolean;
-  isClosing?: boolean;
-  isComma?: boolean;
-  collapsedLines?: number;
-  originalIndex?: number;
-  nextLineNumber?: number;
-  collapsedRange?: { start: number; end: number };
+    | "expandable"; // Type of diff line
+  indentLevel: number; // Indentation level for nested structures
+  isOpening?: boolean; // Marks opening bracket/brace
+  isClosing?: boolean; // Marks closing bracket/brace
+  isComma?: boolean; // Marks if line ends with a comma
+  collapsedLines?: number; // Number of lines collapsed (for expandable)
+  originalIndex?: number; // Original index in the source
+  nextLineNumber?: number; // Next visible line number
+  collapsedRange?: { start: number; end: number }; // Range of collapsed lines
 }
 
-// Diagonal pattern CSS style
+/**
+ * CSS style for diagonal pattern backgrounds (used for placeholders)
+ */
 export const diagonalPattern = {
   background: `repeating-linear-gradient(
     -45deg,
@@ -32,7 +39,9 @@ export const diagonalPattern = {
   )`,
 };
 
-// Processed JSON line type
+/**
+ * Processed diff lines for left and right JSON, including line numbers
+ */
 export interface ProcessedDiffLines {
   left: DiffLine[];
   right: DiffLine[];
@@ -40,12 +49,16 @@ export interface ProcessedDiffLines {
   rightLineNumbers: number[];
 }
 
-// JSON comparison result Props type
+/**
+ * Props for the JSON diff view component
+ */
 export interface JsonDiffViewProps {
   diffItems: JsonDiffItem[];
 }
 
-// JSON input panel Props type
+/**
+ * Props for the JSON input panel component
+ */
 export interface JsonInputPanelProps {
   id: string;
   label: string;
@@ -54,4 +67,5 @@ export interface JsonInputPanelProps {
   onChange: (value: string) => void;
   onBlur: (value: string) => void;
   onFormat: () => void;
+  onErrorDismiss?: () => void;
 }

@@ -12,17 +12,26 @@ import type { DiffLine, JsonDiffViewProps } from "../types/diffTypes";
 import DiffControls from "./diff/DiffControls";
 import DiffLineRenderer from "./diff/DiffLineRenderer";
 
-// Named constants
+/**
+ * Constants for diff view configuration
+ * These values control the behavior and appearance of the diff view
+ */
 const DEFAULT_CONTEXT_LINES = 3;
 const SCROLL_TIMEOUT_MS = 0;
 const DIFF_PANEL_HEIGHT = "70vh";
 
-// Define types for the DiffLineRenderer component
+/**
+ * Type definition for the DiffLineRenderer component instance
+ * Used to control scrolling behavior of the diff panels
+ */
 interface DiffLineRendererInstance {
   scrollTo: (scrollLeft: number, scrollTop: number) => void;
 }
 
-// DiffPanel component for reusability
+/**
+ * Props for the DiffPanel component
+ * Defines the structure and behavior of each diff panel
+ */
 type DiffPanelProps = {
   title: string;
   lines: DiffLine[];
@@ -35,6 +44,16 @@ type DiffPanelProps = {
   contentHeight: string;
 };
 
+/**
+ * Reusable component for rendering a single diff panel
+ *
+ * Features:
+ * - Panel title and border
+ * - Scrollable content area
+ * - Line number display
+ * - Synchronized scrolling
+ * - Expandable sections
+ */
 const DiffPanel: React.FC<DiffPanelProps> = ({
   title,
   lines,
@@ -66,7 +85,15 @@ const DiffPanel: React.FC<DiffPanelProps> = ({
   </div>
 );
 
-// Special component for when JSONs are identical - displayed as overlay
+/**
+ * Overlay component shown when JSONs are identical
+ *
+ * Features:
+ * - Blurred backdrop
+ * - Success message
+ * - Option to show full comparison
+ * - Smooth animation
+ */
 const JsonSameMessage = ({ onShowResult }: { onShowResult: () => void }) => (
   <div className="absolute inset-0 flex items-center justify-center bg-base-100/60 backdrop-blur-sm z-10">
     <div className="bg-success/20 text-success p-5 rounded-lg text-center shadow-lg border border-success/30 transform scale-110 transition-all duration-300">
@@ -82,18 +109,38 @@ const JsonSameMessage = ({ onShowResult }: { onShowResult: () => void }) => (
   </div>
 );
 
+/**
+ * Main component for rendering JSON diff view
+ *
+ * Features:
+ * - Side-by-side JSON comparison
+ * - Synchronized scrolling
+ * - Diff-only mode
+ * - Context lines control
+ * - Expandable sections
+ * - Line numbers
+ * - Identical JSON detection
+ *
+ * The component:
+ * - Manages diff view state
+ * - Handles user interactions
+ * - Coordinates panel synchronization
+ * - Provides visual feedback
+ */
 const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
+  // State for diff view configuration
   const [showOnlyDiff, setShowOnlyDiff] = useState<boolean>(true);
   const [contextLines, setContextLines] = useState<number>(
     DEFAULT_CONTEXT_LINES
   );
-  // State to track if we should show results even when identical
   const [showResultsWhenIdentical, setShowResultsWhenIdentical] =
     useState<boolean>(false);
 
+  // Refs for controlling panel scrolling
   const leftRendererRef = useRef<DiffLineRendererInstance | null>(null);
   const rightRendererRef = useRef<DiffLineRendererInstance | null>(null);
 
+  // Hook for synchronized scrolling between panels
   const {
     handleLeftScroll,
     handleRightScroll,
@@ -101,28 +148,25 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
     registerRightComponent,
   } = useSyncedScroll();
 
+  // Process diff items with current settings
   const { processedLines } = useDiffProcessor(
     diffItems,
     showOnlyDiff,
     contextLines
   );
 
-  // Check if two JSONs are exactly the same
+  // Check if JSONs are identical (all lines unchanged)
   const isExactlySame = useMemo(() => {
-    // Check if all diffItems are of type 'unchanged'
     return (
       diffItems.length > 0 &&
       diffItems.every((item) => item.type === "unchanged")
     );
   }, [diffItems]);
 
-  // Calculate panel height based on content
-  const panelHeight = useMemo(() => {
-    // Always use the maximum height (DIFF_PANEL_HEIGHT)
-    // We're not calculating a dynamic height based on content
-    return DIFF_PANEL_HEIGHT;
-  }, []);
+  // Use fixed panel height for consistent layout
+  const panelHeight = useMemo(() => DIFF_PANEL_HEIGHT, []);
 
+  // Scroll both panels to top
   const scrollToTop = useCallback(() => {
     setTimeout(() => {
       const shouldScrollLeft = leftRendererRef.current !== null;
@@ -138,6 +182,7 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
     }, SCROLL_TIMEOUT_MS);
   }, []);
 
+  // Register panel components for scroll synchronization
   const leftRefCallback = useCallback(
     (node: HTMLDivElement | null) => {
       if (node) {
@@ -156,11 +201,13 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
     [registerRightComponent]
   );
 
+  // Toggle between full view and diff-only mode
   const toggleDiffMode = useCallback(() => {
     setShowOnlyDiff((prev) => !prev);
     scrollToTop();
   }, [scrollToTop]);
 
+  // Handle click on expandable line
   const handleExpandableLineClick = useCallback(() => {
     const isAlreadyShowingAll = !showOnlyDiff;
     if (isAlreadyShowingAll) return;
@@ -169,6 +216,7 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
     scrollToTop();
   }, [showOnlyDiff, scrollToTop]);
 
+  // Update context lines and reset scroll
   const handleContextChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
       const newContextLines = Number(e.target.value);
@@ -178,12 +226,12 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
     [scrollToTop]
   );
 
-  // Handler for "Show Result" button
+  // Show full comparison when JSONs are identical
   const handleShowResult = useCallback(() => {
     setShowResultsWhenIdentical(true);
   }, []);
 
-  // Reset view when diffItems change
+  // Reset view when diff items change
   useEffect(() => {
     setShowResultsWhenIdentical(false);
 
@@ -200,7 +248,8 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
   ]);
 
   return (
-    <div className="flex flex-col gap-4 w-full">
+    <div className="flex flex-col gap-4 w-full" translate="no">
+      {/* Diff controls for mode and context */}
       <DiffControls
         showOnlyDiff={showOnlyDiff}
         contextLines={contextLines}
@@ -208,6 +257,7 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
         handleContextChange={handleContextChange}
       />
 
+      {/* Diff panels with synchronized scrolling */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2 overflow-hidden relative">
         {isExactlySame && !showResultsWhenIdentical && (
           <JsonSameMessage onShowResult={handleShowResult} />

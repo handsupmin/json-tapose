@@ -3,13 +3,24 @@ import type { JsonDiffItem } from "../utils/jsonUtils";
 import { useSimpleValueRenderer } from "./useSimpleValueRenderer";
 
 /**
- * Utility functions for processing individual properties
+ * Hook for processing JSON properties into diff lines
+ *
+ * This hook provides functions to convert JsonDiffItems into DiffLines for rendering.
+ * It handles different types of changes (added, removed, changed, unchanged) and
+ * maintains proper indentation and structure for nested objects/arrays.
+ *
+ * The processing is done recursively, with special handling for:
+ * - Nested objects and arrays
+ * - Placeholder lines for missing properties
+ * - Proper comma placement
+ * - Indentation levels
  */
 export const usePropertyProcessors = () => {
   const { renderSimpleValue } = useSimpleValueRenderer();
 
   /**
-   * Process children items recursively
+   * Process children items recursively, handling different types of changes
+   * and maintaining proper structure for nested objects/arrays
    */
   const processChildren = (
     leftLines: DiffLine[],
@@ -22,7 +33,6 @@ export const usePropertyProcessors = () => {
 
       switch (child.type) {
         case "unchanged":
-          // Process unchanged children
           addPropertyLines(
             leftLines,
             rightLines,
@@ -32,7 +42,6 @@ export const usePropertyProcessors = () => {
           );
           break;
         case "added":
-          // Add empty placeholder on left, actual item on right
           leftLines.push({
             content: "",
             type: "placeholder",
@@ -48,7 +57,6 @@ export const usePropertyProcessors = () => {
           );
           break;
         case "removed":
-          // Add actual item on left, empty placeholder on right
           addPropertyToSide(
             leftLines,
             child,
@@ -64,7 +72,6 @@ export const usePropertyProcessors = () => {
           });
           break;
         case "changed":
-          // Process changed children
           addChangedPropertyLines(
             leftLines,
             rightLines,
@@ -77,9 +84,6 @@ export const usePropertyProcessors = () => {
     });
   };
 
-  /**
-   * Add identical property lines (same on both sides)
-   */
   const addPropertyLines = (
     leftLines: DiffLine[],
     rightLines: DiffLine[],
@@ -88,7 +92,6 @@ export const usePropertyProcessors = () => {
     indentLevel: number = 1
   ) => {
     if (!item.children || item.children.length === 0) {
-      // Basic property without children
       const contentValue = renderSimpleValue(item.value1);
       leftLines.push({
         content: `"${item.key}": ${contentValue}${!isLast ? "," : ""}`,
@@ -101,10 +104,8 @@ export const usePropertyProcessors = () => {
         indentLevel,
       });
     } else {
-      // Object/array property with children
       const isArray = Array.isArray(item.value1);
 
-      // Key and opening bracket line
       leftLines.push({
         content: `"${item.key}": ${isArray ? "[" : "{"}`,
         type: "unchanged",
@@ -118,10 +119,8 @@ export const usePropertyProcessors = () => {
         isOpening: true,
       });
 
-      // Process children recursively
       processChildren(leftLines, rightLines, item.children, indentLevel);
 
-      // Closing bracket line (with comma if needed)
       leftLines.push({
         content: `${isArray ? "]" : "}"}${!isLast ? "," : ""}`,
         type: "unchanged",
@@ -138,7 +137,9 @@ export const usePropertyProcessors = () => {
   };
 
   /**
-   * Add changed property to both sides
+   * Add changed property to both sides, handling both simple value changes
+   * and complex nested object/array changes. For nested changes, the parent
+   * container is marked as unchanged while its children show the actual changes.
    */
   const addChangedPropertyLines = (
     leftLines: DiffLine[],
@@ -148,7 +149,6 @@ export const usePropertyProcessors = () => {
     indentLevel: number = 1
   ) => {
     if (!item.children || item.children.length === 0) {
-      // Simple value change without children
       leftLines.push({
         content: `"${item.key}": ${renderSimpleValue(item.value1)}${
           !isLast ? "," : ""
@@ -164,18 +164,15 @@ export const usePropertyProcessors = () => {
         indentLevel,
       });
     } else {
-      // Complex object/array change - parent container marked as unchanged
       const isLeftArray = Array.isArray(item.value1);
       const isRightArray = Array.isArray(item.value2);
 
-      // Left (previous version) - parent container marked as unchanged
       leftLines.push({
         content: `"${item.key}": ${isLeftArray ? "[" : "{"}`,
         type: "unchanged",
         indentLevel,
         isOpening: true,
       });
-      // Right (new version) - parent container marked as unchanged
       rightLines.push({
         content: `"${item.key}": ${isRightArray ? "[" : "{"}`,
         type: "unchanged",
@@ -183,10 +180,8 @@ export const usePropertyProcessors = () => {
         isOpening: true,
       });
 
-      // Process children recursively
       processChildren(leftLines, rightLines, item.children, indentLevel);
 
-      // Closing bracket - parent container marked as unchanged
       leftLines.push({
         content: `${isLeftArray ? "]" : "}"}${!isLast ? "," : ""}`,
         type: "unchanged",
@@ -202,9 +197,6 @@ export const usePropertyProcessors = () => {
     }
   };
 
-  /**
-   * Add property to one side only (added or removed items)
-   */
   const addPropertyToSide = (
     lines: DiffLine[],
     item: JsonDiffItem,
@@ -215,7 +207,6 @@ export const usePropertyProcessors = () => {
     const value = type === "removed" ? item.value1 : item.value2;
 
     if (!item.children || item.children.length === 0) {
-      // Basic property
       lines.push({
         content: `"${item.key}": ${renderSimpleValue(value)}${
           !isLast ? "," : ""
@@ -224,10 +215,8 @@ export const usePropertyProcessors = () => {
         indentLevel,
       });
     } else {
-      // Object/array property
       const isArray = Array.isArray(value);
 
-      // Key and opening bracket
       lines.push({
         content: `"${item.key}": ${isArray ? "[" : "{"}`,
         type,
@@ -235,12 +224,9 @@ export const usePropertyProcessors = () => {
         isOpening: true,
       });
 
-      // Process children items
       if (item.children && item.children.length > 0) {
         item.children.forEach((child, idx) => {
           const isLastChild = idx === item.children!.length - 1;
-
-          // For single-side rendering, we process all children with the same type
           const sideType = type === "added" ? "added" : "removed";
           addPropertyToSide(
             lines,
@@ -252,7 +238,6 @@ export const usePropertyProcessors = () => {
         });
       }
 
-      // Closing bracket
       lines.push({
         content: `${isArray ? "]" : "}"}${!isLast ? "," : ""}`,
         type,

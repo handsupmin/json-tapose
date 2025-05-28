@@ -1,16 +1,39 @@
 import { themeOptions } from "../utils/themeUtils";
 
+/**
+ * Props for the ThemeController component
+ *
+ * @property currentTheme - Currently selected theme value
+ * @property onChange - Callback function when theme changes
+ */
 interface ThemeControllerProps {
   currentTheme: string;
   onChange: (theme: string) => void;
 }
 
+/**
+ * ThemeController Component
+ *
+ * Renders a dropdown menu for selecting and previewing application themes.
+ * Features:
+ * - Theme preview with color swatches
+ * - Responsive design (mobile/desktop)
+ * - Keyboard navigation support
+ * - Visual feedback for selected theme
+ *
+ * The component:
+ * - Displays available themes in a grid
+ * - Shows theme colors and labels
+ * - Handles theme selection
+ * - Maintains accessibility
+ */
 const ThemeController: React.FC<ThemeControllerProps> = ({
   currentTheme,
   onChange,
 }) => {
   return (
     <div className="dropdown dropdown-end">
+      {/* Theme selector button with icon and label */}
       <div
         tabIndex={0}
         role="button"
@@ -42,11 +65,14 @@ const ThemeController: React.FC<ThemeControllerProps> = ({
           <path d="M1799 349l242 241-1017 1017L7 590l242-241 775 775 775-775z"></path>
         </svg>
       </div>
+
+      {/* Theme selection dropdown with preview grid */}
       <div
         tabIndex={0}
         className="dropdown-content bg-base-200 text-base-content rounded-box h-96 max-h-96 w-52 overflow-y-auto shadow-2xl mt-4"
       >
         <div className="grid grid-cols-1 gap-3 p-3">
+          {/* Theme preview cards */}
           {themeOptions.map((theme) => (
             <div
               key={theme.value}

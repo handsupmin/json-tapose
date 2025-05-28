@@ -1,5 +1,16 @@
 /**
- * Hook for simple value rendering
+ * Hook for rendering JSON values in a consistent and readable format
+ *
+ * This hook provides value rendering with special handling for:
+ * - String values: Properly escapes special characters for JSON format
+ * - Object/Array values: Formats as single-line for better diff readability
+ * - Null/Undefined: Consistent representation
+ * - Indentation: Configurable indentation for nested structures
+ *
+ * The string escaping is crucial for:
+ * - Maintaining valid JSON syntax
+ * - Preserving special characters in the output
+ * - Ensuring proper diff comparison
  */
 export const useSimpleValueRenderer = () => {
   // Function to render simple values (string, number, boolean, etc.)

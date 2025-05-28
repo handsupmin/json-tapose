@@ -1,56 +1,129 @@
 import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 
-const Header: React.FC = () => {
+/**
+ * Props for the Header component
+ *
+ * @property themeController - Optional React node for theme control functionality
+ */
+interface HeaderProps {
+  themeController?: React.ReactNode;
+}
+
+/**
+ * Header Component
+ *
+ * Renders the main navigation header of the JSONtapose application.
+ * Features:
+ * - Responsive navigation with active state
+ * - Logo and branding
+ * - Info modal with app details
+ * - GitHub link
+ * - Theme controller integration
+ *
+ * Navigation:
+ * - Compare: Main JSON comparison tool
+ * - TreeViewer: Interactive JSON tree visualization
+ */
+const Header: React.FC<HeaderProps> = ({ themeController }) => {
+  // Modal visibility state
   const [showInfoModal, setShowInfoModal] = useState(false);
+  const location = useLocation();
+
+  // Navigation tabs configuration
+  const tabs = [
+    {
+      path: "/",
+      label: "Compare",
+    },
+    {
+      path: "/treeviewer",
+      label: "TreeViewer",
+    },
+  ];
 
   return (
-    <header className="bg-base-300 shadow-md">
-      <div className="navbar container mx-auto">
-        <div className="navbar-start">
-          <a
-            href="https://www.jsontapose.com/"
-            className="flex items-center"
-            title="Go to JSONtapose homepage"
-          >
-            <img
-              src="/logo.svg"
-              alt="JSONtapose Logo"
-              className="h-9 w-9 mr-2"
-            />
-            <span className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              JSONtapose
-            </span>
-          </a>
-        </div>
-        <div className="navbar-center hidden md:block">
-          <p className="italic text-sm text-base-content/70">
-            Spot the difference, reveal the truth.
-          </p>
-        </div>
-        <div className="navbar-end">
-          <button
-            className="btn btn-ghost btn-circle"
-            onClick={() => setShowInfoModal(true)}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+    <header className="bg-base-100 border-b border-base-300">
+      <div className="container mx-auto px-4 py-4">
+        <div className="flex items-center justify-between">
+          {/* Branding section with logo and info button */}
+          <div className="flex items-center gap-3">
+            <Link
+              to="/"
+              className="flex items-center"
+              title="Go to JSONtapose homepage"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              <img
+                src="/logo.svg"
+                alt="JSONtapose Logo"
+                className="h-9 w-9 mr-2"
               />
-            </svg>
-          </button>
+              <span className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                JSONtapose
+              </span>
+            </Link>
+            <button
+              className="btn btn-ghost btn-circle"
+              onClick={() => setShowInfoModal(true)}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </button>
+          </div>
+
+          {/* Main navigation with active state highlighting */}
+          <div className="flex items-center gap-6">
+            {tabs.map((tab) => (
+              <Link
+                key={tab.path}
+                to={tab.path}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  location.pathname === tab.path
+                    ? "bg-primary text-primary-content"
+                    : "text-base-content/70 hover:text-base-content hover:bg-base-200"
+                }`}
+              >
+                {tab.label}
+              </Link>
+            ))}
+          </div>
+
+          {/* External links and theme controls */}
+          <div className="flex items-center gap-3">
+            <a
+              href="https://github.com/handsupmin/json-tapose"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-ghost btn-circle"
+              title="View on GitHub"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+              </svg>
+            </a>
+            {themeController}
+          </div>
         </div>
       </div>
 
-      {/* Updated Info Modal using the latest daisyUI syntax */}
+      {/* Info modal with app details and features */}
       <dialog
         id="info_modal"
         className={`modal ${showInfoModal ? "modal-open" : ""}`}
@@ -76,20 +149,57 @@ const Header: React.FC = () => {
             <span className="font-semibold">JSON + juxtapose</span>
           </p>
           <p className="py-2 text-left">
-            JSONtapose is a tool for comparing two JSON files and displaying
-            their differences visually, similar to GitHub or GitKraken diff
-            views. The tool focuses on comparing the data content rather than
-            the ordering of fields.
+            JSONtapose is a professional JSON tool that offers both comparison
+            and beautification features. Compare two JSON objects side-by-side
+            or view JSON data in an interactive tree structure.
           </p>
+
+          <div className="py-4">
+            <h4 className="font-semibold mb-3 text-left">
+              Why Choose JSONtapose?
+            </h4>
+            <div className="space-y-3 text-left">
+              <div className="flex items-start gap-3">
+                <span className="text-success text-lg">⚡</span>
+                <div className="text-left">
+                  <div className="font-medium">Fast & Accurate</div>
+                  <div className="text-sm opacity-80">
+                    Lightning-fast JSON processing with precise difference
+                    detection
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-info text-lg">🔒</span>
+                <div className="text-left">
+                  <div className="font-medium">100% Secure</div>
+                  <div className="text-sm opacity-80">
+                    All processing happens in your browser - no server uploads
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-secondary text-lg">✨</span>
+                <div className="text-left">
+                  <div className="font-medium">Beautiful UI</div>
+                  <div className="text-sm opacity-80">
+                    Modern, intuitive interface with syntax highlighting
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="py-2 text-left">
-            <span className="font-semibold">How to use:</span>
-            <ol className="list-decimal list-inside mt-2 ml-2">
+            <span className="font-semibold">Available Tools:</span>
+            <ol className="list-decimal list-inside mt-2 ml-2 space-y-1">
               <li>
-                Paste or type JSON data in both the left and right editors
+                <strong>Compare:</strong> Side-by-side JSON comparison with
+                difference highlighting
               </li>
-              <li>Click the "Compare" button to see the differences</li>
               <li>
-                The comparison will highlight added, removed, and changed fields
+                <strong>TreeViewer:</strong> Interactive tree view with
+                expand/collapse functionality
               </li>
             </ol>
           </div>

@@ -697,3 +697,61 @@ const 총가격계산 = (가격: number, 세율: number): number => {
 ```
 
 **Note:** Non-English content should only appear in user-facing text that will be localized, and even then, it should be properly organized in localization files, not hardcoded in the application.
+
+## Code Documentation Guidelines
+
+**Rule:** Only add comments for historical context or complex logic that cannot be easily understood from the code itself.
+
+**Reasoning:**
+- Reduces noise and maintenance overhead
+- Encourages self-documenting code through clear naming and structure
+- Focuses documentation on truly necessary context
+- Makes code reviews more efficient by highlighting only important context
+
+#### Implementation Guidelines:
+- Avoid commenting on obvious code that can be understood from the code itself
+- Use comments only for:
+  - Historical context (why a decision was made)
+  - Complex business logic that isn't immediately obvious
+  - Workarounds or temporary solutions
+  - Important edge cases or limitations
+- Prefer self-documenting code through:
+  - Clear variable and function names
+  - Small, focused functions
+  - Consistent patterns and structure
+  - Type definitions and interfaces
+
+#### Examples:
+
+✅ Good:
+```typescript
+// Historical: This timeout was increased from 300ms to 500ms due to 
+// intermittent network latency issues in production
+const API_TIMEOUT_MS = 500;
+
+// Complex business logic: Calculate prorated refund amount based on 
+// subscription period and usage
+function calculateRefundAmount(subscription: Subscription): number {
+  // ... complex calculation logic ...
+}
+
+// Workaround: Using setTimeout to ensure DOM is ready before 
+// initializing the chart due to SSR hydration timing
+useEffect(() => {
+  setTimeout(() => initializeChart(), 0);
+}, []);
+```
+
+❌ Bad:
+```typescript
+// This is a function that adds two numbers
+function add(a: number, b: number): number {
+  return a + b;
+}
+
+// Loop through the array
+for (const item of items) {
+  // Process each item
+  processItem(item);
+}
+```
