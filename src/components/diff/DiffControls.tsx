@@ -1,5 +1,18 @@
 import React from "react";
 
+/**
+ * Component for diff view controls
+ *
+ * Features:
+ * - Toggle between full view and diff-only mode
+ * - Context lines selection for diff-only mode
+ * - Visual legend for diff line types
+ *
+ * The component provides:
+ * - A toggle button for diff-only mode
+ * - A context lines selector (visible in diff-only mode)
+ * - A legend showing the meaning of different line colors
+ */
 interface DiffControlsProps {
   showOnlyDiff: boolean;
   contextLines: number;
@@ -15,6 +28,7 @@ const DiffControls: React.FC<DiffControlsProps> = ({
 }) => {
   return (
     <div className="bg-base-300 px-4 py-2 border-b border-base-300 flex justify-between items-center rounded-lg">
+      {/* Diff mode controls */}
       <div className="flex gap-2 items-center">
         <button
           onClick={toggleDiffMode}
@@ -28,6 +42,7 @@ const DiffControls: React.FC<DiffControlsProps> = ({
           {showOnlyDiff ? "Show All" : "Show Diff Only"}
         </button>
 
+        {/* Context lines selector (only visible in diff-only mode) */}
         {showOnlyDiff && (
           <div className="flex items-center gap-2">
             <span className="text-xs">Context:</span>
@@ -48,6 +63,7 @@ const DiffControls: React.FC<DiffControlsProps> = ({
         )}
       </div>
 
+      {/* Diff line type legend */}
       <div className="flex gap-3 text-xs">
         <span className="flex items-center">
           <span

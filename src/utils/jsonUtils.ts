@@ -1,5 +1,14 @@
 type DiffType = "added" | "removed" | "unchanged" | "changed";
 
+/**
+ * Represents a difference between two JSON objects
+ * @property key - The property name that differs
+ * @property type - The type of difference (added, removed, changed, or unchanged)
+ * @property value1 - The value from the first object (if present)
+ * @property value2 - The value from the second object (if present)
+ * @property children - Nested differences for object/array values
+ * @property path - Array of keys representing the full path to this difference (e.g. ['user', 'address', 'city'])
+ */
 export interface JsonDiffItem {
   key: string;
   type: DiffType;
@@ -54,13 +63,19 @@ export const formatJson = (jsonString: string): string => {
 };
 
 /**
- * Compare two JSON objects and generate a difference report with improved performance
+ * Compare two JSON objects and generate a difference report
+ *
+ * Performance optimizations:
+ * - Uses a cache to avoid re-comparing the same paths
+ * - Efficiently collects keys using Set
+ * - Early returns for simple cases
+ * - Recursive comparison only for nested objects
  */
 export const compareJson = (
   json1: Record<string, unknown> | null,
   json2: Record<string, unknown> | null
 ): JsonDiffItem[] => {
-  // Map for result caching - performance optimization
+  // Cache for memoizing comparison results to avoid redundant work
   const cache = new Map<string, JsonDiffItem>();
 
   // Internal function to perform the actual comparison

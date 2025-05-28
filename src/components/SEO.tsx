@@ -1,5 +1,14 @@
 import React, { useEffect } from "react";
 
+/**
+ * Props for the SEO component
+ *
+ * @property title - Page title (defaults to DEFAULT_TITLE)
+ * @property description - Page description (defaults to DEFAULT_DESCRIPTION)
+ * @property keywords - Meta keywords (defaults to DEFAULT_KEYWORDS)
+ * @property image - Open Graph image URL (defaults to DEFAULT_IMAGE)
+ * @property url - Canonical URL (defaults to DEFAULT_URL)
+ */
 interface SEOProps {
   title?: string;
   description?: string;
@@ -8,7 +17,10 @@ interface SEOProps {
   url?: string;
 }
 
-// Constants for default values
+/**
+ * Default SEO values for the application
+ * These values are used when no props are provided
+ */
 const DEFAULT_TITLE = "JSONtapose - Modern JSON Comparison Tool";
 const DEFAULT_DESCRIPTION =
   "JSONtapose is a powerful JSON comparison tool that visualizes differences between two JSON objects in a side-by-side view. Compare, format and analyze JSON data easily.";
@@ -17,7 +29,13 @@ const DEFAULT_KEYWORDS =
 const DEFAULT_IMAGE = "https://www.jsontapose.com/og-image.png";
 const DEFAULT_URL = "https://www.jsontapose.com/";
 
-// Helper function to update or create meta tags
+/**
+ * Updates or creates a meta tag in the document head
+ *
+ * @param name - Meta tag name or property
+ * @param content - Meta tag content
+ * @param attributeName - Attribute to use (name or property)
+ */
 const updateMetaTag = (
   name: string,
   content: string,
@@ -34,7 +52,11 @@ const updateMetaTag = (
   metaTag.setAttribute("content", content);
 };
 
-// Helper function to update or create canonical URL
+/**
+ * Updates or creates the canonical URL link tag
+ *
+ * @param href - Canonical URL
+ */
 const updateCanonicalLink = (href: string) => {
   let linkTag = document.querySelector('link[rel="canonical"]');
 
@@ -47,7 +69,11 @@ const updateCanonicalLink = (href: string) => {
   linkTag.setAttribute("href", href);
 };
 
-// Helper function to update or create structured data
+/**
+ * Updates or creates structured data script tag
+ *
+ * @param data - JSON-LD structured data object
+ */
 const updateStructuredData = (data: object) => {
   let scriptTag = document.querySelector('script[type="application/ld+json"]');
 
@@ -60,7 +86,13 @@ const updateStructuredData = (data: object) => {
   scriptTag.textContent = JSON.stringify(data);
 };
 
-// Function to create schema data
+/**
+ * Creates schema.org structured data for the application
+ *
+ * @param description - Application description
+ * @param url - Application URL
+ * @returns JSON-LD structured data object
+ */
 const createSchemaData = (description: string, url: string) => ({
   "@context": "https://schema.org",
   "@type": "WebApplication",
@@ -81,6 +113,25 @@ const createSchemaData = (description: string, url: string) => ({
   },
 });
 
+/**
+ * SEO Component
+ *
+ * Manages SEO-related meta tags and structured data for the application.
+ * Features:
+ * - Dynamic meta tag updates
+ * - Open Graph protocol support
+ * - Twitter card support
+ * - Canonical URL management
+ * - Schema.org structured data
+ *
+ * The component:
+ * - Updates meta tags on mount and prop changes
+ * - Handles SEO for social media sharing
+ * - Provides structured data for search engines
+ * - Maintains consistent branding across platforms
+ *
+ * Note: This is a headless component that doesn't render any UI
+ */
 const SEO: React.FC<SEOProps> = ({
   title = DEFAULT_TITLE,
   description = DEFAULT_DESCRIPTION,
@@ -89,36 +140,36 @@ const SEO: React.FC<SEOProps> = ({
   url = DEFAULT_URL,
 }) => {
   useEffect(() => {
-    // Update basic meta tags
+    // Update basic meta tags for search engines
     document.title = title;
     updateMetaTag("description", description);
     updateMetaTag("keywords", keywords);
 
-    // Update Open Graph tags
+    // Update Open Graph tags for social media sharing
     updateMetaTag("og:type", "website", "property");
     updateMetaTag("og:url", url, "property");
     updateMetaTag("og:title", title, "property");
     updateMetaTag("og:description", description, "property");
     updateMetaTag("og:image", image, "property");
 
-    // Update Twitter tags
+    // Update Twitter card tags for Twitter sharing
     updateMetaTag("twitter:card", "summary_large_image", "property");
     updateMetaTag("twitter:url", url, "property");
     updateMetaTag("twitter:title", title, "property");
     updateMetaTag("twitter:description", description, "property");
     updateMetaTag("twitter:image", image, "property");
 
-    // Update canonical URL
+    // Update canonical URL for search engines
     updateCanonicalLink(url);
 
-    // Update structured data
+    // Update structured data for rich search results
     const schemaData = createSchemaData(description, url);
     updateStructuredData(schemaData);
 
-    // No cleanup function needed as meta data should persist during page transitions
+    // No cleanup needed - meta data should persist during page transitions
   }, [title, description, keywords, image, url]);
 
-  // This component doesn't render any UI
+  // Headless component - no UI rendering
   return null;
 };
 

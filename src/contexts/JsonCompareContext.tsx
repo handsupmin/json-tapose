@@ -5,16 +5,31 @@ import type { JsonDiffItem } from "../utils/jsonUtils";
 import { compareJson, formatJson, isValidJson } from "../utils/jsonUtils";
 import { JsonCompareContext } from "./JsonCompareContextInstance";
 
-// Provider props type
+/**
+ * Provider component for JSON comparison functionality
+ *
+ * This provider manages:
+ * - JSON input state for both sides
+ * - JSON validation and error handling
+ * - JSON comparison and diff generation
+ * - JSON formatting
+ * - Sample data loading
+ *
+ * Key features:
+ * - Real-time validation with detailed error messages
+ * - Root-level object comparison only
+ * - Automatic error clearing on valid input
+ * - Loading state for async operations
+ * - Sample data support for testing
+ */
 interface JsonCompareProviderProps {
   children: ReactNode;
 }
 
-// Provider component
 export const JsonCompareProvider: React.FC<JsonCompareProviderProps> = ({
   children,
 }) => {
-  // State
+  // State management for JSON inputs, diff results, and errors
   const [leftJson, setLeftJsonState] = useState<string>("");
   const [rightJson, setRightJsonState] = useState<string>("");
   const [diffResult, setDiffResult] = useState<JsonDiffItem[] | null>(null);
@@ -23,7 +38,7 @@ export const JsonCompareProvider: React.FC<JsonCompareProviderProps> = ({
   const [leftJsonError, setLeftJsonError] = useState<string | null>(null);
   const [rightJsonError, setRightJsonError] = useState<string | null>(null);
 
-  // Set left JSON and clear its error
+  // State setters with automatic error clearing
   const setLeftJson = useCallback(
     (json: string) => {
       setLeftJsonState(json);
@@ -32,7 +47,6 @@ export const JsonCompareProvider: React.FC<JsonCompareProviderProps> = ({
     [leftJsonError]
   );
 
-  // Set right JSON and clear its error
   const setRightJson = useCallback(
     (json: string) => {
       setRightJsonState(json);
@@ -41,7 +55,7 @@ export const JsonCompareProvider: React.FC<JsonCompareProviderProps> = ({
     [rightJsonError]
   );
 
-  // Validate JSON
+  // JSON validation with side-specific error handling
   const validateJson = useCallback((side: "left" | "right", value: string) => {
     if (!value.trim()) return;
 
@@ -60,12 +74,13 @@ export const JsonCompareProvider: React.FC<JsonCompareProviderProps> = ({
     }
   }, []);
 
-  // Compare JSON
+  // Compare JSON objects with validation and error handling
   const handleCompare = useCallback(() => {
     setError(null);
     setLoading(true);
 
     try {
+      // Validate inputs
       if (!leftJson.trim() || !rightJson.trim()) {
         throw new Error("Both input fields are required");
       }
@@ -77,7 +92,7 @@ export const JsonCompareProvider: React.FC<JsonCompareProviderProps> = ({
       const leftParsed = JSON.parse(leftJson);
       const rightParsed = JSON.parse(rightJson);
 
-      // Only compare objects at root level
+      // Ensure root-level objects only
       if (
         typeof leftParsed !== "object" ||
         typeof rightParsed !== "object" ||
@@ -101,7 +116,7 @@ export const JsonCompareProvider: React.FC<JsonCompareProviderProps> = ({
     }
   }, [leftJson, rightJson]);
 
-  // Format JSON
+  // Format JSON with error handling
   const handleFormat = useCallback(
     (side: "left" | "right") => {
       try {
@@ -131,7 +146,7 @@ export const JsonCompareProvider: React.FC<JsonCompareProviderProps> = ({
     [leftJson, rightJson]
   );
 
-  // Load sample data
+  // Load sample data with state reset
   const loadSampleData = useCallback(
     (leftSample: string, rightSample: string) => {
       setLeftJsonState(leftSample);
@@ -144,7 +159,7 @@ export const JsonCompareProvider: React.FC<JsonCompareProviderProps> = ({
     []
   );
 
-  // Clear all fields
+  // Reset all state to initial values
   const clearAll = useCallback(() => {
     setLeftJsonState("");
     setRightJsonState("");
@@ -154,7 +169,7 @@ export const JsonCompareProvider: React.FC<JsonCompareProviderProps> = ({
     setDiffResult(null);
   }, []);
 
-  // Context value
+  // Context value with all state and actions
   const contextValue: JsonCompareContextType = {
     // State
     leftJson,

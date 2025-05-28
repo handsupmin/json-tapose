@@ -2,6 +2,8 @@ words:
   - handsupmin
   - JSONtapose
   - tapose
+  - treefy
+  - treeviewer
   - tspan
 ignorePaths:
   - "**/node_modules/**"

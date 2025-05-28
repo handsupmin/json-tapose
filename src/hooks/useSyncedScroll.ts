@@ -5,6 +5,19 @@ interface ScrollableElement {
   scrollTo: (scrollLeft: number, scrollTop: number) => void;
 }
 
+/**
+ * Hook for synchronizing scroll positions between two scrollable elements
+ *
+ * This hook provides scroll synchronization with performance optimizations:
+ * - Uses refs instead of state to avoid unnecessary re-renders
+ * - Implements a sync lock to prevent infinite scroll loops
+ * - Uses requestAnimationFrame for smooth scrolling
+ * - Maintains separate scroll positions for both panels
+ *
+ * The sync lock (isScrollingSynced) is crucial for preventing infinite loops
+ * that could occur when one panel's scroll triggers the other panel's scroll,
+ * which in turn triggers the first panel again.
+ */
 export const useSyncedScroll = () => {
   // Refs to hold scroll positions (more performant than state)
   const leftScrollRef = useRef<{ top: number; left: number }>({

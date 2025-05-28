@@ -1,7 +1,19 @@
 import type { DiffLine } from "../types/diffTypes";
 
 /**
- * Hook for diff-specific line filtering
+ * Hook for filtering diff lines to show only relevant changes
+ *
+ * This hook provides functionality to:
+ * - Show only changed lines and their surrounding context
+ * - Collapse unchanged sections with expandable placeholders
+ * - Always show header and footer lines
+ * - Maintain proper line numbering and indentation
+ *
+ * The filtering process:
+ * 1. Identifies changed lines and their context
+ * 2. Collapses consecutive unchanged lines into expandable sections
+ * 3. Preserves line numbers and indentation for proper rendering
+ * 4. Handles edge cases like header/footer visibility
  */
 export const useDiffFilter = () => {
   // Filter lines to show diff only

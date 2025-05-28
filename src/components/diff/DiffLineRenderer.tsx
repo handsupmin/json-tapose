@@ -8,6 +8,23 @@ import {
 } from "react";
 import type { DiffLine } from "../../types/diffTypes";
 
+/**
+ * Component for rendering diff lines with scroll synchronization
+ *
+ * Features:
+ * - Synchronized scrolling between left and right panels
+ * - Line number display
+ * - Expandable sections for unchanged lines
+ * - Visual indicators for added/removed/changed lines
+ * - Responsive width handling
+ * - Performance optimizations for smooth scrolling
+ *
+ * The component uses:
+ * - ResizeObserver for container width updates
+ * - requestAnimationFrame for scroll synchronization
+ * - CSS classes for different line types
+ * - Memoization for performance
+ */
 interface DiffLineRendererProps {
   lines: DiffLine[];
   side: "left" | "right";
@@ -25,10 +42,10 @@ const DiffLineRenderer = forwardRef<
   const [containerWidth, setContainerWidth] = useState(0);
   const isInternalScrollRef = useRef(false);
 
-  // Line height for consistency
+  // Fixed line height for consistent rendering
   const LINE_HEIGHT = 22;
 
-  // Expose scrollTo method to parent components
+  // Expose scrollTo method for parent components
   useImperativeHandle(ref, () => ({
     scrollTo: (scrollLeft: number, scrollTop: number) => {
       if (!containerRef.current) return;
@@ -37,14 +54,14 @@ const DiffLineRenderer = forwardRef<
       containerRef.current.scrollLeft = scrollLeft;
       containerRef.current.scrollTop = scrollTop;
 
-      // Reset scrolling flag
+      // Reset scrolling flag after animation frame
       requestAnimationFrame(() => {
         isInternalScrollRef.current = false;
       });
     },
   }));
 
-  // Update container width when size changes
+  // Monitor container width changes
   useEffect(() => {
     const updateContainer = () => {
       if (containerRef.current) {
@@ -53,9 +70,8 @@ const DiffLineRenderer = forwardRef<
     };
 
     updateContainer();
-    // Use ResizeObserver to detect size changes
     const resizeObserver = new ResizeObserver(updateContainer);
-    const currentRef = containerRef.current; // Store ref in variable for cleanup
+    const currentRef = containerRef.current;
 
     if (currentRef) {
       resizeObserver.observe(currentRef);
@@ -68,36 +84,26 @@ const DiffLineRenderer = forwardRef<
     };
   }, []);
 
-  // Register scroll event listener
+  // Handle scroll events with synchronization
   useEffect(() => {
-    // Simple scroll event handler moved inside useEffect
     const handleScroll = () => {
       if (!containerRef.current || isInternalScrollRef.current) return;
 
       const { scrollTop, scrollLeft } = containerRef.current;
-
-      // Notify parent about scroll position if onScroll callback is provided
-      if (onScroll) {
-        onScroll(scrollTop, scrollLeft);
-      }
+      onScroll?.(scrollTop, scrollLeft);
     };
 
     const currentRef = containerRef.current;
     if (currentRef) {
       currentRef.addEventListener("scroll", handleScroll, { passive: true });
-
-      return () => {
-        currentRef.removeEventListener("scroll", handleScroll);
-      };
+      return () => currentRef.removeEventListener("scroll", handleScroll);
     }
   }, [onScroll]);
 
-  // Calculate CSS class for each line
+  // Generate CSS classes based on line type and side
   const getLineClass = (line: DiffLine) => {
-    // Base class including the diff-line class for full width and text-left for alignment
     const baseClass = "px-2 py-0.5 whitespace-pre diff-line text-left";
 
-    // Apply different styles based on line type and side
     switch (line.type) {
       case "added":
         return `${baseClass} ${
@@ -122,10 +128,10 @@ const DiffLineRenderer = forwardRef<
     }
   };
 
-  // Ensure the width is at least 100% or wider based on content
+  // Ensure minimum width for content
   const minWidth = Math.max(containerWidth, 100);
 
-  // Get line numbers column width in characters
+  // Format line numbers with padding
   const getFormattedLineNumber = (num: number) => {
     return num > 0 ? num.toString().padStart(3, " ") : "";
   };
@@ -134,22 +140,18 @@ const DiffLineRenderer = forwardRef<
     <div
       ref={containerRef}
       className="w-full h-full overflow-auto relative"
-      style={{ willChange: "transform" }} // Optimize for animations/scrolling
+      style={{ willChange: "transform" }}
     >
       <div className="w-full">
         {lines.map((line, index) => {
-          // Calculate indentation
           const indent = line.indentLevel * 1.5;
-          // Get line number (if available)
           const lineNumber = lineNumbers?.[index] || 0;
 
-          // Special handling for expandable lines (same lines)
+          // Render expandable section
           if (line.type === "expandable") {
             return (
               <div key={`${index}-${line.content}`} className="flex flex-row">
-                {/* Empty line number for expandable lines */}
                 <div className="line-number bg-base-200"></div>
-                {/* Line content with full width and center alignment */}
                 <div
                   className={getLineClass(line)}
                   style={{
@@ -169,13 +171,11 @@ const DiffLineRenderer = forwardRef<
             );
           }
 
-          // Special handling for placeholder lines
+          // Render placeholder line
           if (line.type === "placeholder") {
             return (
               <div key={`${index}-placeholder`} className="flex flex-row">
-                {/* Empty line number for placeholder lines */}
                 <div className="line-number bg-base-200"></div>
-                {/* Line content with full width */}
                 <div
                   className={getLineClass(line)}
                   style={{
@@ -190,14 +190,12 @@ const DiffLineRenderer = forwardRef<
             );
           }
 
-          // Regular line handling
+          // Render regular line
           return (
             <div key={`${index}-${line.content}`} className="flex flex-row">
-              {/* Line number column with fixed width */}
               <div className="line-number bg-base-200">
                 {getFormattedLineNumber(lineNumber)}
               </div>
-              {/* Line content */}
               <div
                 className={getLineClass(line)}
                 style={{

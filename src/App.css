@@ -1,42 +1,56 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
-/* Custom theme definition */
+/* Custom theme definition for JSONtapose
+ * Color scheme based on purple and pink tones
+ * Uses OKLCH color space for better perceptual uniformity
+ */
 @plugin "daisyui/theme" {
   name: "purplewind";
   default: false;
   prefersdark: false;
   color-scheme: "light";
-  --color-base-100: oklch(96% 0.016 293.756);
-  --color-base-200: oklch(94% 0.029 294.588);
-  --color-base-300: oklch(89% 0.057 293.283);
-  --color-base-content: oklch(38% 0.189 293.745);
-  --color-primary: oklch(82% 0.12 346.018);
-  --color-primary-content: oklch(28% 0.109 3.907);
-  --color-secondary: oklch(82% 0.119 306.383);
-  --color-secondary-content: oklch(29% 0.149 302.717);
-  --color-accent: oklch(80% 0.105 251.813);
-  --color-accent-content: oklch(28% 0.091 267.935);
-  --color-neutral: oklch(38% 0.189 293.745);
-  --color-neutral-content: oklch(96% 0.016 293.756);
-  --color-info: oklch(54% 0.245 262.881);
-  --color-info-content: oklch(97% 0.014 254.604);
-  --color-success: oklch(60% 0.118 184.704);
-  --color-success-content: oklch(98% 0.014 180.72);
-  --color-warning: oklch(68% 0.162 75.834);
-  --color-warning-content: oklch(98% 0.026 102.212);
-  --color-error: oklch(58% 0.253 17.585);
-  --color-error-content: oklch(96% 0.015 12.422);
-  --radius-selector: 0.25rem;
-  --radius-field: 0.25rem;
-  --radius-box: 0.5rem;
-  --size-selector: 0.25rem;
-  --size-field: 0.25rem;
-  --border: 2px;
-  --depth: 1;
-  --noise: 1;
+
+  /* Base colors - Background and text */
+  --color-base-100: oklch(96% 0.016 293.756); /* Lightest background */
+  --color-base-200: oklch(94% 0.029 294.588); /* Secondary background */
+  --color-base-300: oklch(89% 0.057 293.283); /* Tertiary background */
+  --color-base-content: oklch(38% 0.189 293.745); /* Base text color */
+
+  /* Primary colors - Main brand colors */
+  --color-primary: oklch(82% 0.12 346.018); /* Primary brand color */
+  --color-primary-content: oklch(28% 0.109 3.907); /* Text on primary */
+  --color-secondary: oklch(82% 0.119 306.383); /* Secondary brand color */
+  --color-secondary-content: oklch(29% 0.149 302.717); /* Text on secondary */
+
+  /* Accent and neutral colors */
+  --color-accent: oklch(80% 0.105 251.813); /* Accent color */
+  --color-accent-content: oklch(28% 0.091 267.935); /* Text on accent */
+  --color-neutral: oklch(38% 0.189 293.745); /* Neutral color */
+  --color-neutral-content: oklch(96% 0.016 293.756); /* Text on neutral */
+
+  /* Semantic colors - Status and feedback */
+  --color-info: oklch(54% 0.245 262.881); /* Information color */
+  --color-info-content: oklch(97% 0.014 254.604); /* Text on info */
+  --color-success: oklch(60% 0.118 184.704); /* Success color */
+  --color-success-content: oklch(98% 0.014 180.72); /* Text on success */
+  --color-warning: oklch(68% 0.162 75.834); /* Warning color */
+  --color-warning-content: oklch(98% 0.026 102.212); /* Text on warning */
+  --color-error: oklch(58% 0.253 17.585); /* Error color */
+  --color-error-content: oklch(96% 0.015 12.422); /* Text on error */
+
+  /* UI element styling */
+  --radius-selector: 0.25rem; /* Border radius for selectors */
+  --radius-field: 0.25rem; /* Border radius for form fields */
+  --radius-box: 0.5rem; /* Border radius for boxes */
+  --size-selector: 0.25rem; /* Size for selectors */
+  --size-field: 0.25rem; /* Size for form fields */
+  --border: 2px; /* Default border width */
+  --depth: 1; /* Shadow depth */
+  --noise: 1; /* Noise texture intensity */
 }
 
+/* Root container styling */
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -72,6 +86,7 @@
   }
 }
 
+/* Card component styling */
 .card {
   padding: 2em;
 }

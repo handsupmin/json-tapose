@@ -6,14 +6,19 @@
 }
 
 @layer base {
-  /* Custom base styles can go here */
+  /* Base styles */
   html {
     font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   }
 }
 
 @layer components {
-  /* Custom styles for JSON diff display */
+  /* JSON diff display styles */
+  .json-diff {
+    @apply font-mono text-sm;
+  }
+
+  /* Diff line type styles */
   .json-diff-added {
     @apply bg-success/20 text-success;
   }
@@ -30,6 +35,7 @@
     @apply text-base-content;
   }
 
+  /* JSON syntax highlighting */
   .json-key {
     @apply font-semibold;
   }
@@ -38,7 +44,15 @@
     @apply font-mono;
   }
 
-  /* Enhanced GitHub-style diff view */
+  .json-key-quotes {
+    @apply opacity-70;
+  }
+
+  .json-syntax {
+    @apply text-base-content/70;
+  }
+
+  /* GitHub-style diff view */
   .github-diff {
     @apply font-mono text-sm;
   }
@@ -55,6 +69,7 @@
     @apply flex-1 pl-3 py-1;
   }
 
+  /* GitHub diff line type styles */
   .github-diff-added {
     @apply bg-success/10;
   }
@@ -79,31 +94,20 @@
     @apply text-warning bg-warning/20 border-warning/30;
   }
 
-  /* New JSON diff format styles */
+  /* Nested JSON diff styles */
   .json-diff-nested {
     @apply border-l-2 border-dotted;
+  }
+
+  .json-diff-nested .json-diff-nested {
+    @apply border-l border-dotted;
   }
 
   .json-diff-placeholder {
     @apply bg-base-300/50 text-base-content/60 italic;
   }
 
-  /* Make nested object indentation clearer */
-  .json-diff-nested .json-diff-nested {
-    @apply border-l border-dotted;
-  }
-
-  /* Make quotes around JSON keys more visible */
-  .json-key-quotes {
-    @apply opacity-70;
-  }
-
-  /* Colon and comma styling */
-  .json-syntax {
-    @apply text-base-content/70;
-  }
-
-  /* Diagonal pattern background for placeholders */
+  /* Diagonal pattern background */
   .bg-diagonal {
     background-image: repeating-linear-gradient(
       -45deg,
@@ -116,14 +120,9 @@
     background-repeat: repeat;
   }
 
-  /* Ensure horizontal full-width styling for diff line backgrounds */
+  /* Diff line container */
   .diff-line {
-    box-sizing: border-box;
-    min-width: 100%;
-    width: 100%;
-    display: block;
-    position: relative;
-    overflow: visible;
+    @apply box-border min-w-full w-full block relative overflow-visible;
   }
 }
 
@@ -133,14 +132,25 @@
   height: 22px;
   line-height: 20px;
   z-index: 10;
-  display: inline-flex;
-  align-items: center;
-  justify-content: flex-end;
-  min-width: 3rem; /* 고정된 최소 너비 */
-  width: 3rem; /* 고정된 너비 */
+  @apply inline-flex items-center justify-end;
+  min-width: 3rem;
+  width: 3rem;
 }
 
-/* Styling for lines with errors or warnings */
+/* Placeholder message styling */
 .placeholder-message {
   @apply bg-base-300/50 text-base-content/70 italic py-1 px-3;
+}
+
+/* Media queries for responsive design */
+@media (max-width: 640px) {
+  .github-diff-line-number {
+    @apply w-8;
+  }
+
+  .line-number {
+    @apply w-8;
+    min-width: 2rem;
+    width: 2rem;
+  }
 }

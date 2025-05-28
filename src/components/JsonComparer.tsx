@@ -5,7 +5,10 @@ import JsonDiffView from "./JsonDiffView";
 import JsonInputPanel from "./JsonInputPanel";
 import SampleSelector from "./SampleSelector";
 
-// Separate component for error display
+/**
+ * Alert component for displaying error messages
+ * Uses a consistent error styling with an icon
+ */
 const ErrorAlert = ({ message }: { message: string }) => (
   <div className="alert alert-error" role="alert">
     <svg
@@ -26,14 +29,21 @@ const ErrorAlert = ({ message }: { message: string }) => (
   </div>
 );
 
-// Separate component for toolbar
+/**
+ * Toolbar component for JSON comparison
+ * Contains sample selector and clear button
+ */
 const JsonToolbar = ({
   selectedSample,
   onSampleSelect,
   onClearAll,
 }: {
   selectedSample: SampleType;
-  onSampleSelect: (type: SampleType, left: string, right: string) => void;
+  onSampleSelect: (
+    type: SampleType,
+    leftSample: string,
+    rightSample?: string
+  ) => void;
   onClearAll: () => void;
 }) => (
   <div className="flex flex-wrap items-center gap-2">
@@ -50,7 +60,10 @@ const JsonToolbar = ({
   </div>
 );
 
-// Separate component for comparison button
+/**
+ * Compare button component with loading state
+ * Disabled when inputs are invalid or comparison is in progress
+ */
 const CompareButton = ({
   onClick,
   isLoading,
@@ -71,6 +84,22 @@ const CompareButton = ({
   </div>
 );
 
+/**
+ * Main component for JSON comparison
+ *
+ * Features:
+ * - Side-by-side JSON input panels
+ * - Real-time validation
+ * - Sample data loading
+ * - JSON formatting
+ * - Diff view with visual indicators
+ *
+ * The component:
+ * - Manages input state and validation
+ * - Handles sample data selection
+ * - Controls comparison process
+ * - Displays comparison results
+ */
 const JsonComparer: React.FC = () => {
   const {
     leftJson,
@@ -89,20 +118,20 @@ const JsonComparer: React.FC = () => {
     loadSampleData,
   } = useJsonCompare();
 
-  // Sample selection state
+  // Track selected sample type
   const [selectedSample, setSelectedSample] =
     useState<SampleType>("productExample");
 
-  // Sample selection handler
+  // Handle sample data loading
   const handleSampleSelect = useCallback(
-    (sampleType: SampleType, leftSample: string, rightSample: string) => {
+    (sampleType: SampleType, leftSample: string, rightSample?: string) => {
       setSelectedSample(sampleType);
-      loadSampleData(leftSample, rightSample);
+      loadSampleData(leftSample, rightSample || "");
     },
     [loadSampleData]
   );
 
-  // Check if comparison button should be disabled
+  // Disable compare button when inputs are invalid or comparison is in progress
   const isCompareButtonDisabled =
     loading ||
     !leftJson ||
@@ -120,6 +149,7 @@ const JsonComparer: React.FC = () => {
 
       {error && <ErrorAlert message={error} />}
 
+      {/* Input panels in a responsive grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <JsonInputPanel
           id="leftJson"
@@ -148,6 +178,7 @@ const JsonComparer: React.FC = () => {
         isDisabled={isCompareButtonDisabled}
       />
 
+      {/* Display diff view when comparison is complete */}
       {diffResult && (
         <div className="mt-6">
           <h2 className="text-xl font-bold mb-4">Comparison Result</h2>
@@ -158,5 +189,4 @@ const JsonComparer: React.FC = () => {
   );
 };
 
-// Use memo for performance optimization
 export default memo(JsonComparer);
