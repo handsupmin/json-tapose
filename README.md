@@ -64,28 +64,6 @@ src/
 └── utils/          # Utility functions including JSON comparison
 ```
 
-## Development Guidelines
-
-This project follows the [Toss Frontend Rules](./toss-frontend-rules.mdc) for consistent, maintainable code. These guidelines focus on:
-
-- **Readability**: Using named constants, abstractions, and clear conditional logic
-- **Predictability**: Standardizing return types and avoiding hidden side effects
-- **Cohesion**: Organizing code by feature/domain
-- **Coupling**: Minimizing dependencies between components
-- **Documentation**: Following best practices for comments and documentation
-
-### English-Only Codebase
-
-All code, comments, and documentation in this project must be written in English. This includes:
-
-- Variable and function names
-- Code comments and JSDoc
-- Documentation files (README, SPEC, etc.)
-- Commit messages
-- Pull request descriptions
-
-Non-English content should only appear in user-facing text that requires localization.
-
 ## Key Optimizations
 
 - **Component Composition**: Breaking down complex UI into focused components
@@ -94,9 +72,39 @@ Non-English content should only appear in user-facing text that requires localiz
 - **Memoization**: Prevents unnecessary calculations and re-renders
 - **Efficient Diff Algorithm**: Optimized JSON comparison with caching
 
+## Development Guidelines
+
+This project follows strict development guidelines to maintain code quality and consistency:
+
+### Code Style
+
+- Use TypeScript for all new code
+- Follow ESLint and Prettier configurations
+- Write meaningful commit messages
+- Keep functions small and focused
+- Use meaningful variable and function names
+
+### Best Practices
+
+- Document complex logic with comments
+- Keep components pure and reusable
+- Use proper error handling
+- Follow React best practices and hooks guidelines
+
+### English-Only Policy
+
+- All code, comments, and documentation must be in English
+- Variable and function names must be in English
+- Commit messages must be in English
+- Only user-facing text can be localized
+
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request. Before contributing, please review our development guidelines and ensure all code follows our standards, including the English-only policy.
+1. Fork the repo
+2. Create a branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes
+4. Open a Pull Request
+5. Read [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines
 
 ## License
 
