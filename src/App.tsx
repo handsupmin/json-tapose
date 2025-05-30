@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 import "./App.css";
-import AdSenseAd from "./components/AdSenseAd";
 import ContentSections from "./components/ContentSections";
 import Footer from "./components/Footer";
+import { GoogleAdsense } from "./components/GoogleAdsense";
 import Header from "./components/Header";
 import JsonComparer from "./components/JsonComparer";
 import JsonTreeViewer from "./components/JsonTreeViewer";
@@ -12,48 +12,7 @@ import ThemeController from "./components/ThemeController";
 import { JsonCompareProvider } from "./contexts/JsonCompareContext";
 import { defaultTheme } from "./utils/themeUtils";
 
-const CONTENT_LOAD_DELAY_MS = 1500;
 const SCROLL_OFFSET = 80;
-
-// Separate component for ad container
-const AdContainer = ({
-  adSlot,
-  className,
-}: {
-  adSlot: string;
-  className?: string;
-}) => {
-  const isProduction = import.meta.env.PROD;
-  const [contentLoaded, setContentLoaded] = useState(false);
-
-  // Setup content loaded detection
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setContentLoaded(true);
-    }, CONTENT_LOAD_DELAY_MS);
-
-    window.addEventListener("load", () => {
-      setContentLoaded(true);
-    });
-
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener("load", () => {
-        setContentLoaded(true);
-      });
-    };
-  }, []);
-
-  if (!isProduction || !contentLoaded) {
-    return null;
-  }
-
-  return (
-    <div className={className}>
-      <AdSenseAd adSlot={adSlot} adFormat="in-article" />
-    </div>
-  );
-};
 
 function App() {
   const [theme, setTheme] = useState<string>(() => {
@@ -92,6 +51,7 @@ function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-base-100">
+      <GoogleAdsense />
       <SEO />
       <Header
         themeController={
@@ -106,14 +66,10 @@ function App() {
               <Route path="/treeviewer" element={<JsonTreeViewer />} />
             </Routes>
           </JsonCompareProvider>
-
-          <AdContainer adSlot="9448272363" className="mt-6" />
-
           {/* Add comprehensive content sections */}
           <ContentSections />
         </div>
       </main>
-      <AdContainer adSlot="3301739018" className="container mx-auto mb-4" />
       <Footer />
     </div>
   );
