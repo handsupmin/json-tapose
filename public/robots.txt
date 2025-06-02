@@ -21,6 +21,9 @@ Allow: /
 User-agent: DuckDuckBot
 Allow: /
 
+User-agent: Yeti
+Allow: /
+
 # Disallow any admin or private areas (if any)
 Disallow: /admin/
 Disallow: /private/

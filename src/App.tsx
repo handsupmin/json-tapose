@@ -3,7 +3,6 @@ import { Route, Routes, useLocation } from "react-router-dom";
 import "./App.css";
 import ContentSections from "./components/ContentSections";
 import Footer from "./components/Footer";
-import { GoogleAdsense } from "./components/GoogleAdsense";
 import Header from "./components/Header";
 import JsonComparer from "./components/JsonComparer";
 import JsonTreeViewer from "./components/JsonTreeViewer";
@@ -51,7 +50,6 @@ function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-base-100">
-      <GoogleAdsense />
       <SEO />
       <Header
         themeController={
