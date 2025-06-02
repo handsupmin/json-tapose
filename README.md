@@ -20,7 +20,6 @@ A modern, high-performance JSON comparison tool that displays differences betwee
 - **Deep Nested Structure Support**: Properly displays and compares nested objects and arrays
 - **Theme Support**: Multiple themes including light and dark modes
 - **Responsive Design**: Works on devices of all sizes
-- **Google AdSense Integration**: Properly configured content-first advertising
 
 ## Quick Start
 

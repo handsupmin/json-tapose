@@ -35,14 +35,6 @@ JSONtapose is a high-performance visualization tool for comparing JSON objects w
 - Code splitting through component composition
 - Default "Diff Only" mode reduces initial rendering load
 
-### 4. AdSense Integration
-
-- Content-first loading strategy for ads
-- Ad loading only when sufficient content is available
-- Responsive ad placement for different screen sizes
-- Fail-safe mechanisms for ad loading failures
-- Performance optimized ad containers
-
 ## Implementation Architecture
 
 ### Component Structure
