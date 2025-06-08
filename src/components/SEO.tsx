@@ -21,7 +21,7 @@ interface SEOProps {
  * Default SEO values for the application
  * These values are used when no props are provided
  */
-const DEFAULT_TITLE = "JSONtapose - Modern JSON Comparison Tool";
+const DEFAULT_TITLE = "JSONtapose - Secure JSON Comparison Tool";
 const DEFAULT_DESCRIPTION =
   "JSONtapose is a powerful JSON comparison tool that visualizes differences between two JSON objects in a side-by-side view. Compare, format and analyze JSON data easily.";
 const DEFAULT_KEYWORDS =

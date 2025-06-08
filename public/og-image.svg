@@ -34,5 +34,5 @@
   <text x="600" y="160" font-family="Arial, sans-serif" font-size="48" font-weight="bold" text-anchor="middle" fill="#0f172a">JSONtapose</text>
 
   <!-- Subtitle -->
-  <text x="600" y="500" font-family="Arial, sans-serif" font-size="28" text-anchor="middle" fill="#475569">Modern JSON Comparison Tool</text>
+  <text x="600" y="500" font-family="Arial, sans-serif" font-size="28" text-anchor="middle" fill="#475569">Secure JSON Comparison Tool</text>
 </svg>
