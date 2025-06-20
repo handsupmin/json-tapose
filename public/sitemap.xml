@@ -7,7 +7,7 @@
   <!-- Homepage - JSON Comparer -->
   <url>
     <loc>https://www.jsontapose.com/</loc>
-    <lastmod>2025-06-02</lastmod>
+    <lastmod>2025-06-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
@@ -15,57 +15,9 @@
   <!-- JSON TreeViewer -->
   <url>
     <loc>https://www.jsontapose.com/treeviewer</loc>
-    <lastmod>2025-06-02</lastmod>
+    <lastmod>2025-06-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
-  </url>
-
-  <!-- How to Use Guide -->
-  <url>
-    <loc>https://www.jsontapose.com/#how-to-use</loc>
-    <lastmod>2025-06-02</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <!-- JSON Best Practices -->
-  <url>
-    <loc>https://www.jsontapose.com/#best-practices</loc>
-    <lastmod>2025-06-02</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-  <!-- Use Cases -->
-  <url>
-    <loc>https://www.jsontapose.com/#use-cases</loc>
-    <lastmod>2025-06-02</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-  <!-- FAQ -->
-  <url>
-    <loc>https://www.jsontapose.com/#faq</loc>
-    <lastmod>2025-06-02</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <!-- JSON Learning Resources -->
-  <url>
-    <loc>https://www.jsontapose.com/#resources</loc>
-    <lastmod>2025-06-02</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.4</priority>
-  </url>
-
-  <!-- JSON Blog -->
-  <url>
-    <loc>https://www.jsontapose.com/#blog</loc>
-    <lastmod>2025-06-02</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
   </url>
 
 </urlset>

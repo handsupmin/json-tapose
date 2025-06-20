@@ -24,8 +24,7 @@ const Footer: React.FC = () => {
         <aside className="flex items-center gap-2">
           <img src="/logo.svg" alt="JSONtapose Logo" className="h-5 w-5" />
           <p>
-            <span className="font-bold">JSONtapose</span> - Modern JSON
-            Comparison Tool
+            <span className="font-bold">JSONtapose</span> - Secure JSON Comparison Tool
           </p>
         </aside>
 
