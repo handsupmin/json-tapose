@@ -6,7 +6,7 @@
 
 > JSON + juxtapose
 
-A modern, high-performance JSON comparison tool that displays differences between JSON objects in a side-by-side view.
+A secure, modern and high-performance JSON comparison tool that displays differences between JSON objects in a side-by-side view.
 
 ![JSONtapose Screenshot](screenshots/screenshot.png)
 

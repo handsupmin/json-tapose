@@ -9,13 +9,15 @@ import JsonTreeViewer from "./components/JsonTreeViewer";
 import SEO from "./components/SEO";
 import ThemeController from "./components/ThemeController";
 import { JsonCompareProvider } from "./contexts/JsonCompareContext";
-import { defaultTheme } from "./utils/themeUtils";
+import { getDefaultTheme } from "./utils/themeUtils";
 
 const SCROLL_OFFSET = 80;
 
 function App() {
   const [theme, setTheme] = useState<string>(() => {
-    return localStorage.getItem("theme") || defaultTheme;
+    // Check if user has a saved preference, otherwise use system preference
+    const savedTheme = localStorage.getItem("theme");
+    return savedTheme || getDefaultTheme();
   });
   const location = useLocation();
 
