@@ -28,6 +28,9 @@ export const KakaoAdfitBanner = () => {
   }, []);
 
   return (
-    <div ref={adRef} className="flex justify-center items-center w-full" />
+    <div
+      ref={adRef}
+      className="flex justify-center items-center w-full mt-20"
+    />
   );
 };

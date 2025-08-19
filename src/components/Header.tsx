@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useFormatMode } from "../contexts/FormatModeContext";
 
 /**
  * Props for the Header component
@@ -30,6 +31,7 @@ const Header: React.FC<HeaderProps> = ({ themeController }) => {
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const { mode, setMode } = useFormatMode();
 
   // Navigation tabs configuration
   const tabs = [
@@ -52,21 +54,43 @@ const Header: React.FC<HeaderProps> = ({ themeController }) => {
             <Link
               to="/"
               className="flex items-center gap-2"
-              title="Go to JSONtapose homepage"
+              title={`Go to ${
+                mode === "json" ? "JSONtapose" : "YAMLtapose"
+              } homepage`}
             >
               <img
                 src="/logo.svg"
-                alt="JSONtapose Logo"
+                alt={`${mode === "json" ? "JSONtapose" : "YAMLtapose"} Logo`}
                 className="h-8 w-8 sm:h-9 sm:w-9"
               />
               <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                JSONtapose
+                {mode === "json" ? "JSONtapose" : "YAMLtapose"}
               </span>
             </Link>
           </div>
 
-          {/* Desktop Navigation */}
+          {/* Desktop Navigation with global format switch between logo and tabs */}
           <div className="hidden md:flex items-center gap-4">
+            <div className="mx-2">
+              <div className="join">
+                <button
+                  className={`btn btn-sm join-item ${
+                    mode === "json" ? "btn-primary" : ""
+                  }`}
+                  onClick={() => setMode("json")}
+                >
+                  JSON
+                </button>
+                <button
+                  className={`btn btn-sm join-item ${
+                    mode === "yaml" ? "btn-primary" : ""
+                  }`}
+                  onClick={() => setMode("yaml")}
+                >
+                  YAML
+                </button>
+              </div>
+            </div>
             {tabs.map((tab) => (
               <Link
                 key={tab.path}
@@ -87,7 +111,7 @@ const Header: React.FC<HeaderProps> = ({ themeController }) => {
             <button
               className="btn btn-ghost btn-circle btn-sm"
               onClick={() => setShowInfoModal(true)}
-              title="About JSONtapose"
+              title={`About ${mode === "json" ? "JSONtapose" : "YAMLtapose"}`}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -168,6 +192,24 @@ const Header: React.FC<HeaderProps> = ({ themeController }) => {
                 </Link>
               ))}
               <div className="flex items-center gap-2 px-4 py-2">
+                <div className="join">
+                  <button
+                    className={`btn btn-sm join-item ${
+                      mode === "json" ? "btn-primary" : ""
+                    }`}
+                    onClick={() => setMode("json")}
+                  >
+                    JSON
+                  </button>
+                  <button
+                    className={`btn btn-sm join-item ${
+                      mode === "yaml" ? "btn-primary" : ""
+                    }`}
+                    onClick={() => setMode("yaml")}
+                  >
+                    YAML
+                  </button>
+                </div>
                 <button
                   className="btn btn-ghost btn-sm flex-1 justify-start"
                   onClick={() => {
@@ -231,18 +273,21 @@ const Header: React.FC<HeaderProps> = ({ themeController }) => {
           <div className="flex items-center mb-4">
             <img
               src="/logo.svg"
-              alt="JSONtapose Logo"
+              alt={`${mode === "json" ? "JSONtapose" : "YAMLtapose"} Logo`}
               className="h-12 w-12 mr-3"
             />
-            <h3 className="font-bold text-lg">About JSONtapose</h3>
+            <h3 className="font-bold text-lg">
+              About {mode === "json" ? "JSONtapose" : "YAMLtapose"}
+            </h3>
           </div>
           <p className="py-2 text-left">
             <span className="font-semibold">JSON + juxtapose</span>
           </p>
           <p className="py-2 text-left">
-            JSONtapose is a professional JSON tool that offers both comparison
-            and beautification features. Compare two JSON objects side-by-side
-            or view JSON data in an interactive tree structure.
+            {mode === "json" ? "JSONtapose" : "YAMLtapose"} is a professional{" "}
+            {mode.toUpperCase()} tool that offers both comparison and
+            beautification features. Compare two JSON objects side-by-side or
+            view JSON data in an interactive tree structure.
           </p>
 
           <div className="py-4">
@@ -285,12 +330,12 @@ const Header: React.FC<HeaderProps> = ({ themeController }) => {
             <span className="font-semibold">Available Tools:</span>
             <ol className="list-decimal list-inside mt-2 ml-2 space-y-1">
               <li>
-                <strong>Compare:</strong> Side-by-side JSON comparison with
-                difference highlighting
+                <strong>Compare:</strong> Side-by-side {mode.toUpperCase()}{" "}
+                comparison with difference highlighting
               </li>
               <li>
-                <strong>TreeViewer:</strong> Interactive tree view with
-                expand/collapse functionality
+                <strong>TreeViewer:</strong> Interactive {mode.toUpperCase()}{" "}
+                tree view with expand/collapse functionality
               </li>
             </ol>
           </div>

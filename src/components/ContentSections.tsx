@@ -1,6 +1,5 @@
 import React from "react";
 import BlogSection from "./BlogSection";
-import { KakaoAdfitBanner } from "./KakaoAdfitBanner";
 
 /**
  * ContentSections Component
@@ -22,7 +21,6 @@ import { KakaoAdfitBanner } from "./KakaoAdfitBanner";
 const ContentSections: React.FC = () => {
   return (
     <div className="space-y-8 mt-20 text-left">
-      <KakaoAdfitBanner />
       {/* How to Use Section - Provides step-by-step instructions for using JSONtapose */}
       <section id="how-to-use" className="bg-base-200 rounded-lg p-6">
         <h2 className="text-2xl font-bold mb-4 text-center">

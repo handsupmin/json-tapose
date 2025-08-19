@@ -1,14 +1,11 @@
 import { memo, useCallback, useState } from "react";
-import { useJsonCompare } from "../hooks/useJsonCompareHook";
+import { useYamlCompare } from "../hooks/useYamlCompareHook";
 import type { SampleType } from "../utils/jsonUtils";
+import { getSampleYamlByType } from "../utils/yamlUtils";
 import JsonDiffView from "./JsonDiffView";
 import JsonInputPanel from "./JsonInputPanel";
 import SampleSelector from "./SampleSelector";
 
-/**
- * Alert component for displaying error messages
- * Uses a consistent error styling with an icon
- */
 const ErrorAlert = ({ message }: { message: string }) => (
   <div className="alert alert-error" role="alert">
     <svg
@@ -29,11 +26,7 @@ const ErrorAlert = ({ message }: { message: string }) => (
   </div>
 );
 
-/**
- * Toolbar component for JSON comparison
- * Contains sample selector and clear button
- */
-const JsonToolbar = ({
+const YamlToolbar = ({
   selectedSample,
   onSampleSelect,
   onClearAll,
@@ -60,10 +53,6 @@ const JsonToolbar = ({
   </div>
 );
 
-/**
- * Compare button component with loading state
- * Disabled when inputs are invalid or comparison is in progress
- */
 const CompareButton = ({
   onClick,
   isLoading,
@@ -79,69 +68,52 @@ const CompareButton = ({
       className={`btn btn-primary ${isLoading ? "loading" : ""}`}
       disabled={isDisabled}
     >
-      {isLoading ? "Comparing..." : "Compare JSON"}
+      {isLoading ? "Comparing..." : "Compare YAML"}
     </button>
   </div>
 );
 
-/**
- * Main component for JSON comparison
- *
- * Features:
- * - Side-by-side JSON input panels
- * - Real-time validation
- * - Sample data loading
- * - JSON formatting
- * - Diff view with visual indicators
- *
- * The component:
- * - Manages input state and validation
- * - Handles sample data selection
- * - Controls comparison process
- * - Displays comparison results
- */
-const JsonComparer: React.FC = () => {
+const YamlComparer: React.FC = () => {
   const {
-    leftJson,
-    rightJson,
+    leftYaml,
+    rightYaml,
     diffResult,
     error,
     loading,
-    leftJsonError,
-    rightJsonError,
-    setLeftJson,
-    setRightJson,
-    validateJson,
-    compareJson,
-    formatJson: handleFormat,
+    leftYamlError,
+    rightYamlError,
+    setLeftYaml,
+    setRightYaml,
+    validateYaml,
+    compareYaml,
+    formatYaml: handleFormat,
     clearAll,
     loadSampleData,
-  } = useJsonCompare();
+  } = useYamlCompare();
 
-  // Track selected sample type
   const [selectedSample, setSelectedSample] =
     useState<SampleType>("productExample");
 
-  // Handle sample data loading
   const handleSampleSelect = useCallback(
-    (sampleType: SampleType, leftSample: string, rightSample?: string) => {
+    (sampleType: SampleType) => {
       setSelectedSample(sampleType);
-      loadSampleData(leftSample, rightSample || "");
+      const leftYamlSample = getSampleYamlByType(sampleType, "left");
+      const rightYamlSample = getSampleYamlByType(sampleType, "right");
+      loadSampleData(leftYamlSample, rightYamlSample);
     },
     [loadSampleData]
   );
 
-  // Disable compare button when inputs are invalid or comparison is in progress
   const isCompareButtonDisabled =
     loading ||
-    !leftJson ||
-    !rightJson ||
-    Boolean(leftJsonError) ||
-    Boolean(rightJsonError);
+    !leftYaml ||
+    !rightYaml ||
+    Boolean(leftYamlError) ||
+    Boolean(rightYamlError);
 
   return (
     <div className="flex flex-col gap-4">
-      <JsonToolbar
+      <YamlToolbar
         selectedSample={selectedSample}
         onSampleSelect={handleSampleSelect}
         onClearAll={clearAll}
@@ -149,44 +121,44 @@ const JsonComparer: React.FC = () => {
 
       {error && <ErrorAlert message={error} />}
 
-      {/* Input panels in a responsive grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <JsonInputPanel
-          id="leftJson"
-          label="Left JSON"
-          value={leftJson}
-          error={leftJsonError}
-          onChange={setLeftJson}
-          onBlur={(value) => validateJson("left", value)}
+          id="leftYaml"
+          label="Left YAML"
+          value={leftYaml}
+          error={leftYamlError}
+          onChange={setLeftYaml}
+          onBlur={(value) => validateYaml("left", value)}
           onFormat={() => handleFormat("left")}
+          placeholder={"example: |\n  Paste your YAML here\n"}
         />
 
         <JsonInputPanel
-          id="rightJson"
-          label="Right JSON"
-          value={rightJson}
-          error={rightJsonError}
-          onChange={setRightJson}
-          onBlur={(value) => validateJson("right", value)}
+          id="rightYaml"
+          label="Right YAML"
+          value={rightYaml}
+          error={rightYamlError}
+          onChange={setRightYaml}
+          onBlur={(value) => validateYaml("right", value)}
           onFormat={() => handleFormat("right")}
+          placeholder={"example: |\n  Paste your YAML here\n"}
         />
       </div>
 
       <CompareButton
-        onClick={compareJson}
+        onClick={compareYaml}
         isLoading={loading}
         isDisabled={isCompareButtonDisabled}
       />
 
-      {/* Display diff view when comparison is complete */}
       {diffResult && (
         <div className="mt-6">
           <h2 className="text-xl font-bold mb-4">Comparison Result</h2>
-          <JsonDiffView diffItems={diffResult} mode={"json"} />
+          <JsonDiffView diffItems={diffResult} mode={"yaml"} />
         </div>
       )}
     </div>
   );
 };
 
-export default memo(JsonComparer);
+export default memo(YamlComparer);

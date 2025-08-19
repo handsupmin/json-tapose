@@ -1,8 +1,11 @@
 import React, { useCallback, useState } from "react";
+import { useFormatMode } from "../contexts/FormatModeContext";
 import { useJsonTree } from "../hooks/useJsonTree";
+import { useYamlTree } from "../hooks/useYamlTree";
 import JsonInputPanel from "./JsonInputPanel";
 import JsonTreeMaker from "./JsonTreeMaker";
 import SampleSelector from "./SampleSelector";
+import YamlTreeMaker from "./YamlTreeMaker";
 
 /**
  * Component for visualizing JSON data as an interactive tree
@@ -22,7 +25,10 @@ import SampleSelector from "./SampleSelector";
  */
 const JsonTreeViewer: React.FC = () => {
   const [expandAll, setExpandAll] = useState<boolean | undefined>(undefined);
+  const { mode } = useFormatMode();
   // Hook for managing JSON tree state and operations
+  const jsonTree = useJsonTree();
+  const yamlTree = useYamlTree();
   const {
     jsonInput,
     error,
@@ -34,7 +40,7 @@ const JsonTreeViewer: React.FC = () => {
     handleClear,
     handleSampleSelect,
     handleErrorDismiss,
-  } = useJsonTree();
+  } = mode === "json" ? jsonTree : yamlTree;
 
   const handleExpandAll = useCallback(() => {
     setExpandAll(true);
@@ -66,20 +72,27 @@ const JsonTreeViewer: React.FC = () => {
         <div className="flex flex-col">
           <JsonInputPanel
             id="json-tree-input"
-            label="JSON Input"
+            label={mode === "json" ? "JSON Input" : "YAML Input"}
             value={jsonInput}
             onChange={handleInputChange}
             onBlur={handleInputBlur}
             onFormat={handleFormat}
             error={error}
             onErrorDismiss={handleErrorDismiss}
+            placeholder={
+              mode === "json"
+                ? '{"example": "Paste your JSON here"}'
+                : "example: |\n  Paste your YAML here\n"
+            }
           />
         </div>
 
         {/* Tree visualization with empty state */}
         <div className="flex flex-col">
           <div className="flex items-center justify-between mb-2">
-            <h2 className="text-xl font-bold">Tree Structure</h2>
+            <h2 className="text-xl font-bold">
+              {mode === "json" ? "Tree Structure" : "YAML Tree"}
+            </h2>
             <div className="flex items-center gap-2">
               <button onClick={handleExpandAll} className="btn btn-sm">
                 Expand All
@@ -91,16 +104,29 @@ const JsonTreeViewer: React.FC = () => {
           </div>
           <div className="flex-1">
             {shouldShowTree ? (
-              <JsonTreeMaker
-                jsonData={jsonInput}
-                error={error || undefined}
-                expandAll={expandAll}
-              />
+              mode === "json" ? (
+                <JsonTreeMaker
+                  jsonData={jsonInput}
+                  error={error || undefined}
+                  expandAll={expandAll}
+                />
+              ) : (
+                <YamlTreeMaker
+                  yamlData={jsonInput}
+                  error={error || undefined}
+                  expandAll={expandAll}
+                />
+              )
             ) : (
               <div className="bg-base-100 rounded-lg p-8 border border-base-300">
                 <div className="text-center text-base-content/60">
                   <div className="text-4xl mb-4">🌳</div>
-                  <p>{error || "Enter valid JSON to treefy"}</p>
+                  <p>
+                    {error ||
+                      (mode === "json"
+                        ? "Enter valid JSON to treefy"
+                        : "Enter valid YAML to treefy")}
+                  </p>
                 </div>
               </div>
             )}
