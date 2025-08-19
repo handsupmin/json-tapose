@@ -1,6 +1,8 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from "react";
+import { useFormatMode } from "../contexts/FormatModeContext";
 import type { SampleType } from "../utils/jsonUtils";
 import { getSampleJsonByType, sampleOptions } from "../utils/jsonUtils";
+import { getSampleYamlByType, yamlSampleOptions } from "../utils/yamlUtils";
 
 /**
  * Props for the SampleSelector component
@@ -38,29 +40,34 @@ interface SampleSelectorProps {
 const SampleSelector: React.FC<SampleSelectorProps> = ({
   selectedSample,
   onSelect,
-  mode = "compare", // Default to compare mode for backward compatibility
+  mode: pageMode = "compare", // Default to compare mode for backward compatibility
 }) => {
   // Refs and state for dropdown management
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const { mode: formatMode } = useFormatMode();
 
   // Handle sample selection based on mode
   const handleExampleSelect = useCallback(
     (sampleType: SampleType) => {
       setIsDropdownOpen(false);
 
-      const leftSample = getSampleJsonByType(sampleType, "left");
+      const getLeft = () =>
+        formatMode === "json"
+          ? getSampleJsonByType(sampleType, "left")
+          : getSampleYamlByType(sampleType, "left");
+      const getRight = () =>
+        formatMode === "json"
+          ? getSampleJsonByType(sampleType, "right")
+          : getSampleYamlByType(sampleType, "right");
 
-      if (mode === "single") {
-        // Single mode (TreeViewer) only needs left sample
-        onSelect(sampleType, leftSample);
+      if (pageMode === "single") {
+        onSelect(sampleType, getLeft());
       } else {
-        // Compare mode (JsonComparer) needs both samples
-        const rightSample = getSampleJsonByType(sampleType, "right");
-        onSelect(sampleType, leftSample, rightSample);
+        onSelect(sampleType, getLeft(), getRight());
       }
     },
-    [onSelect, mode]
+    [onSelect, pageMode, formatMode]
   );
 
   // Close dropdown when clicking outside
@@ -109,18 +116,22 @@ const SampleSelector: React.FC<SampleSelectorProps> = ({
           role="listbox"
           aria-label="Example options"
         >
-          {sampleOptions.map((option) => (
-            <li key={option.value} className="hover:bg-base-300 rounded">
-              <button
-                onClick={() => handleExampleSelect(option.value as SampleType)}
-                className="w-full text-left p-2"
-                role="option"
-                aria-selected={option.value === selectedSample}
-              >
-                {option.label}
-              </button>
-            </li>
-          ))}
+          {(formatMode === "json" ? sampleOptions : yamlSampleOptions).map(
+            (option) => (
+              <li key={option.value} className="hover:bg-base-300 rounded">
+                <button
+                  onClick={() =>
+                    handleExampleSelect(option.value as SampleType)
+                  }
+                  className="w-full text-left p-2"
+                  role="option"
+                  aria-selected={option.value === selectedSample}
+                >
+                  {option.label}
+                </button>
+              </li>
+            )
+          )}
         </ul>
       )}
     </div>

@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 import "./App.css";
-import ContentSections from "./components/ContentSections";
+import ComparePage from "./components/ComparePage";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
-import JsonComparer from "./components/JsonComparer";
 import JsonTreeViewer from "./components/JsonTreeViewer";
+import { KakaoAdfitBanner } from "./components/KakaoAdfitBanner";
 import SEO from "./components/SEO";
 import ThemeController from "./components/ThemeController";
-import { JsonCompareProvider } from "./contexts/JsonCompareContext";
+import { FormatModeProvider } from "./contexts/FormatModeContext";
 import { getDefaultTheme } from "./utils/themeUtils";
 
 const SCROLL_OFFSET = 80;
@@ -51,27 +51,28 @@ function App() {
   }, [location.hash]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-base-100">
-      <SEO />
-      <Header
-        themeController={
-          <ThemeController currentTheme={theme} onChange={setTheme} />
-        }
-      />
-      <main id="main-content" className="container mx-auto flex-grow p-4">
-        <div className="flex flex-col gap-4">
-          <JsonCompareProvider>
+    <FormatModeProvider>
+      <div className="min-h-screen flex flex-col bg-base-100">
+        <SEO />
+        <Header
+          themeController={
+            <ThemeController currentTheme={theme} onChange={setTheme} />
+          }
+        />
+        <main id="main-content" className="container mx-auto flex-grow p-4">
+          <div className="flex flex-col gap-4">
             <Routes>
-              <Route path="/" element={<JsonComparer />} />
+              <Route path="/" element={<ComparePage />} />
               <Route path="/treeviewer" element={<JsonTreeViewer />} />
             </Routes>
-          </JsonCompareProvider>
-          {/* Add comprehensive content sections */}
-          <ContentSections />
-        </div>
-      </main>
-      <Footer />
-    </div>
+            {/* Add comprehensive content sections */}
+            <KakaoAdfitBanner />
+            {/* <ContentSections /> */}
+          </div>
+        </main>
+        <Footer />
+      </div>
+    </FormatModeProvider>
   );
 }
 

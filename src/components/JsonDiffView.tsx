@@ -18,7 +18,7 @@ import DiffLineRenderer from "./diff/DiffLineRenderer";
  */
 const DEFAULT_CONTEXT_LINES = 3;
 const SCROLL_TIMEOUT_MS = 0;
-const DIFF_PANEL_HEIGHT = "70vh";
+const DIFF_PANEL_MAX_HEIGHT = "70vh";
 
 /**
  * Type definition for the DiffLineRenderer component instance
@@ -41,7 +41,7 @@ type DiffPanelProps = {
   onExpandableLineClick: () => void;
   registerRef: (node: HTMLDivElement | null) => void;
   rendererRef: React.MutableRefObject<DiffLineRendererInstance | null>;
-  contentHeight: string;
+  contentMaxHeight: string;
 };
 
 /**
@@ -63,13 +63,20 @@ const DiffPanel: React.FC<DiffPanelProps> = ({
   onExpandableLineClick,
   registerRef,
   rendererRef,
-  contentHeight,
+  contentMaxHeight,
 }) => (
   <div className="border border-base-300 rounded-lg overflow-hidden flex flex-col">
     <div className="bg-base-200 px-2 py-1 font-semibold border-b border-base-300">
       {title}
     </div>
-    <div className="w-full font-mono text-sm" style={{ height: contentHeight }}>
+    <div
+      className="w-full font-mono text-sm max-h-full"
+      style={{
+        maxHeight: contentMaxHeight,
+        height: "auto",
+        minHeight: "200px",
+      }}
+    >
       <DiffLineRenderer
         ref={(node: DiffLineRendererInstance | null) => {
           rendererRef.current = node;
@@ -94,10 +101,18 @@ const DiffPanel: React.FC<DiffPanelProps> = ({
  * - Option to show full comparison
  * - Smooth animation
  */
-const JsonSameMessage = ({ onShowResult }: { onShowResult: () => void }) => (
+const JsonSameMessage = ({
+  onShowResult,
+  mode,
+}: {
+  onShowResult: () => void;
+  mode: "json" | "yaml";
+}) => (
   <div className="absolute inset-0 flex items-center justify-center bg-base-100/60 backdrop-blur-sm z-10">
     <div className="bg-success/20 text-success p-5 rounded-lg text-center shadow-lg border border-success/30 transform scale-110 transition-all duration-300">
-      <div className="text-4xl mb-2">✨ JSONsame ✨</div>
+      <div className="text-4xl mb-2">
+        ✨ {mode === "json" ? "JSONsame" : "YAMLsame"} ✨
+      </div>
       <div className="text-xl">There's No Diff 🔍</div>
       <button
         onClick={onShowResult}
@@ -127,7 +142,10 @@ const JsonSameMessage = ({ onShowResult }: { onShowResult: () => void }) => (
  * - Coordinates panel synchronization
  * - Provides visual feedback
  */
-const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
+const JsonDiffView: React.FC<JsonDiffViewProps> = ({
+  diffItems,
+  mode = "json",
+}) => {
   // State for diff view configuration
   const [showOnlyDiff, setShowOnlyDiff] = useState<boolean>(true);
   const [contextLines, setContextLines] = useState<number>(
@@ -164,7 +182,7 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
   }, [diffItems]);
 
   // Use fixed panel height for consistent layout
-  const panelHeight = useMemo(() => DIFF_PANEL_HEIGHT, []);
+  const panelMaxHeight = useMemo(() => DIFF_PANEL_MAX_HEIGHT, []);
 
   // Scroll both panels to top
   const scrollToTop = useCallback(() => {
@@ -260,10 +278,10 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
       {/* Diff panels with synchronized scrolling */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2 overflow-hidden relative">
         {isExactlySame && !showResultsWhenIdentical && (
-          <JsonSameMessage onShowResult={handleShowResult} />
+          <JsonSameMessage onShowResult={handleShowResult} mode={mode} />
         )}
         <DiffPanel
-          title="Left JSON"
+          title={mode === "json" ? "Left JSON" : "Left YAML"}
           lines={processedLines.left}
           side="left"
           lineNumbers={processedLines.leftLineNumbers}
@@ -271,11 +289,11 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
           onExpandableLineClick={handleExpandableLineClick}
           registerRef={leftRefCallback}
           rendererRef={leftRendererRef}
-          contentHeight={panelHeight}
+          contentMaxHeight={panelMaxHeight}
         />
 
         <DiffPanel
-          title="Right JSON"
+          title={mode === "json" ? "Right JSON" : "Right YAML"}
           lines={processedLines.right}
           side="right"
           lineNumbers={processedLines.rightLineNumbers}
@@ -283,7 +301,7 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({ diffItems }) => {
           onExpandableLineClick={handleExpandableLineClick}
           registerRef={rightRefCallback}
           rendererRef={rightRendererRef}
-          contentHeight={panelHeight}
+          contentMaxHeight={panelMaxHeight}
         />
       </div>
     </div>

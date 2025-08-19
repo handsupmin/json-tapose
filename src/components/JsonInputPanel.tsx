@@ -74,6 +74,7 @@ const JsonInputPanel: React.FC<JsonInputPanelProps> = ({
   onBlur,
   onFormat,
   onErrorDismiss,
+  placeholder,
 }) => {
   // Local error state for fallback dismissal
   const [errorDismissed, setErrorDismissed] = useState(false);
@@ -122,7 +123,7 @@ const JsonInputPanel: React.FC<JsonInputPanelProps> = ({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onBlur={(e) => onBlur(e.target.value)}
-          placeholder={'{"example": "Paste your JSON here"}'}
+          placeholder={placeholder ?? '{"example": "Paste your JSON here"}'}
           aria-invalid={error ? "true" : "false"}
           aria-describedby={hasError ? `${id}Error` : undefined}
           translate="no"

@@ -54,6 +54,7 @@ export interface ProcessedDiffLines {
  */
 export interface JsonDiffViewProps {
   diffItems: JsonDiffItem[];
+  mode?: "json" | "yaml";
 }
 
 /**
@@ -68,4 +69,5 @@ export interface JsonInputPanelProps {
   onBlur: (value: string) => void;
   onFormat: () => void;
   onErrorDismiss?: () => void;
+  placeholder?: string;
 }
