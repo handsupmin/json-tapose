@@ -5,7 +5,6 @@ import ComparePage from "./components/ComparePage";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
 import JsonTreeViewer from "./components/JsonTreeViewer";
-import { KakaoAdfitBanner } from "./components/KakaoAdfitBanner";
 import SEO from "./components/SEO";
 import ThemeController from "./components/ThemeController";
 import { FormatModeProvider } from "./contexts/FormatModeContext";
@@ -52,7 +51,7 @@ function App() {
 
   return (
     <FormatModeProvider>
-      <div className="min-h-screen flex flex-col bg-base-100">
+      <div className="min-h-[calc(100vh-4rem)] flex flex-col bg-base-100">
         <SEO />
         <Header
           themeController={
@@ -65,9 +64,6 @@ function App() {
               <Route path="/" element={<ComparePage />} />
               <Route path="/treeviewer" element={<JsonTreeViewer />} />
             </Routes>
-            {/* Add comprehensive content sections */}
-            <KakaoAdfitBanner />
-            {/* <ContentSections /> */}
           </div>
         </main>
         <Footer />

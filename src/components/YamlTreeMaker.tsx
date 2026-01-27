@@ -177,7 +177,7 @@ const YamlTreeMaker: React.FC<{
 
   return (
     <div
-      className="bg-base-100 rounded-lg p-4 border border-base-300 max-h-96 overflow-auto text-left font-mono text-sm leading-normal"
+      className="bg-base-100 rounded-lg p-4 border border-base-300 min-h-96 max-h-[580px] overflow-auto text-left font-mono text-sm leading-normal"
       translate="no"
     >
       <YamlTreeNode data={parsed} expandAll={expandAll} />
