@@ -17,6 +17,8 @@ import { useSimpleValueRenderer } from "./useSimpleValueRenderer";
  */
 export const usePropertyProcessors = () => {
   const { renderSimpleValue } = useSimpleValueRenderer();
+  const getItemPrefix = (item: JsonDiffItem) =>
+    item.isArrayItem ? "" : `"${item.key}": `;
 
   /**
    * Process children items recursively, handling different types of changes
@@ -94,12 +96,12 @@ export const usePropertyProcessors = () => {
     if (!item.children || item.children.length === 0) {
       const contentValue = renderSimpleValue(item.value1);
       leftLines.push({
-        content: `"${item.key}": ${contentValue}${!isLast ? "," : ""}`,
+        content: `${getItemPrefix(item)}${contentValue}${!isLast ? "," : ""}`,
         type: "unchanged",
         indentLevel,
       });
       rightLines.push({
-        content: `"${item.key}": ${contentValue}${!isLast ? "," : ""}`,
+        content: `${getItemPrefix(item)}${contentValue}${!isLast ? "," : ""}`,
         type: "unchanged",
         indentLevel,
       });
@@ -107,13 +109,13 @@ export const usePropertyProcessors = () => {
       const isArray = Array.isArray(item.value1);
 
       leftLines.push({
-        content: `"${item.key}": ${isArray ? "[" : "{"}`,
+        content: `${getItemPrefix(item)}${isArray ? "[" : "{"}`,
         type: "unchanged",
         indentLevel,
         isOpening: true,
       });
       rightLines.push({
-        content: `"${item.key}": ${isArray ? "[" : "{"}`,
+        content: `${getItemPrefix(item)}${isArray ? "[" : "{"}`,
         type: "unchanged",
         indentLevel,
         isOpening: true,
@@ -150,14 +152,14 @@ export const usePropertyProcessors = () => {
   ) => {
     if (!item.children || item.children.length === 0) {
       leftLines.push({
-        content: `"${item.key}": ${renderSimpleValue(item.value1)}${
+        content: `${getItemPrefix(item)}${renderSimpleValue(item.value1)}${
           !isLast ? "," : ""
         }`,
         type: "removed",
         indentLevel,
       });
       rightLines.push({
-        content: `"${item.key}": ${renderSimpleValue(item.value2)}${
+        content: `${getItemPrefix(item)}${renderSimpleValue(item.value2)}${
           !isLast ? "," : ""
         }`,
         type: "added",
@@ -168,13 +170,13 @@ export const usePropertyProcessors = () => {
       const isRightArray = Array.isArray(item.value2);
 
       leftLines.push({
-        content: `"${item.key}": ${isLeftArray ? "[" : "{"}`,
+        content: `${getItemPrefix(item)}${isLeftArray ? "[" : "{"}`,
         type: "unchanged",
         indentLevel,
         isOpening: true,
       });
       rightLines.push({
-        content: `"${item.key}": ${isRightArray ? "[" : "{"}`,
+        content: `${getItemPrefix(item)}${isRightArray ? "[" : "{"}`,
         type: "unchanged",
         indentLevel,
         isOpening: true,
@@ -208,7 +210,7 @@ export const usePropertyProcessors = () => {
 
     if (!item.children || item.children.length === 0) {
       lines.push({
-        content: `"${item.key}": ${renderSimpleValue(value)}${
+        content: `${getItemPrefix(item)}${renderSimpleValue(value)}${
           !isLast ? "," : ""
         }`,
         type,
@@ -218,7 +220,7 @@ export const usePropertyProcessors = () => {
       const isArray = Array.isArray(value);
 
       lines.push({
-        content: `"${item.key}": ${isArray ? "[" : "{"}`,
+        content: `${getItemPrefix(item)}${isArray ? "[" : "{"}`,
         type,
         indentLevel,
         isOpening: true,

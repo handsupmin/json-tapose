@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react";
-import { isValidJson } from "../utils/jsonUtils";
+import type { JsonValidationError } from "../utils/jsonUtils";
+import { parseJsonInput } from "../utils/jsonUtils";
 
 /**
  * Hook for JSON validation with error state management
@@ -16,22 +17,12 @@ import { isValidJson } from "../utils/jsonUtils";
  * - Error state is cleared when input becomes valid
  */
 export const useJsonValidation = () => {
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<JsonValidationError | null>(null);
 
   const validate = useCallback((value: string): boolean => {
-    if (!value.trim()) {
-      setError(null);
-      return true;
-    }
-
-    try {
-      JSON.parse(value);
-      setError(null);
-      return true;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Invalid JSON format");
-      return false;
-    }
+    const parsed = parseJsonInput(value);
+    setError(parsed.error);
+    return parsed.error === null;
   }, []);
 
   const clearError = useCallback(() => {
@@ -39,7 +30,7 @@ export const useJsonValidation = () => {
   }, []);
 
   const isValid = useCallback((value: string): boolean => {
-    return !value.trim() || isValidJson(value);
+    return parseJsonInput(value).error === null;
   }, []);
 
   return {

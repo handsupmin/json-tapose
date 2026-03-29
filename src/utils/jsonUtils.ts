@@ -1,4 +1,59 @@
 type DiffType = "added" | "removed" | "unchanged" | "changed";
+export type JsonContainerType = "object" | "array";
+type JsonPrimitive = string | number | boolean | null;
+export type JsonValue = JsonPrimitive | JsonObject | JsonArray;
+export interface JsonObject {
+  [key: string]: JsonValue;
+}
+export type JsonArray = JsonValue[];
+export type JsonRootValue = JsonObject | JsonArray;
+
+export interface JsonValidationError {
+  message: string;
+  index: number;
+  line: number;
+  column: number;
+  endIndex: number;
+  endLine: number;
+  endColumn: number;
+}
+
+export interface JsonInlineErrorPreview {
+  mode: "inline";
+  line: number;
+  column: number;
+  prefix: string;
+  highlight: string;
+  suffix: string;
+}
+
+export interface JsonMultilineErrorPreviewLine {
+  lineNumber: number;
+  text: string;
+  isFocus: boolean;
+}
+
+export interface JsonMultilineErrorPreview {
+  mode: "multiline";
+  focusLine: number;
+  focusColumn: number;
+  lines: JsonMultilineErrorPreviewLine[];
+}
+
+export type JsonErrorPreview =
+  | JsonInlineErrorPreview
+  | JsonMultilineErrorPreview;
+
+export interface JsonParseResult {
+  value: unknown | null;
+  error: JsonValidationError | null;
+}
+
+export interface JsonComparisonResult {
+  items: JsonDiffItem[];
+  leftRootType: JsonContainerType;
+  rightRootType: JsonContainerType;
+}
 
 /**
  * Represents a difference between two JSON objects
@@ -16,6 +71,7 @@ export interface JsonDiffItem {
   value2?: unknown;
   children?: JsonDiffItem[];
   path: string[];
+  isArrayItem?: boolean;
 }
 
 // Add sample types export
@@ -42,28 +98,100 @@ export const sampleOptions = [
  * Validate if a string is valid JSON
  */
 export const isValidJson = (jsonString: string): boolean => {
-  try {
-    JSON.parse(jsonString);
-    return true;
-  } catch {
-    return false;
-  }
+  return parseJsonInput(jsonString).error === null;
 };
 
 /**
  * Format JSON string with indentation
  */
 export const formatJson = (jsonString: string): string => {
+  const parsed = parseJsonInput(jsonString);
+  return parsed.error ? jsonString : JSON.stringify(parsed.value, null, 2);
+};
+
+/**
+ * Parse JSON input and expose structured error details for UI feedback.
+ */
+export const parseJsonInput = (jsonString: string): JsonParseResult => {
+  if (!jsonString.trim()) {
+    return {
+      value: null,
+      error: null,
+    };
+  }
+
   try {
-    const parsedJson = JSON.parse(jsonString);
-    return JSON.stringify(parsedJson, null, 2);
-  } catch {
-    return jsonString;
+    return {
+      value: JSON.parse(jsonString) as unknown,
+      error: null,
+    };
+  } catch (error) {
+    return {
+      value: null,
+      error: buildJsonValidationError(jsonString, error),
+    };
   }
 };
 
 /**
- * Compare two JSON objects and generate a difference report
+ * Build a human-readable preview around a JSON parse failure.
+ */
+export const buildJsonErrorPreview = (
+  jsonString: string,
+  error: JsonValidationError
+): JsonErrorPreview => {
+  const lines = jsonString.split("\n");
+  const safeLineIndex = Math.max(0, Math.min(error.line - 1, lines.length - 1));
+  const lineText = lines[safeLineIndex] ?? "";
+  const focusColumn = Math.max(1, error.column);
+  const lineBoundaryFailure =
+    error.index >= jsonString.length ||
+    jsonString[error.index] === "\n" ||
+    jsonString[error.index] === "\r";
+  const isMultiline =
+    error.line !== error.endLine || lineBoundaryFailure || lineText.length === 0;
+
+  if (isMultiline) {
+    const startLine = Math.max(1, error.line - 3);
+    const endLine = Math.min(lines.length, error.endLine + 3);
+
+    return {
+      mode: "multiline",
+      focusLine: error.line,
+      focusColumn,
+      lines: lines
+        .slice(startLine - 1, endLine)
+        .map((text, index) => {
+          const lineNumber = startLine + index;
+          return {
+            lineNumber,
+            text,
+            isFocus: lineNumber >= error.line && lineNumber <= error.endLine,
+          };
+        }),
+    };
+  }
+
+  const focusIndex = Math.max(
+    0,
+    Math.min(lineText.length - 1, focusColumn - 1, error.endColumn - 1)
+  );
+  const start = Math.max(0, focusIndex - 7);
+  const end = Math.min(lineText.length, focusIndex + 8);
+  const highlight = lineText.slice(focusIndex, focusIndex + 1) || " ";
+
+  return {
+    mode: "inline",
+    line: error.line,
+    column: focusColumn,
+    prefix: lineText.slice(start, focusIndex),
+    highlight,
+    suffix: lineText.slice(focusIndex + highlight.length, end),
+  };
+};
+
+/**
+ * Compare two JSON container values and generate a diff report with root metadata.
  *
  * Performance optimizations:
  * - Uses a cache to avoid re-comparing the same paths
@@ -71,38 +199,53 @@ export const formatJson = (jsonString: string): string => {
  * - Early returns for simple cases
  * - Recursive comparison only for nested objects
  */
-export const compareJson = (
-  json1: Record<string, unknown> | null,
-  json2: Record<string, unknown> | null
-): JsonDiffItem[] => {
+export const compareJsonDocuments = (
+  json1: JsonRootValue,
+  json2: JsonRootValue
+): JsonComparisonResult => {
+  const leftRootType = getJsonContainerType(json1);
+  const rightRootType = getJsonContainerType(json2);
+
+  if (leftRootType !== rightRootType) {
+    throw new Error(
+      "Both JSON roots must use the same container type (object or array)"
+    );
+  }
+
   // Cache for memoizing comparison results to avoid redundant work
   const cache = new Map<string, JsonDiffItem>();
 
   // Internal function to perform the actual comparison
-  const compareObjects = (
-    obj1: Record<string, unknown> | null,
-    obj2: Record<string, unknown> | null,
-    currentPath: string[] = []
+  const compareContainers = (
+    obj1: JsonRootValue | null,
+    obj2: JsonRootValue | null,
+    currentPath: string[] = [],
+    containerType: JsonContainerType
   ): JsonDiffItem[] => {
     const results: JsonDiffItem[] = [];
 
     if (!obj1 && !obj2) return results;
 
-    // Handle null as empty objects
-    const safeObj1 = obj1 || {};
-    const safeObj2 = obj2 || {};
+    const safeObj1 = obj1 || getEmptyContainer(containerType);
+    const safeObj2 = obj2 || getEmptyContainer(containerType);
+    const safeObj1Record = safeObj1 as Record<string, unknown>;
+    const safeObj2Record = safeObj2 as Record<string, unknown>;
 
-    // Efficiently collect all keys (using Set)
-    const allKeys = new Set([
-      ...Object.keys(safeObj1),
-      ...Object.keys(safeObj2),
-    ]);
+    const allKeys =
+      containerType === "array"
+        ? getArrayKeys(safeObj1 as JsonArray, safeObj2 as JsonArray)
+        : Array.from(
+            new Set([
+              ...Object.keys(safeObj1 as JsonObject),
+              ...Object.keys(safeObj2 as JsonObject),
+            ])
+          );
 
     // Process each key
     for (const key of allKeys) {
       // Check if key exists in each object
-      const inObj1 = key in safeObj1;
-      const inObj2 = key in safeObj2;
+      const inObj1 = key in safeObj1Record;
+      const inObj2 = key in safeObj2Record;
 
       // Calculate path for current key
       const keyPath = [...currentPath, key];
@@ -114,8 +257,8 @@ export const compareJson = (
         continue;
       }
 
-      const value1 = inObj1 ? safeObj1[key] : undefined;
-      const value2 = inObj2 ? safeObj2[key] : undefined;
+      const value1 = inObj1 ? safeObj1Record[key] : undefined;
+      const value2 = inObj2 ? safeObj2Record[key] : undefined;
 
       // Key exists only in the second object (added)
       if (!inObj1 && inObj2) {
@@ -124,6 +267,7 @@ export const compareJson = (
           type: "added",
           value2,
           path: keyPath,
+          isArrayItem: containerType === "array",
         };
         cache.set(cacheKey, item);
         results.push(item);
@@ -137,6 +281,7 @@ export const compareJson = (
           type: "removed",
           value1,
           path: keyPath,
+          isArrayItem: containerType === "array",
         };
         cache.set(cacheKey, item);
         results.push(item);
@@ -165,9 +310,12 @@ export const compareJson = (
         }
 
         // Recursively compare objects
-        const v1 = value1 as Record<string, unknown>;
-        const v2 = value2 as Record<string, unknown>;
-        const children = compareObjects(v1, v2, keyPath);
+        const nextContainerType = getJsonContainerType(
+          (value1 ?? value2) as JsonRootValue
+        );
+        const v1 = value1 as JsonRootValue;
+        const v2 = value2 as JsonRootValue;
+        const children = compareContainers(v1, v2, keyPath, nextContainerType);
 
         // Only mark as changed if there are actual differences
         const hasChanges = children.some((child) => child.type !== "unchanged");
@@ -179,6 +327,7 @@ export const compareJson = (
           value2,
           children,
           path: keyPath,
+          isArrayItem: containerType === "array",
         };
         cache.set(cacheKey, item);
         results.push(item);
@@ -197,6 +346,7 @@ export const compareJson = (
           value1,
           value2,
           path: keyPath,
+          isArrayItem: containerType === "array",
         };
         cache.set(cacheKey, item);
         results.push(item);
@@ -207,6 +357,7 @@ export const compareJson = (
           type: "unchanged",
           value1,
           path: keyPath,
+          isArrayItem: containerType === "array",
         };
         cache.set(cacheKey, item);
         results.push(item);
@@ -216,7 +367,88 @@ export const compareJson = (
     return results;
   };
 
-  return compareObjects(json1, json2);
+  return {
+    items: compareContainers(json1, json2, [], leftRootType),
+    leftRootType,
+    rightRootType,
+  };
+};
+
+/**
+ * Backward-compatible object-only compare helper.
+ */
+export const compareJson = (
+  json1: Record<string, unknown> | null,
+  json2: Record<string, unknown> | null
+): JsonDiffItem[] => {
+  return compareJsonDocuments(
+    (json1 ?? {}) as JsonRootValue,
+    (json2 ?? {}) as JsonRootValue
+  ).items;
+};
+
+const getEmptyContainer = (type: JsonContainerType): JsonRootValue => {
+  return type === "array" ? [] : {};
+};
+
+const getJsonContainerType = (value: JsonRootValue): JsonContainerType => {
+  return Array.isArray(value) ? "array" : "object";
+};
+
+const getArrayKeys = (left: JsonArray, right: JsonArray): string[] => {
+  const maxLength = Math.max(left.length, right.length);
+  return Array.from({ length: maxLength }, (_, index) => String(index));
+};
+
+const buildJsonValidationError = (
+  jsonString: string,
+  error: unknown
+): JsonValidationError => {
+  const message =
+    error instanceof Error ? error.message : "Invalid JSON format";
+  const parsedPosition = /position (\d+)(?: \(line (\d+) column (\d+)\))?/i.exec(
+    message
+  );
+  const positionFromMessage = parsedPosition
+    ? Number(parsedPosition[1])
+    : message.toLowerCase().includes("end of json input")
+    ? jsonString.length
+    : null;
+  const safeIndex = clampIndex(positionFromMessage ?? 0, jsonString.length);
+  const { line, column } = getLineColumnFromIndex(jsonString, safeIndex);
+
+  return {
+    message,
+    index: safeIndex,
+    line: parsedPosition?.[2] ? Number(parsedPosition[2]) : line,
+    column: parsedPosition?.[3] ? Number(parsedPosition[3]) : column,
+    endIndex: Math.min(jsonString.length, safeIndex + 1),
+    endLine: parsedPosition?.[2] ? Number(parsedPosition[2]) : line,
+    endColumn: parsedPosition?.[3]
+      ? Number(parsedPosition[3]) + 1
+      : column + 1,
+  };
+};
+
+const clampIndex = (value: number, max: number) => {
+  return Math.max(0, Math.min(value, max));
+};
+
+const getLineColumnFromIndex = (source: string, index: number) => {
+  let line = 1;
+  let column = 1;
+
+  for (let currentIndex = 0; currentIndex < index; currentIndex += 1) {
+    if (source[currentIndex] === "\n") {
+      line += 1;
+      column = 1;
+      continue;
+    }
+
+    column += 1;
+  }
+
+  return { line, column };
 };
 
 /**

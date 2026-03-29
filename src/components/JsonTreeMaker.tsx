@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
+import type { JsonValidationError } from "../utils/jsonUtils";
 
 /**
  * Type definitions for JSON tree structure
@@ -128,7 +129,7 @@ const JsonTreeNode: React.FC<JsonTreeNodeProps> = ({
         )}
         <div className="flex-1 min-w-0 flex items-center">
           {isRoot && (
-            <div className="text-base-content/60 italic mr-2">object</div>
+            <div className="text-base-content/60 italic mr-2">{type}</div>
           )}
           <span
             className={`whitespace-nowrap ${
@@ -197,7 +198,7 @@ const JsonTreeNode: React.FC<JsonTreeNodeProps> = ({
 
 interface JsonTreeMakerProps {
   jsonData: string;
-  error?: string;
+  error?: JsonValidationError | string;
   expandAll?: boolean;
 }
 
@@ -224,6 +225,8 @@ const JsonTreeMaker: React.FC<JsonTreeMakerProps> = ({
 }) => {
   const [parsedData, setParsedData] = useState<JsonValue | null>(null);
   const [parseError, setParseError] = useState<string>("");
+  const errorMessage =
+    typeof error === "string" ? error : error ? error.message : "";
 
   // Parse JSON data and handle errors
   React.useEffect(() => {
@@ -244,7 +247,7 @@ const JsonTreeMaker: React.FC<JsonTreeMakerProps> = ({
   }, [jsonData]);
 
   // Display error state
-  if (error || parseError) {
+  if (errorMessage || parseError) {
     return (
       <div className="json-tree-viewer bg-base-100 rounded-lg p-4 border border-error">
         <div className="alert alert-error">
@@ -261,7 +264,7 @@ const JsonTreeMaker: React.FC<JsonTreeMakerProps> = ({
               d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
             />
           </svg>
-          <span>{error || parseError}</span>
+          <span>{errorMessage || parseError}</span>
         </div>
       </div>
     );

@@ -144,6 +144,8 @@ const JsonSameMessage = ({
  */
 const JsonDiffView: React.FC<JsonDiffViewProps> = ({
   diffItems,
+  leftRootType = "object",
+  rightRootType = "object",
   mode = "json",
 }) => {
   // State for diff view configuration
@@ -170,7 +172,9 @@ const JsonDiffView: React.FC<JsonDiffViewProps> = ({
   const { processedLines } = useDiffProcessor(
     diffItems,
     showOnlyDiff,
-    contextLines
+    contextLines,
+    leftRootType,
+    rightRootType
   );
 
   // Check if JSONs are identical (all lines unchanged)
