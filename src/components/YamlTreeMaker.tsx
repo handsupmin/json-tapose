@@ -1,7 +1,9 @@
 import React from "react";
 import { parse as parseYaml } from "yaml";
 
-type YamlValue = any;
+type YamlScalar = string | number | boolean | null;
+type YamlObject = { [key: string]: YamlValue };
+type YamlValue = YamlScalar | YamlObject | YamlValue[];
 
 const renderInlineValue = (value: YamlValue): string => {
   if (value === null) return "null";

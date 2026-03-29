@@ -1,6 +1,9 @@
 // Types for JSON comparison context state and actions
 // Used throughout the app for managing JSON input, diff results, and error handling
-import type { JsonDiffItem } from "../utils/jsonUtils";
+import type {
+  JsonComparisonResult,
+  JsonValidationError,
+} from "../utils/jsonUtils";
 
 /**
  * State for JSON comparison context
@@ -9,11 +12,11 @@ import type { JsonDiffItem } from "../utils/jsonUtils";
 export interface JsonCompareState {
   leftJson: string; // Left-side JSON input
   rightJson: string; // Right-side JSON input
-  diffResult: JsonDiffItem[] | null; // Diff result array or null
+  diffResult: JsonComparisonResult | null; // Diff result array or null
   error: string | null; // General error message
   loading: boolean; // Loading state for async operations
-  leftJsonError: string | null; // Error for left JSON input
-  rightJsonError: string | null; // Error for right JSON input
+  leftJsonError: JsonValidationError | null; // Error for left JSON input
+  rightJsonError: JsonValidationError | null; // Error for right JSON input
 }
 
 /**

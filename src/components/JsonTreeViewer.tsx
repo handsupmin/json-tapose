@@ -41,6 +41,7 @@ const JsonTreeViewer: React.FC = () => {
     handleSampleSelect,
     handleErrorDismiss,
   } = mode === "json" ? jsonTree : yamlTree;
+  const errorMessage = typeof error === "string" ? error : error?.message;
 
   const handleExpandAll = useCallback(() => {
     setExpandAll(true);
@@ -107,13 +108,17 @@ const JsonTreeViewer: React.FC = () => {
               mode === "json" ? (
                 <JsonTreeMaker
                   jsonData={jsonInput}
-                  error={error || undefined}
+                  error={
+                    mode === "json"
+                      ? (error as React.ComponentProps<typeof JsonTreeMaker>["error"])
+                      : undefined
+                  }
                   expandAll={expandAll}
                 />
               ) : (
                 <YamlTreeMaker
                   yamlData={jsonInput}
-                  error={error || undefined}
+                  error={errorMessage || undefined}
                   expandAll={expandAll}
                 />
               )
@@ -122,7 +127,7 @@ const JsonTreeViewer: React.FC = () => {
                 <div className="text-center text-base-content/60">
                   <div className="text-4xl mb-4">🌳</div>
                   <p>
-                    {error ||
+                    {errorMessage ||
                       (mode === "json"
                         ? "Enter valid JSON to treefy"
                         : "Enter valid YAML to treefy")}

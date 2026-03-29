@@ -182,7 +182,12 @@ const JsonComparer: React.FC = () => {
       {diffResult && (
         <div className="mt-6">
           <h2 className="text-xl font-bold mb-4">Comparison Result</h2>
-          <JsonDiffView diffItems={diffResult} mode={"json"} />
+          <JsonDiffView
+            diffItems={diffResult.items}
+            leftRootType={diffResult.leftRootType}
+            rightRootType={diffResult.rightRootType}
+            mode={"json"}
+          />
         </div>
       )}
     </div>

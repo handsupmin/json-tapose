@@ -1,6 +1,10 @@
 // Types for representing JSON diff lines, processed diff results, and related props
 // Used for rendering and managing JSON diff views in the app
-import type { JsonDiffItem } from "../utils/jsonUtils";
+import type {
+  JsonContainerType,
+  JsonDiffItem,
+  JsonValidationError,
+} from "../utils/jsonUtils";
 
 /**
  * Represents a single line in the JSON diff view
@@ -54,6 +58,8 @@ export interface ProcessedDiffLines {
  */
 export interface JsonDiffViewProps {
   diffItems: JsonDiffItem[];
+  leftRootType?: JsonContainerType;
+  rightRootType?: JsonContainerType;
   mode?: "json" | "yaml";
 }
 
@@ -64,7 +70,7 @@ export interface JsonInputPanelProps {
   id: string;
   label: string;
   value: string;
-  error: string | null;
+  error: JsonValidationError | string | null;
   onChange: (value: string) => void;
   onBlur: (value: string) => void;
   onFormat: () => void;

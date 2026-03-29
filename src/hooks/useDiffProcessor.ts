@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from "react";
 import type { DiffLine, ProcessedDiffLines } from "../types/diffTypes";
-import type { JsonDiffItem } from "../utils/jsonUtils";
+import type { JsonContainerType, JsonDiffItem } from "../utils/jsonUtils";
 import {
   useDiffFilter,
   useLineNumberCalculator,
@@ -26,7 +26,9 @@ import {
 export const useDiffProcessor = (
   diffItems: JsonDiffItem[],
   showOnlyDiff: boolean,
-  contextLines: number
+  contextLines: number,
+  leftRootType: JsonContainerType,
+  rightRootType: JsonContainerType
 ): { processedLines: ProcessedDiffLines } => {
   const { calculateLineNumbers } = useLineNumberCalculator();
   const { addPropertyLines, addChangedPropertyLines, addPropertyToSide } =
@@ -37,10 +39,20 @@ export const useDiffProcessor = (
   const processJsonToLinesImpl = useCallback(
     (items: JsonDiffItem[]) => {
       const fullLeftLines: DiffLine[] = [
-        { content: "{", type: "header", indentLevel: 0, isOpening: true },
+        {
+          content: leftRootType === "array" ? "[" : "{",
+          type: "header",
+          indentLevel: 0,
+          isOpening: true,
+        },
       ];
       const fullRightLines: DiffLine[] = [
-        { content: "{", type: "header", indentLevel: 0, isOpening: true },
+        {
+          content: rightRootType === "array" ? "[" : "{",
+          type: "header",
+          indentLevel: 0,
+          isOpening: true,
+        },
       ];
 
       items.forEach((item, index) => {
@@ -81,13 +93,13 @@ export const useDiffProcessor = (
       });
 
       fullLeftLines.push({
-        content: "}",
+        content: leftRootType === "array" ? "]" : "}",
         type: "header",
         indentLevel: 0,
         isClosing: true,
       });
       fullRightLines.push({
-        content: "}",
+        content: rightRootType === "array" ? "]" : "}",
         type: "header",
         indentLevel: 0,
         isClosing: true,
@@ -95,7 +107,13 @@ export const useDiffProcessor = (
 
       return { left: fullLeftLines, right: fullRightLines };
     },
-    [addPropertyLines, addChangedPropertyLines, addPropertyToSide]
+    [
+      addPropertyLines,
+      addChangedPropertyLines,
+      addPropertyToSide,
+      leftRootType,
+      rightRootType,
+    ]
   );
 
   // Memoize full JSON lines to prevent recalculation unless diffItems change

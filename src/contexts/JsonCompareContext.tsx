@@ -1,8 +1,16 @@
 import type { ReactNode } from "react";
 import React, { useCallback, useState } from "react";
 import type { JsonCompareContextType } from "../types/contextTypes";
-import type { JsonDiffItem } from "../utils/jsonUtils";
-import { compareJson, formatJson, isValidJson } from "../utils/jsonUtils";
+import type {
+  JsonComparisonResult,
+  JsonRootValue,
+  JsonValidationError,
+} from "../utils/jsonUtils";
+import {
+  compareJsonDocuments,
+  formatJson,
+  parseJsonInput,
+} from "../utils/jsonUtils";
 import { JsonCompareContext } from "./JsonCompareContextInstance";
 
 /**
@@ -17,7 +25,7 @@ import { JsonCompareContext } from "./JsonCompareContextInstance";
  *
  * Key features:
  * - Real-time validation with detailed error messages
- * - Root-level object comparison only
+ * - Root-level object or array comparison
  * - Automatic error clearing on valid input
  * - Loading state for async operations
  * - Sample data support for testing
@@ -32,11 +40,15 @@ export const JsonCompareProvider: React.FC<JsonCompareProviderProps> = ({
   // State management for JSON inputs, diff results, and errors
   const [leftJson, setLeftJsonState] = useState<string>("");
   const [rightJson, setRightJsonState] = useState<string>("");
-  const [diffResult, setDiffResult] = useState<JsonDiffItem[] | null>(null);
+  const [diffResult, setDiffResult] = useState<JsonComparisonResult | null>(
+    null
+  );
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [leftJsonError, setLeftJsonError] = useState<string | null>(null);
-  const [rightJsonError, setRightJsonError] = useState<string | null>(null);
+  const [leftJsonError, setLeftJsonError] =
+    useState<JsonValidationError | null>(null);
+  const [rightJsonError, setRightJsonError] =
+    useState<JsonValidationError | null>(null);
 
   // State setters with automatic error clearing
   const setLeftJson = useCallback(
@@ -57,20 +69,12 @@ export const JsonCompareProvider: React.FC<JsonCompareProviderProps> = ({
 
   // JSON validation with side-specific error handling
   const validateJson = useCallback((side: "left" | "right", value: string) => {
-    if (!value.trim()) return;
+    const parsed = parseJsonInput(value);
 
-    if (!isValidJson(value)) {
-      if (side === "left") {
-        setLeftJsonError("Invalid JSON format");
-      } else {
-        setRightJsonError("Invalid JSON format");
-      }
+    if (side === "left") {
+      setLeftJsonError(parsed.error);
     } else {
-      if (side === "left") {
-        setLeftJsonError(null);
-      } else {
-        setRightJsonError(null);
-      }
+      setRightJsonError(parsed.error);
     }
   }, []);
 
@@ -85,28 +89,26 @@ export const JsonCompareProvider: React.FC<JsonCompareProviderProps> = ({
         throw new Error("Both input fields are required");
       }
 
-      if (!isValidJson(leftJson) || !isValidJson(rightJson)) {
+      const leftParsed = parseJsonInput(leftJson);
+      const rightParsed = parseJsonInput(rightJson);
+
+      setLeftJsonError(leftParsed.error);
+      setRightJsonError(rightParsed.error);
+
+      if (leftParsed.error || rightParsed.error) {
         throw new Error("Invalid JSON in one or both inputs");
       }
 
-      const leftParsed = JSON.parse(leftJson);
-      const rightParsed = JSON.parse(rightJson);
-
-      // Ensure root-level objects only
       if (
-        typeof leftParsed !== "object" ||
-        typeof rightParsed !== "object" ||
-        leftParsed === null ||
-        rightParsed === null ||
-        Array.isArray(leftParsed) ||
-        Array.isArray(rightParsed)
+        !isJsonRootValue(leftParsed.value) ||
+        !isJsonRootValue(rightParsed.value)
       ) {
         throw new Error(
-          "JSON must be an object at the root level, not an array or primitive"
+          "JSON compare supports only object or array roots, not null or primitives"
         );
       }
 
-      const result = compareJson(leftParsed, rightParsed);
+      const result = compareJsonDocuments(leftParsed.value, rightParsed.value);
       setDiffResult(result);
     } catch (e) {
       setError((e as Error).message);
@@ -119,28 +121,30 @@ export const JsonCompareProvider: React.FC<JsonCompareProviderProps> = ({
   // Format JSON with error handling
   const handleFormat = useCallback(
     (side: "left" | "right") => {
-      try {
-        if (side === "left" && leftJson.trim()) {
-          if (isValidJson(leftJson)) {
-            setLeftJsonState(formatJson(leftJson));
-            setLeftJsonError(null);
-            setError(null);
-          } else {
-            setLeftJsonError("Invalid JSON format");
-            setError("Invalid JSON in left editor");
-          }
-        } else if (side === "right" && rightJson.trim()) {
-          if (isValidJson(rightJson)) {
-            setRightJsonState(formatJson(rightJson));
-            setRightJsonError(null);
-            setError(null);
-          } else {
-            setRightJsonError("Invalid JSON format");
-            setError("Invalid JSON in right editor");
-          }
+      if (side === "left" && leftJson.trim()) {
+        const parsed = parseJsonInput(leftJson);
+
+        if (parsed.error) {
+          setLeftJsonError(parsed.error);
+          setError(parsed.error.message);
+          return;
         }
-      } catch (e) {
-        setError((e as Error).message);
+
+        setLeftJsonState(formatJson(leftJson));
+        setLeftJsonError(null);
+        setError(null);
+      } else if (side === "right" && rightJson.trim()) {
+        const parsed = parseJsonInput(rightJson);
+
+        if (parsed.error) {
+          setRightJsonError(parsed.error);
+          setError(parsed.error.message);
+          return;
+        }
+
+        setRightJsonState(formatJson(rightJson));
+        setRightJsonError(null);
+        setError(null);
       }
     },
     [leftJson, rightJson]
@@ -195,4 +199,8 @@ export const JsonCompareProvider: React.FC<JsonCompareProviderProps> = ({
       {children}
     </JsonCompareContext.Provider>
   );
+};
+
+const isJsonRootValue = (value: unknown): value is JsonRootValue => {
+  return typeof value === "object" && value !== null;
 };
