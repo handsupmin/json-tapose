@@ -7,17 +7,33 @@
   <!-- Homepage - JSON Comparer -->
   <url>
     <loc>https://www.jsontapose.com/</loc>
-    <lastmod>2025-06-20</lastmod>
+    <lastmod>2026-04-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
+  </url>
+
+  <!-- YAML Compare -->
+  <url>
+    <loc>https://www.jsontapose.com/yaml-compare</loc>
+    <lastmod>2026-04-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
   </url>
 
   <!-- JSON TreeViewer -->
   <url>
     <loc>https://www.jsontapose.com/treeviewer</loc>
-    <lastmod>2025-06-20</lastmod>
+    <lastmod>2026-04-10</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- YAML TreeViewer -->
+  <url>
+    <loc>https://www.jsontapose.com/treeviewer/yaml-compare</loc>
+    <lastmod>2026-04-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
   </url>
 
 </urlset>

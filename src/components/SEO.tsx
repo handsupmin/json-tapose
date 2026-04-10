@@ -21,11 +21,11 @@ interface SEOProps {
  * Default SEO values for the application
  * These values are used when no props are provided
  */
-const DEFAULT_TITLE = "JSONtapose - Secure JSON Comparison Tool";
+const DEFAULT_TITLE = "JSONtapose - Free JSON & YAML Diff & Comparison Tool";
 const DEFAULT_DESCRIPTION =
-  "JSONtapose is a powerful JSON comparison tool that visualizes differences between two JSON objects in a side-by-side view. Compare, format and analyze JSON data easily.";
+  "JSONtapose is a free, secure JSON and YAML comparison tool. Compare two JSON or YAML files side-by-side with color-coded diffs, or explore data in an interactive tree view. 100% client-side — your data never leaves your browser.";
 const DEFAULT_KEYWORDS =
-  "JSON, compare JSON, JSON diff, JSON comparison, JSON tools, JSON validator, JSON formatter, online JSON tool";
+  "JSON compare, JSON diff, JSON comparison tool, JSON validator, JSON formatter, JSON beautifier, online JSON tool, YAML compare, YAML diff, YAML comparison tool, JSON tree viewer, JSON tree visualizer, API testing, data comparison, JSON viewer, development tools";
 const DEFAULT_IMAGE = "https://www.jsontapose.com/og-image.png";
 const DEFAULT_URL = "https://www.jsontapose.com/";
 
@@ -97,19 +97,22 @@ const createSchemaData = (description: string, url: string) => ({
   "@context": "https://schema.org",
   "@type": "WebApplication",
   name: "JSONtapose",
+  alternateName: ["JSON Tapose", "JSON Compare Tool", "JSON Diff Tool"],
   description: description,
   url: url,
   applicationCategory: "DeveloperApplication",
+  applicationSubCategory: "JSON Tools",
   operatingSystem: "Any",
+  isAccessibleForFree: true,
   offers: {
     "@type": "Offer",
     price: "0",
     priceCurrency: "USD",
   },
-  author: {
+  creator: {
     "@type": "Person",
     name: "handsupmin",
-    url: "https://github.com/handsupmin/json-tapose",
+    url: "https://github.com/handsupmin",
   },
 });
 
@@ -153,11 +156,11 @@ const SEO: React.FC<SEOProps> = ({
     updateMetaTag("og:image", image, "property");
 
     // Update Twitter card tags for Twitter sharing
-    updateMetaTag("twitter:card", "summary_large_image", "property");
-    updateMetaTag("twitter:url", url, "property");
-    updateMetaTag("twitter:title", title, "property");
-    updateMetaTag("twitter:description", description, "property");
-    updateMetaTag("twitter:image", image, "property");
+    updateMetaTag("twitter:card", "summary_large_image");
+    updateMetaTag("twitter:url", url);
+    updateMetaTag("twitter:title", title);
+    updateMetaTag("twitter:description", description);
+    updateMetaTag("twitter:image", image);
 
     // Update canonical URL for search engines
     updateCanonicalLink(url);

@@ -1,30 +1,42 @@
+import { Link } from "react-router-dom";
+
 /**
  * Footer Component
  *
  * Renders the application footer with:
  * - Branding and logo
+ * - Internal tool navigation links (crawlable by search engines)
  * - External links (GitHub, Contact)
  * - Copyright information
- *
- * Features:
- * - Responsive layout
- * - Dynamic year update
- * - Social and contact links
- * - Consistent styling with theme support
  */
 const Footer: React.FC = () => {
-  // Get current year for copyright
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="footer footer-center p-4 mt-10 bg-base-300 text-base-content">
+    <footer className="footer footer-center p-6 mt-10 bg-base-300 text-base-content">
+      {/* Tool navigation links — crawlable by search engines */}
+      <nav aria-label="Tools" className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm">
+        <Link to="/" className="link link-hover font-medium">
+          JSON Compare
+        </Link>
+        <Link to="/yaml-compare" className="link link-hover font-medium">
+          YAML Compare
+        </Link>
+        <Link to="/treeviewer" className="link link-hover font-medium">
+          JSON Tree Viewer
+        </Link>
+        <Link to="/treeviewer/yaml-compare" className="link link-hover font-medium">
+          YAML Tree Viewer
+        </Link>
+      </nav>
+
       {/* Main footer content with branding and links */}
       <div className="grid grid-flow-row gap-4 md:grid-flow-col">
         {/* Branding section with logo */}
         <aside className="flex items-center gap-2">
           <img src="/logo.svg" alt="JSONtapose Logo" className="h-5 w-5" />
           <p>
-            <span className="font-bold">JSONtapose</span> - Secure JSON Comparison Tool
+            <span className="font-bold">JSONtapose</span> — Free JSON &amp; YAML Comparison Tool
           </p>
         </aside>
 

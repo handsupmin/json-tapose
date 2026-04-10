@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useFormatMode } from "../contexts/FormatModeContext";
 
 /**
@@ -31,17 +31,35 @@ const Header: React.FC<HeaderProps> = ({ themeController }) => {
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
-  const { mode, setMode } = useFormatMode();
+  const navigate = useNavigate();
+  const { mode } = useFormatMode();
 
-  // Navigation tabs configuration
+  const isCompare =
+    location.pathname === "/" || location.pathname === "/yaml-compare";
+  const isTreeViewer =
+    location.pathname === "/treeviewer" ||
+    location.pathname === "/treeviewer/yaml-compare";
+
+  // Navigate to the mode-appropriate route when switching format
+  const handleModeSwitch = (newMode: "json" | "yaml") => {
+    if (newMode === "yaml") {
+      navigate(isTreeViewer ? "/treeviewer/yaml-compare" : "/yaml-compare");
+    } else {
+      navigate(isTreeViewer ? "/treeviewer" : "/");
+    }
+  };
+
+  // Navigation tabs configuration — mode-aware paths
   const tabs = [
     {
-      path: "/",
+      path: mode === "yaml" ? "/yaml-compare" : "/",
       label: "Compare",
+      isActive: isCompare,
     },
     {
-      path: "/treeviewer",
+      path: mode === "yaml" ? "/treeviewer/yaml-compare" : "/treeviewer",
       label: "TreeViewer",
+      isActive: isTreeViewer,
     },
   ];
 
@@ -77,7 +95,7 @@ const Header: React.FC<HeaderProps> = ({ themeController }) => {
                   className={`btn btn-sm join-item ${
                     mode === "json" ? "btn-primary" : ""
                   }`}
-                  onClick={() => setMode("json")}
+                  onClick={() => handleModeSwitch("json")}
                 >
                   JSON
                 </button>
@@ -85,7 +103,7 @@ const Header: React.FC<HeaderProps> = ({ themeController }) => {
                   className={`btn btn-sm join-item ${
                     mode === "yaml" ? "btn-primary" : ""
                   }`}
-                  onClick={() => setMode("yaml")}
+                  onClick={() => handleModeSwitch("yaml")}
                 >
                   YAML
                 </button>
@@ -96,7 +114,7 @@ const Header: React.FC<HeaderProps> = ({ themeController }) => {
                 key={tab.path}
                 to={tab.path}
                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  location.pathname === tab.path
+                  tab.isActive
                     ? "bg-primary text-primary-content"
                     : "text-base-content/70 hover:text-base-content hover:bg-base-200"
                 }`}
@@ -182,7 +200,7 @@ const Header: React.FC<HeaderProps> = ({ themeController }) => {
                   key={tab.path}
                   to={tab.path}
                   className={`px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
-                    location.pathname === tab.path
+                    tab.isActive
                       ? "bg-primary text-primary-content"
                       : "text-base-content/70 hover:text-base-content hover:bg-base-200"
                   }`}
@@ -197,7 +215,10 @@ const Header: React.FC<HeaderProps> = ({ themeController }) => {
                     className={`btn btn-sm join-item ${
                       mode === "json" ? "btn-primary" : ""
                     }`}
-                    onClick={() => setMode("json")}
+                    onClick={() => {
+                      handleModeSwitch("json");
+                      setIsMobileMenuOpen(false);
+                    }}
                   >
                     JSON
                   </button>
@@ -205,7 +226,10 @@ const Header: React.FC<HeaderProps> = ({ themeController }) => {
                     className={`btn btn-sm join-item ${
                       mode === "yaml" ? "btn-primary" : ""
                     }`}
-                    onClick={() => setMode("yaml")}
+                    onClick={() => {
+                      handleModeSwitch("yaml");
+                      setIsMobileMenuOpen(false);
+                    }}
                   >
                     YAML
                   </button>

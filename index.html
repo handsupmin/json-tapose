@@ -19,14 +19,14 @@
     <link rel="manifest" href="/favicon/site.webmanifest" />
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>JSONtapose - Secure JSON Comparison Tool</title>
+    <title>JSONtapose - Free JSON & YAML Diff & Comparison Tool</title>
     <meta
       name="description"
       content="JSONtapose is a secure JSON comparison and tree visualization tool. Compare JSON objects side-by-side or view them in an interactive tree structure. 100% client-side processing ensures your data never leaves your browser."
     />
     <meta
       name="keywords"
-      content="JSON compare, JSON diff, JSON comparison tool, JSON validator, JSON formatter, JSON beautifier, online JSON tool, API testing, JSON analysis, data comparison, JSON viewer, development tools, JSON syntax checker, configuration management, data migration, JSON schema validation, fast JSON tool, secure JSON processor"
+      content="JSON compare, JSON diff, JSON comparison tool, JSON validator, JSON formatter, JSON beautifier, online JSON tool, API testing, JSON analysis, data comparison, JSON viewer, development tools, JSON syntax checker, configuration management, data migration, JSON schema validation, fast JSON tool, secure JSON processor, YAML compare, YAML diff, YAML comparison tool, JSON tree viewer, JSON tree visualizer, JSON pretty print, JSON beautify online, compare two JSON files"
     />
     <meta name="author" content="handsupmin" />
     <meta name="robots" content="index, follow" />
@@ -39,10 +39,16 @@
         "@context": "https://schema.org",
         "@type": "WebApplication",
         "name": "JSONtapose",
-        "description": "Secure JSON comparison and tree visualization tool for developers",
+        "alternateName": ["JSON Tapose", "JSON Compare Tool", "JSON Diff Tool"],
+        "description": "JSONtapose is a free, secure JSON and YAML comparison tool. Compare two JSON or YAML objects side-by-side with color-coded diffs, or visualize data in an interactive tree view. 100% client-side — your data never leaves your browser.",
         "url": "https://www.jsontapose.com/",
         "applicationCategory": "DeveloperApplication",
-        "operatingSystem": "Web Browser",
+        "applicationSubCategory": "JSON Tools",
+        "operatingSystem": "Any",
+        "browserRequirements": "Requires a modern browser with JavaScript enabled",
+        "softwareVersion": "1.4.0",
+        "isAccessibleForFree": true,
+        "inLanguage": "en",
         "offers": {
           "@type": "Offer",
           "price": "0",
@@ -50,26 +56,124 @@
         },
         "creator": {
           "@type": "Person",
-          "name": "handsupmin"
+          "name": "handsupmin",
+          "url": "https://github.com/handsupmin"
         },
         "featureList": [
-          "Lightning-fast JSON comparison with precise difference detection",
-          "100% secure client-side processing - no server uploads",
-          "Beautiful modern UI with syntax highlighting",
-          "Interactive tree view with expand/collapse functionality",
-          "Side-by-side JSON comparison",
-          "Real-time validation and error reporting",
-          "Performance optimization for large files",
-          "Multiple themes support",
-          "Offline functionality"
+          "Side-by-side JSON comparison with color-coded diff highlighting",
+          "YAML comparison and diff support",
+          "Interactive JSON tree viewer with expand/collapse",
+          "100% client-side processing — data never leaves your browser",
+          "Handles large JSON files up to 10MB",
+          "Real-time JSON validation and error reporting",
+          "Context-aware diff view with configurable context lines",
+          "Multiple color themes including dark mode",
+          "Responsive design for all screen sizes",
+          "Offline functionality",
+          "Free to use, no account required"
         ],
-        "applicationSubCategory": "JSON Tools",
-        "softwareVersion": "1.3.5",
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": "4.8",
-          "ratingCount": "150"
+        "keywords": "JSON compare, JSON diff, JSON comparison, YAML compare, YAML diff, JSON tree viewer, JSON formatter"
+      }
+    </script>
+
+    <!-- WebSite schema (enables Sitelinks Search Box in Google) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "JSONtapose",
+        "url": "https://www.jsontapose.com/",
+        "description": "Free online JSON and YAML comparison, diff, and tree visualization tool",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://www.jsontapose.com/?q={search_term_string}"
+          },
+          "query-input": "required name=search_term_string"
         }
+      }
+    </script>
+
+    <!-- FAQPage schema (generates expanded SERP entries with People Also Ask) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is JSON diff?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "JSON diff is the process of comparing two JSON objects or files and identifying the differences between them — which keys were added, removed, or changed. A JSON diff tool like JSONtapose displays these differences visually with color-coded highlighting, making it easy to review changes at a glance."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How do I compare two JSON files online?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "With JSONtapose, comparing two JSON files is simple: paste the first JSON into the left panel and the second into the right panel. JSONtapose instantly highlights all differences — added values in green, removed values in red, and changed values in amber. No account or upload required."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is JSONtapose free to use?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, JSONtapose is completely free. There are no paid plans, no accounts, no sign-ups, and no usage limits. The tool runs entirely in your browser."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is my data safe when using JSONtapose?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. JSONtapose processes all data 100% client-side in your browser. Your JSON or YAML data is never sent to any server and never leaves your device. This makes it safe for comparing sensitive configuration files, API responses, or private data."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does JSONtapose support YAML comparison?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. JSONtapose supports both JSON and YAML comparison. You can switch between JSON mode and YAML mode using the toggle in the header, or go directly to jsontapose.com/yaml-compare for YAML-specific comparison."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What is the difference between JSON diff and text diff?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "A text diff compares files line-by-line and is sensitive to formatting, whitespace, and key order. A JSON-aware diff (semantic diff) understands the structure of JSON — it compares values regardless of key order, indentation, or formatting style. JSONtapose performs a semantic JSON comparison, so two JSON objects with the same data but different key order or whitespace are correctly identified as equal."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can JSONtapose compare large JSON files?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. JSONtapose is optimized to handle large JSON files up to 10MB with virtualized rendering for performance. The comparison remains fast and responsive even with deeply nested or large JSON structures."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What is the JSON tree viewer?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The JSON tree viewer (available at jsontapose.com/treeviewer) is an interactive tool that displays JSON data as a collapsible tree structure. You can expand and collapse any node to explore complex nested JSON objects. It's useful for visualizing and navigating deeply nested data structures."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I use JSONtapose offline?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Once loaded, JSONtapose works offline — all processing is done locally in your browser with no network requests needed. You can bookmark the page and use it without an internet connection after the initial load."
+            }
+          }
+        ]
       }
     </script>
 
@@ -82,32 +186,37 @@
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://www.jsontapose.com/" />
+    <meta property="og:site_name" content="JSONtapose" />
+    <meta property="og:locale" content="en_US" />
     <meta
       property="og:title"
-      content="JSONtapose - Fast, Secure & Beautiful JSON Tool"
+      content="JSONtapose - Free JSON & YAML Comparison Tool"
     />
     <meta
       property="og:description"
-      content="Secure JSON comparison and tree visualization tool. Compare JSON side-by-side or view in interactive tree structure. 100% client-side processing."
+      content="Free, secure JSON and YAML comparison tool. Compare two JSON or YAML files side-by-side with color-coded diffs, or explore data in an interactive tree view. 100% client-side — no uploads, no account."
     />
     <meta
       property="og:image"
       content="https://www.jsontapose.com/og-image.png"
     />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="JSONtapose — JSON and YAML side-by-side comparison interface" />
 
     <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://www.jsontapose.com/" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://www.jsontapose.com/" />
     <meta
-      property="twitter:title"
-      content="JSONtapose - Fast, Secure & Beautiful JSON Tool"
+      name="twitter:title"
+      content="JSONtapose - Free JSON & YAML Comparison Tool"
     />
     <meta
-      property="twitter:description"
-      content="Secure JSON comparison and tree visualization tool. Compare JSON side-by-side or view in interactive tree structure. 100% client-side processing."
+      name="twitter:description"
+      content="Free, secure JSON and YAML comparison tool. Compare two JSON or YAML files side-by-side with color-coded diffs, or explore data in an interactive tree view. 100% client-side — no uploads, no account."
     />
     <meta
-      property="twitter:image"
+      name="twitter:image"
       content="https://www.jsontapose.com/og-image.png"
     />
 
@@ -163,5 +272,47 @@
     >
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+
+    <!-- SEO content for crawlers (readable by search engines) -->
+    <noscript>
+      <main id="main-content">
+        <h1>JSONtapose — Free JSON & YAML Diff & Comparison Tool</h1>
+        <p>
+          JSONtapose is a free, secure online tool for comparing JSON and YAML files side-by-side.
+          Instantly spot differences with color-coded highlighting — added, removed, and changed values
+          are clearly marked. All processing happens entirely in your browser; your data never leaves your device.
+        </p>
+        <h2>What is JSONtapose?</h2>
+        <p>
+          JSONtapose (JSON + juxtapose) is a developer tool for performing JSON diff and JSON comparison.
+          Paste two JSON or YAML objects and see the differences at a glance. No account needed, no server uploads,
+          completely free to use.
+        </p>
+        <h2>Features</h2>
+        <ul>
+          <li>Side-by-side JSON comparison with color-coded diff (green = added, red = removed, amber = changed)</li>
+          <li>YAML comparison and YAML diff support</li>
+          <li>Interactive JSON tree viewer with expand/collapse for any depth</li>
+          <li>Handles large JSON files up to 10MB</li>
+          <li>Context-aware diff view with configurable context lines</li>
+          <li>Real-time JSON validation and error reporting</li>
+          <li>Multiple themes including dark mode</li>
+          <li>100% client-side processing — data never leaves your browser</li>
+          <li>Free to use, no sign-up required</li>
+        </ul>
+        <h2>Who is it for?</h2>
+        <p>
+          JSONtapose is built for developers, API testers, DevOps engineers, and data analysts who need
+          to compare JSON responses, configuration files, or any structured data quickly and securely.
+        </p>
+        <p>
+          Try the <a href="https://www.jsontapose.com/">JSON comparison tool</a>,
+          the <a href="https://www.jsontapose.com/yaml-compare">YAML comparison tool</a>,
+          the <a href="https://www.jsontapose.com/treeviewer">JSON tree viewer</a>,
+          or the <a href="https://www.jsontapose.com/treeviewer/yaml-compare">YAML tree viewer</a>
+          — all free, all client-side, no account required.
+        </p>
+      </main>
+    </noscript>
   </body>
 </html>

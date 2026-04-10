@@ -11,10 +11,11 @@ const FormatModeContext = createContext<FormatModeContextType | undefined>(
   undefined
 );
 
-export const FormatModeProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
-  const [mode, setMode] = useState<FormatMode>("json");
+export const FormatModeProvider: React.FC<{
+  children: React.ReactNode;
+  initialMode?: FormatMode;
+}> = ({ children, initialMode = "json" }) => {
+  const [mode, setMode] = useState<FormatMode>(initialMode);
 
   const value = useMemo(() => ({ mode, setMode }), [mode]);
 
