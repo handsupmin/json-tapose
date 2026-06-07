@@ -5,6 +5,7 @@ import {
   detectClipboardData,
   getAutoClipboardEnabled,
 } from "./clipboard.ts";
+import { detectStructuredTextData } from "./structuredText.ts";
 
 test("getAutoClipboardEnabled defaults off when no preference exists", () => {
   assert.equal(getAutoClipboardEnabled(null), false);
@@ -41,4 +42,20 @@ test("detectClipboardData rejects invalid, empty, and scalar YAML text", () => {
   assert.equal(detectClipboardData("{").kind, "invalid");
   assert.equal(detectClipboardData("   ").kind, "empty");
   assert.equal(detectClipboardData("plain text").kind, "invalid");
+});
+
+test("detectStructuredTextData normalizes structured YAML for tree rendering", () => {
+  const result = detectStructuredTextData("user:\n  name: Mini\n  active: true\n");
+
+  assert.equal(result.kind, "valid");
+  assert.equal(result.kind === "valid" ? result.sourceFormat : "", "yaml");
+  assert.deepEqual(
+    JSON.parse(result.kind === "valid" ? result.formattedText : "{}"),
+    {
+      user: {
+        name: "Mini",
+        active: true,
+      },
+    }
+  );
 });

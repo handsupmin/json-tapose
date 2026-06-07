@@ -4,11 +4,222 @@
 html,
 body {
   width: 380px;
-  min-height: 560px;
+  height: 560px;
   overflow: hidden;
+  background: #f5f7f8;
 }
 
 #extension-root {
   width: 380px;
-  min-height: 560px;
+  height: 560px;
+}
+
+.extension-shell {
+  width: 380px;
+  height: 560px;
+  padding: 12px;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(239, 247, 245, 0.9)),
+    #f5f7f8;
+  color: #1f2a27;
+}
+
+.extension-panel {
+  border: 1px solid #d6e1df;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 8px 24px rgba(31, 42, 39, 0.08);
+}
+
+.extension-content {
+  height: 415px;
+}
+
+.extension-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.extension-content::-webkit-scrollbar-thumb {
+  background: rgba(58, 86, 79, 0.28);
+  border-radius: 999px;
+}
+
+.extension-shell .textarea {
+  border-color: #c9d7d4;
+  background: #ffffff;
+  color: #1f2a27;
+}
+
+.extension-shell .textarea:focus {
+  border-color: #0f766e;
+  outline-color: rgba(15, 118, 110, 0.24);
+}
+
+.tool-switch {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  border: 1px solid #d6e1df;
+  border-radius: 8px;
+  padding: 3px;
+  background: #eef5f4;
+}
+
+.tool-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 28px;
+  border-radius: 6px;
+  color: #3b4f4a;
+  font-size: 12px;
+  font-weight: 700;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.tool-tab-active {
+  background: #0f766e;
+  color: #ffffff;
+  box-shadow: 0 6px 14px rgba(15, 118, 110, 0.22);
+}
+
+.auto-clipboard-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  border: 1px solid #d6e1df;
+  border-radius: 999px;
+  padding: 4px 8px 4px 10px;
+  background: #ffffff;
+  color: #50645f;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.auto-clipboard-control-active {
+  border-color: rgba(15, 118, 110, 0.42);
+  background: #e7f3f0;
+  color: #0f766e;
+}
+
+.extension-toggle:checked {
+  --tglbg: #0f766e;
+  border-color: #0f766e;
+}
+
+.tool-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 28px;
+  color: #1f2a27;
+}
+
+.tool-heading h2 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.tool-heading-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: #e1f1ee;
+  color: #0f766e;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.tool-heading-icon-tree {
+  background: #eef2ff;
+  color: #4f46e5;
+}
+
+.mini-action-button,
+.mini-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 800;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease,
+    transform 150ms ease;
+}
+
+.mini-action-button {
+  gap: 7px;
+  border: 1px solid #0f766e;
+  background: #0f766e;
+  color: #ffffff;
+}
+
+.mini-action-button:disabled {
+  border-color: #d6e1df;
+  background: #e8efed;
+  color: #8b9992;
+  cursor: not-allowed;
+}
+
+.mini-action-button:not(:disabled):hover,
+.mini-icon-button:hover {
+  transform: translateY(-1px);
+}
+
+.mini-icon-button {
+  width: 36px;
+  border: 1px solid #d6e1df;
+  background: #ffffff;
+  color: #3b4f4a;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.diff-total-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  border-radius: 999px;
+  padding: 0 8px;
+  background: #e1f1ee;
+  color: #0f766e;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.diff-total-badge-same {
+  background: #e8f5df;
+  color: #3f741f;
+}
+
+.diff-highlight-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 6px;
+  background: #f1f5f9;
+  padding: 6px 8px;
+}
+
+.mini-tree-panel .bg-base-100,
+.mini-tree-panel .json-tree-viewer {
+  min-height: 160px;
+}
+
+.mini-tree-panel .text-4xl {
+  display: none;
 }

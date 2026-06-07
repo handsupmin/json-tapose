@@ -9,6 +9,7 @@ import {
   compareJsonDocuments,
   parseJsonInput,
 } from "../utils/jsonUtils";
+import CompactDiffSummary from "./CompactDiffSummary";
 
 interface CompareToolProps {
   readonly leftJson: string;
@@ -78,11 +79,20 @@ const CompareTool: React.FC<CompareToolProps> = ({
   }, [leftJson, rightJson]);
 
   return (
-    <section className="mt-3 flex flex-col gap-2">
-      <label className="form-control">
-        <span className="label-text text-xs font-semibold">Left JSON</span>
+    <section className="flex flex-col gap-3">
+      <div className="tool-heading">
+        <span className="tool-heading-icon" aria-hidden="true">
+          ⇄
+        </span>
+        <h2>Compare</h2>
+      </div>
+      <label className="block">
+        <span className="mb-1 flex items-center justify-between text-xs font-semibold text-base-content/70">
+          <span>Left</span>
+          {leftError && <span className="text-error">Invalid</span>}
+        </span>
         <textarea
-          className={`textarea textarea-bordered h-28 font-mono text-xs ${
+          className={`textarea textarea-bordered h-20 w-full resize-none font-mono text-xs leading-5 ${
             leftError ? "textarea-error" : ""
           }`}
           value={leftJson}
@@ -90,10 +100,13 @@ const CompareTool: React.FC<CompareToolProps> = ({
           placeholder='{"left": true}'
         />
       </label>
-      <label className="form-control">
-        <span className="label-text text-xs font-semibold">Right JSON</span>
+      <label className="block">
+        <span className="mb-1 flex items-center justify-between text-xs font-semibold text-base-content/70">
+          <span>Right</span>
+          {rightError && <span className="text-error">Invalid</span>}
+        </span>
         <textarea
-          className={`textarea textarea-bordered h-28 font-mono text-xs ${
+          className={`textarea textarea-bordered h-20 w-full resize-none font-mono text-xs leading-5 ${
             rightError ? "textarea-error" : ""
           }`}
           value={rightJson}
@@ -101,38 +114,52 @@ const CompareTool: React.FC<CompareToolProps> = ({
           placeholder='{"right": true}'
         />
       </label>
-      <div className="flex items-center gap-2">
+      <div className="grid grid-cols-[1fr_auto] gap-2">
         <button
-          className="btn btn-primary btn-sm"
+          className="mini-action-button mini-action-primary"
           onClick={compareJson}
           disabled={!canCompare}
+          aria-label="Compare JSON documents"
         >
-          Compare
+          <span aria-hidden="true">⇄</span>
+          <span>Compare</span>
         </button>
         <button
-          className="btn btn-ghost btn-sm"
+          className="mini-icon-button"
           onClick={() => {
             onLeftJsonChange("");
             onRightJsonChange("");
             setDiffResult(null);
             setCompareError(null);
           }}
+          aria-label="Clear compare inputs"
+          title="Clear compare inputs"
         >
-          Clear
+          ×
         </button>
       </div>
       {compareError && (
-        <div className="alert alert-error py-2 text-xs">{compareError}</div>
+        <div className="rounded-md border border-error/30 bg-error/10 px-3 py-2 text-xs text-error">
+          {compareError}
+        </div>
       )}
       {diffResult && (
-        <div className="max-h-64 overflow-auto">
-          <JsonDiffView
-            diffItems={diffResult.items}
-            leftRootType={diffResult.leftRootType}
-            rightRootType={diffResult.rightRootType}
-            mode="json"
-          />
-        </div>
+        <>
+          <CompactDiffSummary diffItems={diffResult.items} />
+          <details className="rounded-lg border border-base-300 bg-base-100 p-3">
+            <summary className="cursor-pointer text-xs font-semibold text-base-content/70">
+              Full diff
+            </summary>
+            <div className="mt-2 max-h-56 overflow-auto">
+              <JsonDiffView
+                diffItems={diffResult.items}
+                leftRootType={diffResult.leftRootType}
+                rightRootType={diffResult.rightRootType}
+                mode="json"
+              />
+            </div>
+          </details>
+        </>
       )}
     </section>
   );
