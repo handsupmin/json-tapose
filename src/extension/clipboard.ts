@@ -1,8 +1,11 @@
 import { formatJson, parseJsonInput } from "../utils/jsonUtils.ts";
+import { parse as parseYaml } from "yaml";
 
 export const AUTO_CLIPBOARD_STORAGE_KEY = "extensionAutoClipboard";
 
-export type ClipboardJsonDetection =
+type ClipboardDataFormat = "json" | "yaml";
+
+export type ClipboardDataDetection =
   | {
       readonly kind: "empty";
     }
@@ -11,7 +14,8 @@ export type ClipboardJsonDetection =
     }
   | {
       readonly kind: "valid";
-      readonly formattedJson: string;
+      readonly formattedText: string;
+      readonly sourceFormat: ClipboardDataFormat;
     };
 
 export const getAutoClipboardEnabled = (
@@ -20,19 +24,50 @@ export const getAutoClipboardEnabled = (
   return storedValue === "true";
 };
 
-export const detectClipboardJson = (text: string): ClipboardJsonDetection => {
+export const detectClipboardData = (text: string): ClipboardDataDetection => {
   const trimmedText = text.trim();
   if (!trimmedText) {
     return { kind: "empty" };
   }
 
   const parsed = parseJsonInput(trimmedText);
-  if (parsed.error) {
-    return { kind: "invalid" };
+  if (!parsed.error) {
+    return {
+      kind: "valid",
+      formattedText: formatJson(trimmedText),
+      sourceFormat: "json",
+    };
   }
 
-  return {
-    kind: "valid",
-    formattedJson: formatJson(trimmedText),
-  };
+  const yamlResult = parseStructuredYaml(trimmedText);
+  return yamlResult ?? { kind: "invalid" };
+};
+
+const parseStructuredYaml = (
+  text: string
+): ClipboardDataDetection | null => {
+  try {
+    const parsed: unknown = parseYaml(text);
+
+    if (!isStructuredValue(parsed)) {
+      return null;
+    }
+
+    const formattedText = JSON.stringify(parsed, null, 2);
+    if (!formattedText) {
+      return null;
+    }
+
+    return {
+      kind: "valid",
+      formattedText,
+      sourceFormat: "yaml",
+    };
+  } catch {
+    return null;
+  }
+};
+
+const isStructuredValue = (value: unknown): value is readonly unknown[] | object => {
+  return typeof value === "object" && value !== null;
 };

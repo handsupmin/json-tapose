@@ -1,0 +1,21 @@
+appId: com.jsontapose.desktop
+productName: JSONtapose
+directories:
+  output: release
+files:
+  - dist/**/*
+  - desktop-dist/**/*
+  - package.json
+mac:
+  category: public.app-category.developer-tools
+  target:
+    - dmg
+    - zip
+win:
+  target:
+    - nsis
+    - portable
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   AUTO_CLIPBOARD_STORAGE_KEY,
-  detectClipboardJson,
+  detectClipboardData,
   getAutoClipboardEnabled,
 } from "./clipboard.ts";
 import type { ClipboardStatus, PopupTool } from "./types";
@@ -37,7 +37,7 @@ export const useClipboardJsonDetection = ({
   const [clipboardStatus, setClipboardStatus] =
     useState<ClipboardStatus>("idle");
   const [clipboardMessage, setClipboardMessage] = useState<string>("");
-  const lastClipboardJsonRef = useRef<string>("");
+  const lastClipboardValueRef = useRef<string>("");
 
   useEffect(() => {
     localStorage.setItem(
@@ -47,26 +47,26 @@ export const useClipboardJsonDetection = ({
   }, [autoClipboardEnabled]);
 
   const applyDetectedJson = useCallback(
-    (formattedJson: string) => {
-      if (lastClipboardJsonRef.current === formattedJson) {
+    (formattedText: string, sourceFormat: "json" | "yaml") => {
+      if (lastClipboardValueRef.current === formattedText) {
         return;
       }
 
-      lastClipboardJsonRef.current = formattedJson;
+      lastClipboardValueRef.current = formattedText;
       setClipboardStatus("detected");
-      setClipboardMessage("Clipboard JSON detected");
+      setClipboardMessage(`Clipboard ${sourceFormat.toUpperCase()} detected`);
 
       if (activeTool === "tree") {
-        onDetectTreeJson(formattedJson);
+        onDetectTreeJson(formattedText);
         return;
       }
 
       if (!leftJson.trim()) {
-        onDetectLeftJson(formattedJson);
+        onDetectLeftJson(formattedText);
         return;
       }
 
-      onDetectRightJson(formattedJson);
+      onDetectRightJson(formattedText);
     },
     [activeTool, leftJson, onDetectLeftJson, onDetectRightJson, onDetectTreeJson]
   );
@@ -74,15 +74,15 @@ export const useClipboardJsonDetection = ({
   const scanClipboard = useCallback(async () => {
     try {
       const clipboardText = await navigator.clipboard.readText();
-      const detection = detectClipboardJson(clipboardText);
+      const detection = detectClipboardData(clipboardText);
 
       switch (detection.kind) {
         case "valid":
-          applyDetectedJson(detection.formattedJson);
+          applyDetectedJson(detection.formattedText, detection.sourceFormat);
           return;
         case "invalid":
           setClipboardStatus("invalid");
-          setClipboardMessage("Clipboard is not JSON");
+          setClipboardMessage("Clipboard is not JSON or YAML");
           return;
         case "empty":
           setClipboardStatus("idle");
