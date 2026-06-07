@@ -6,8 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:extension": "vite build --config vite.extension.config.ts",
     "lint": "eslint .",
-    "test": "node --test --experimental-strip-types src/utils/jsonUtils.test.ts",
+    "test": "node --test --experimental-strip-types src/utils/jsonUtils.test.ts src/extension/clipboard.test.ts",
     "preview": "vite preview"
   },
   "dependencies": {

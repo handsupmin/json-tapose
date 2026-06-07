@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "JSONtapose Mini",
+  "version": "1.4.0",
+  "description": "Mini JSON compare and tree viewer for your browser.",
+  "permissions": ["clipboardRead"],
+  "action": {
+    "default_title": "JSONtapose Mini",
+    "default_popup": "extension/popup.html",
+    "default_icon": {
+      "16": "icons/icon-96.png",
+      "32": "icons/icon-96.png",
+      "48": "icons/icon-96.png",
+      "128": "icons/icon-192.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon-96.png",
+    "32": "icons/icon-96.png",
+    "48": "icons/icon-96.png",
+    "128": "icons/icon-192.png"
+  }
+}
