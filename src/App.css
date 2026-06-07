@@ -58,6 +58,31 @@
   text-align: center;
 }
 
+:root[data-wide-view="true"] #root {
+  width: 100%;
+  max-width: none;
+  padding-right: 0;
+  padding-left: 0;
+}
+
+.app-shell-container {
+  width: 100%;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.app-shell-container--wide {
+  width: calc(100% - 2rem);
+  max-width: calc(100% - 2rem);
+}
+
+@media (min-width: 768px) {
+  .app-shell-container--wide {
+    width: calc(100% - 60px);
+    max-width: calc(100% - 60px);
+  }
+}
+
 .logo {
   height: 6em;
   padding: 1.5em;

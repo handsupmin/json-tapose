@@ -10,6 +10,10 @@
   html {
     font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   }
+
+  body {
+    margin: 0;
+  }
 }
 
 @layer components {

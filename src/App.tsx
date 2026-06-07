@@ -11,6 +11,8 @@ import {
   FormatModeProvider,
   useFormatMode,
 } from "./contexts/FormatModeContext";
+import { WideViewProvider } from "./contexts/WideViewProvider";
+import { useWideView } from "./hooks/useWideView";
 import { getDefaultTheme } from "./utils/themeUtils";
 
 const SCROLL_OFFSET = 80;
@@ -24,6 +26,7 @@ function AppContent({
   setTheme: (t: string) => void;
 }) {
   const { setMode } = useFormatMode();
+  const { isWideView } = useWideView();
   const location = useLocation();
 
   // Sync format mode with the current route
@@ -95,7 +98,14 @@ function AppContent({
           <ThemeController currentTheme={theme} onChange={setTheme} />
         }
       />
-      <main id="main-content" className="container mx-auto flex-grow p-4">
+      <main
+        id="main-content"
+        className={`flex-grow py-4 ${
+          isWideView
+            ? "app-shell-container app-shell-container--wide"
+            : "container mx-auto px-4"
+        }`}
+      >
         <div className="flex flex-col gap-4">
           <Routes>
             <Route path="/" element={<ComparePage />} />
@@ -130,7 +140,9 @@ function App() {
 
   return (
     <FormatModeProvider initialMode={initialMode}>
-      <AppContent theme={theme} setTheme={setTheme} />
+      <WideViewProvider>
+        <AppContent theme={theme} setTheme={setTheme} />
+      </WideViewProvider>
     </FormatModeProvider>
   );
 }
