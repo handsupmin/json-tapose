@@ -1,4 +1,5 @@
 import type { FormatMode } from "../contexts/FormatModeContext";
+import logoUrl from "/logo.svg";
 
 interface HeaderInfoModalProps {
   readonly mode: FormatMode;
@@ -25,7 +26,7 @@ const HeaderInfoModal: React.FC<HeaderInfoModalProps> = ({
           </button>
         </form>
         <div className="flex items-center mb-4">
-          <img src="/logo.svg" alt={`${appName} Logo`} className="h-12 w-12 mr-3" />
+          <img src={logoUrl} alt={`${appName} Logo`} className="h-12 w-12 mr-3" />
           <h3 className="font-bold text-lg">About {appName}</h3>
         </div>
         <p className="py-2 text-left">

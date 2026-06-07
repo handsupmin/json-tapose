@@ -5,6 +5,9 @@ import { fileURLToPath } from "node:url";
 const currentDir = dirname(fileURLToPath(import.meta.url));
 const appUrl = process.env.VITE_DEV_SERVER_URL;
 
+app.commandLine.appendSwitch("password-store", "basic");
+app.commandLine.appendSwitch("use-mock-keychain");
+
 const createMainWindow = (): BrowserWindow => {
   const mainWindow = new BrowserWindow({
     width: 1280,
@@ -39,7 +42,7 @@ const createMainWindow = (): BrowserWindow => {
   if (appUrl) {
     void mainWindow.loadURL(appUrl);
   } else {
-    void mainWindow.loadFile(join(currentDir, "../dist/index.html"));
+    void mainWindow.loadFile(join(currentDir, "../dist-desktop/index.html"));
   }
 
   return mainWindow;

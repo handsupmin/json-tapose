@@ -7,11 +7,12 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:desktop-renderer": "vite build --config vite.desktop.config.ts",
     "build:extension": "vite build --config vite.extension.config.ts",
     "build:desktop-main": "tsc -p tsconfig.electron.json",
     "desktop:dev": "pnpm build:desktop-main && cross-env VITE_DEV_SERVER_URL=http://127.0.0.1:8173 electron .",
-    "desktop:pack": "pnpm build && pnpm build:desktop-main && electron-builder --dir --config electron-builder.yml",
-    "desktop:dist": "pnpm build && pnpm build:desktop-main && electron-builder --mac --win --config electron-builder.yml",
+    "desktop:pack": "pnpm build:desktop-renderer && pnpm build:desktop-main && electron-builder --dir --config electron-builder.yml",
+    "desktop:dist": "pnpm build:desktop-renderer && pnpm build:desktop-main && electron-builder --mac --win --config electron-builder.yml",
     "lint": "eslint .",
     "test": "node --test --experimental-strip-types src/utils/jsonUtils.test.ts src/extension/clipboard.test.ts",
     "preview": "vite preview"

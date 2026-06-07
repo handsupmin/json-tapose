@@ -3,7 +3,7 @@ productName: JSONtapose
 directories:
   output: release
 files:
-  - dist/**/*
+  - dist-desktop/**/*
   - desktop-dist/**/*
   - package.json
 mac:

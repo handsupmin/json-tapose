@@ -30,7 +30,6 @@ const copyExtensionAssets = (): Plugin => ({
 
 export default defineConfig({
   base: "./",
-  publicDir: false,
   plugins: [tailwindcss(), react(), copyExtensionAssets()],
   build: {
     outDir: "dist-extension",

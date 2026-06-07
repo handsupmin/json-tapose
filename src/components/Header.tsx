@@ -5,6 +5,7 @@ import { useWideView } from "../hooks/useWideView";
 import HeaderInfoModal from "./HeaderInfoModal";
 import HeaderMobileMenu, { type HeaderTab } from "./HeaderMobileMenu";
 import WideViewToggle from "./WideViewToggle";
+import logoUrl from "/logo.svg";
 
 /**
  * Props for the Header component
@@ -88,7 +89,7 @@ const Header: React.FC<HeaderProps> = ({ themeController }) => {
               } homepage`}
             >
               <img
-                src="/logo.svg"
+                src={logoUrl}
                 alt={`${mode === "json" ? "JSONtapose" : "YAMLtapose"} Logo`}
                 className="h-8 w-8 sm:h-9 sm:w-9"
               />

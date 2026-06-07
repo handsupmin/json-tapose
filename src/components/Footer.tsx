@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import logoUrl from "/logo.svg";
 
 /**
  * Footer Component
@@ -34,7 +35,7 @@ const Footer: React.FC = () => {
       <div className="grid grid-flow-row gap-4 md:grid-flow-col">
         {/* Branding section with logo */}
         <aside className="flex items-center gap-2">
-          <img src="/logo.svg" alt="JSONtapose Logo" className="h-5 w-5" />
+          <img src={logoUrl} alt="JSONtapose Logo" className="h-5 w-5" />
           <p>
             <span className="font-bold">JSONtapose</span> — Free JSON &amp; YAML Comparison Tool
           </p>

@@ -3,6 +3,7 @@ import CompareTool from "./CompareTool";
 import TreeTool from "./TreeTool";
 import type { PopupTool } from "./types";
 import { useClipboardJsonDetection } from "./useClipboardJsonDetection";
+import logoUrl from "/logo.svg";
 
 const Popup: React.FC = () => {
   const [activeTool, setActiveTool] = useState<PopupTool>("compare");
@@ -39,7 +40,7 @@ const Popup: React.FC = () => {
     <div className="min-h-[560px] bg-base-100 text-base-content p-3 text-left">
       <header className="flex items-center justify-between gap-2 pb-2 border-b border-base-300">
         <div className="flex items-center gap-2 min-w-0">
-          <img src="/logo.svg" alt="JSONtapose" className="h-7 w-7" />
+          <img src={logoUrl} alt="JSONtapose" className="h-7 w-7" />
           <div className="font-bold truncate">JSONtapose Mini</div>
         </div>
         <label className="flex items-center gap-2 text-xs font-medium">
