@@ -1,0 +1,144 @@
+name: Build Installables
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-installables-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  web-and-extension:
+    name: Web and browser extension
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Test
+        run: pnpm test
+
+      - name: Build web app
+        run: pnpm build
+
+      - name: Build browser extension
+        run: pnpm build:extension
+
+      - name: Upload web app artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-dist
+          path: dist
+          if-no-files-found: error
+
+      - name: Upload browser extension artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-extension-unpacked
+          path: dist-extension
+          if-no-files-found: error
+
+  desktop-macos:
+    name: Desktop macOS
+    runs-on: macos-latest
+    env:
+      CSC_IDENTITY_AUTO_DISCOVERY: "false"
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build desktop renderer
+        run: pnpm build:desktop-renderer
+
+      - name: Build desktop main process
+        run: pnpm build:desktop-main
+
+      - name: Package macOS desktop app
+        run: pnpm exec electron-builder --mac --config electron-builder.yml
+
+      - name: Upload macOS desktop artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-macos
+          path: release
+          if-no-files-found: error
+
+  desktop-windows:
+    name: Desktop Windows
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build desktop renderer
+        run: pnpm build:desktop-renderer
+
+      - name: Build desktop main process
+        run: pnpm build:desktop-main
+
+      - name: Package Windows desktop app
+        run: pnpm exec electron-builder --win --config electron-builder.yml
+
+      - name: Upload Windows desktop artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-windows
+          path: release
+          if-no-files-found: error

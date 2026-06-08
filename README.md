@@ -13,6 +13,10 @@ A secure, modern and high-performance JSON comparison tool that displays differe
 ## Features
 
 - **Side-by-Side Comparison**: Clear visual comparison between old and new JSON versions
+- **Wide View Mode**: Expand comparison and tree views across the viewport while keeping a small edge gutter
+- **Tree View**: Inspect JSON or structured YAML as an expandable object tree
+- **Browser Extension**: Use JSONtapose from a compact browser popup with optional clipboard JSON/YAML detection
+- **Desktop App**: Run JSONtapose as an Electron app with macOS menu bar and Windows system tray access
 - **Performance Optimized**: Handles large JSON files efficiently with virtualization
 - **Visual Difference Highlighting**: Color-coded changes for easy identification
 - **Context-Aware Diff View**: Show only differences with configurable context lines
@@ -35,6 +39,109 @@ pnpm install
 pnpm dev
 ```
 
+## Builds and Artifacts
+
+Builds are visible in **GitHub Actions**:
+
+- **Azure Static Web Apps CI/CD** deploys the hosted web app from `main`. This workflow is for the website only.
+- **Build Installables** builds and uploads operator-facing artifacts:
+  - `web-dist`: static web build from `dist`
+  - `browser-extension-unpacked`: unpacked Chrome/Edge extension from `dist-extension`
+  - `desktop-macos`: macOS Electron builds from `release`
+  - `desktop-windows`: Windows Electron builds from `release`
+
+To make a fresh build without pushing a new commit, open **Actions -> Build Installables -> Run workflow**. Artifacts appear at the bottom of the completed workflow run.
+
+## Installation
+
+### Web App
+
+The web app is deployed by the Azure Static Web Apps workflow when changes land on `main`.
+
+For a local production preview:
+
+```bash
+pnpm install
+pnpm build
+pnpm preview
+```
+
+### Browser Extension
+
+From GitHub Actions:
+
+1. Open **Actions -> Build Installables**.
+2. Download `browser-extension-unpacked`.
+3. Unzip it.
+4. In Chrome or Edge, open `chrome://extensions` or `edge://extensions`.
+5. Enable **Developer mode**.
+6. Click **Load unpacked** and select the unzipped folder that contains `manifest.json`.
+
+For a local extension build:
+
+```bash
+pnpm install
+pnpm build:extension
+```
+
+Then load the `dist-extension` directory as an unpacked extension.
+
+Clipboard detection is off by default. When enabled in the popup, it detects structured JSON or YAML and normalizes it into formatted JSON for the active tool.
+
+### Desktop App
+
+From GitHub Actions:
+
+1. Open **Actions -> Build Installables**.
+2. Download `desktop-macos` on macOS or `desktop-windows` on Windows.
+3. Unzip the artifact.
+4. Install or run the package from the `release` folder.
+
+Local packaging:
+
+```bash
+pnpm install
+pnpm desktop:pack
+```
+
+`desktop:pack` creates unpacked local builds under `release/`, which are best for smoke testing. For release-style installers, prefer the **Build Installables** workflow because it builds on native macOS and Windows runners.
+
+Desktop behavior:
+
+- macOS: closing the window hides it and keeps JSONtapose available from the menu bar. Click the menu bar icon to show or hide the window. Right-click for the Open/Hide and Quit menu.
+- Windows: closing or minimizing hides the window and keeps JSONtapose available from the system tray. Use the tray icon or context menu to reopen or quit.
+
+Unsigned local macOS builds may require right-clicking the app and choosing **Open** the first time. Production distribution should add Apple and Windows signing credentials before public release.
+
+## Operator Runbook
+
+Use this checklist before handing a build to someone else:
+
+```bash
+pnpm install
+pnpm lint
+pnpm test
+pnpm build
+pnpm build:extension
+pnpm build:desktop-main
+```
+
+Desktop smoke test on macOS:
+
+```bash
+CSC_IDENTITY_AUTO_DISCOVERY=false pnpm desktop:pack
+open -n release/mac-arm64/JSONtapose.app
+```
+
+Confirm that:
+
+- The app opens without a blank screen.
+- Closing the window leaves the process running in the menu bar.
+- The menu bar or tray control can reopen the window.
+- Quit from the tray/menu bar exits the process.
+
+For Windows, use the `desktop-windows` artifact from GitHub Actions and confirm that the tray icon appears, Open/Hide works, and Quit exits the app.
+
 ## Usage
 
 1. Enter or paste JSON in both panels
@@ -49,15 +156,22 @@ pnpm dev
 - **React 19**: Latest React version with performance improvements
 - **TypeScript**: For type safety and better developer experience
 - **TailwindCSS & daisyUI**: For styling and components
+- **Electron**: Desktop packaging and tray/menu bar integration
+- **Vite**: Web, desktop renderer, and extension builds
 - **Virtualization**: Efficient rendering for large datasets
 - **Context API**: For state management
 
 ## Project Structure
 
 ```
+.github/
+└── workflows/      # Web deploy and installable artifact builds
+electron/           # Electron main/preload process
+extension/          # Browser extension manifest and popup HTML entry
 src/
 ├── components/     # React components
 ├── contexts/       # React Context for state management
+├── extension/      # Browser extension React popup code
 ├── hooks/          # Custom React hooks
 ├── types/          # TypeScript type definitions
 └── utils/          # Utility functions including JSON comparison
