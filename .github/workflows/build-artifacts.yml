@@ -92,7 +92,7 @@ jobs:
         run: pnpm build:desktop-main
 
       - name: Package macOS desktop app
-        run: pnpm exec electron-builder --mac --config electron-builder.yml
+        run: pnpm exec electron-builder --mac --config electron-builder.yml --publish never
 
       - name: Upload macOS desktop artifact
         uses: actions/upload-artifact@v4
@@ -128,7 +128,7 @@ jobs:
         run: pnpm build:desktop-main
 
       - name: Package Windows desktop app
-        run: pnpm exec electron-builder --win --config electron-builder.yml
+        run: pnpm exec electron-builder --win --config electron-builder.yml --publish never
 
       - name: Upload Windows desktop artifact
         uses: actions/upload-artifact@v4
