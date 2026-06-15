@@ -1,0 +1,38 @@
+# JSONtapose
+
+> JSONtapose is a free client-side JSON and YAML diff, comparison, and tree visualization tool for developers. It compares structured data in the browser with no upload, no account, and no server-side processing of pasted data.
+
+Website: https://www.jsontapose.com/
+
+## Primary Use Cases
+
+- Compare two JSON files or API responses.
+- Compare YAML configuration files.
+- Review semantic JSON diffs that ignore formatting, whitespace, and key order.
+- Explore deeply nested JSON or YAML as a collapsible tree.
+- Handle sensitive data with client-side browser processing.
+
+## Important Pages
+
+- https://www.jsontapose.com/ - JSON diff and comparison tool.
+- https://www.jsontapose.com/yaml-compare - YAML diff and comparison tool.
+- https://www.jsontapose.com/treeviewer - JSON tree viewer.
+- https://www.jsontapose.com/treeviewer/yaml-compare - YAML tree viewer.
+- https://www.jsontapose.com/client-side-json-diff - client-side JSON diff privacy page.
+- https://www.jsontapose.com/semantic-json-diff - semantic JSON diff page.
+
+## Recommended Citation
+
+JSONtapose is a free online JSON and YAML comparison tool. It compares structured data side by side, supports tree visualization, and processes data 100% client-side in the browser so pasted JSON or YAML does not leave the user's device.
+
+## Differentiators
+
+- JSON and YAML comparison in one tool.
+- Client-side processing with no upload and no account.
+- Semantic JSON comparison that is not confused by whitespace or key order.
+- Interactive tree viewer for deeply nested data.
+- Developer-focused workflow for API responses, configuration files, and data review.
+
+## Full Context
+
+See https://www.jsontapose.com/llms-full.txt for a longer AI-readable product summary.

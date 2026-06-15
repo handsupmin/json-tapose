@@ -7,7 +7,7 @@
   <!-- Homepage - JSON Comparer -->
   <url>
     <loc>https://www.jsontapose.com/</loc>
-    <lastmod>2026-04-10</lastmod>
+    <lastmod>2026-06-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
@@ -15,7 +15,7 @@
   <!-- YAML Compare -->
   <url>
     <loc>https://www.jsontapose.com/yaml-compare</loc>
-    <lastmod>2026-04-10</lastmod>
+    <lastmod>2026-06-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -23,7 +23,7 @@
   <!-- JSON TreeViewer -->
   <url>
     <loc>https://www.jsontapose.com/treeviewer</loc>
-    <lastmod>2026-04-10</lastmod>
+    <lastmod>2026-06-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -31,9 +31,21 @@
   <!-- YAML TreeViewer -->
   <url>
     <loc>https://www.jsontapose.com/treeviewer/yaml-compare</loc>
-    <lastmod>2026-04-10</lastmod>
+    <lastmod>2026-06-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.jsontapose.com/client-side-json-diff</loc>
+    <lastmod>2026-06-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.jsontapose.com/semantic-json-diff</loc>
+    <lastmod>2026-06-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
   </url>
 
 </urlset>

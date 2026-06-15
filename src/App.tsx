@@ -17,6 +17,57 @@ import { getDefaultTheme } from "./utils/themeUtils";
 
 const SCROLL_OFFSET = 80;
 
+const SEO_BY_PATH: Record<
+  string,
+  {
+    title: string;
+    description: string;
+    keywords: string;
+    url: string;
+  }
+> = {
+  "/treeviewer": {
+    title: "JSONtapose Tree Viewer - Interactive JSON Tree Visualizer",
+    description:
+      "Explore JSON data in an interactive tree view with expand/collapse at any depth. Free online JSON tree visualizer - paste your JSON and navigate complex nested structures instantly. 100% client-side.",
+    keywords:
+      "JSON tree viewer, JSON tree visualizer, JSON explorer, interactive JSON viewer, JSON navigator, nested JSON viewer, JSON structure viewer, online JSON tree",
+    url: "https://www.jsontapose.com/treeviewer",
+  },
+  "/treeviewer/yaml-compare": {
+    title: "YAML Tree Viewer - Interactive YAML Tree Visualizer | JSONtapose",
+    description:
+      "Explore YAML data in an interactive tree view with expand/collapse at any depth. Free online YAML tree visualizer - paste your YAML and navigate complex nested structures instantly. 100% client-side.",
+    keywords:
+      "YAML tree viewer, YAML tree visualizer, YAML explorer, interactive YAML viewer, YAML navigator, nested YAML viewer, YAML structure viewer, online YAML tree",
+    url: "https://www.jsontapose.com/treeviewer/yaml-compare",
+  },
+  "/yaml-compare": {
+    title: "YAML Compare & Diff Tool - Free Online YAML Comparison | JSONtapose",
+    description:
+      "Compare two YAML files side-by-side with color-coded diffs. Free online YAML comparison and YAML diff tool - added, removed, and changed values highlighted instantly. 100% client-side, no uploads.",
+    keywords:
+      "YAML compare, YAML diff, YAML comparison tool, compare YAML files, YAML diff online, YAML file compare, YAML vs YAML, online YAML tool, YAML checker",
+    url: "https://www.jsontapose.com/yaml-compare",
+  },
+  "/client-side-json-diff": {
+    title: "Client-Side JSON Diff Tool - No Upload | JSONtapose",
+    description:
+      "Compare JSON files and API responses locally in your browser. JSONtapose is a client-side JSON diff tool with no upload, no account, and semantic structured comparison.",
+    keywords:
+      "client-side JSON diff, no upload JSON compare, secure JSON diff, private JSON comparison, browser JSON diff, JSON compare no signup",
+    url: "https://www.jsontapose.com/client-side-json-diff",
+  },
+  "/semantic-json-diff": {
+    title: "Semantic JSON Diff - Ignore Whitespace and Key Order | JSONtapose",
+    description:
+      "Use JSONtapose for semantic JSON diff that compares structure and values instead of plain text formatting. Review API responses without noise from whitespace or key order.",
+    keywords:
+      "semantic JSON diff, compare JSON ignoring key order, JSON diff ignoring whitespace, structured JSON comparison, API response diff",
+    url: "https://www.jsontapose.com/semantic-json-diff",
+  },
+};
+
 // Inner component so we can call useFormatMode (which requires FormatModeProvider above)
 function AppContent({
   theme,
@@ -57,38 +108,7 @@ function AppContent({
   }, [location.hash]);
 
   const pathname = location.pathname;
-
-  const seoProps =
-    pathname === "/treeviewer"
-      ? {
-          title: "JSONtapose Tree Viewer — Interactive JSON Tree Visualizer",
-          description:
-            "Explore JSON data in an interactive tree view with expand/collapse at any depth. Free online JSON tree visualizer — paste your JSON and navigate complex nested structures instantly. 100% client-side.",
-          keywords:
-            "JSON tree viewer, JSON tree visualizer, JSON explorer, interactive JSON viewer, JSON navigator, nested JSON viewer, JSON structure viewer, online JSON tree",
-          url: "https://www.jsontapose.com/treeviewer",
-        }
-      : pathname === "/treeviewer/yaml-compare"
-        ? {
-            title:
-              "YAML Tree Viewer — Interactive YAML Tree Visualizer | JSONtapose",
-            description:
-              "Explore YAML data in an interactive tree view with expand/collapse at any depth. Free online YAML tree visualizer — paste your YAML and navigate complex nested structures instantly. 100% client-side.",
-            keywords:
-              "YAML tree viewer, YAML tree visualizer, YAML explorer, interactive YAML viewer, YAML navigator, nested YAML viewer, YAML structure viewer, online YAML tree",
-            url: "https://www.jsontapose.com/treeviewer/yaml-compare",
-          }
-        : pathname === "/yaml-compare"
-          ? {
-              title:
-                "YAML Compare & Diff Tool — Free Online YAML Comparison | JSONtapose",
-              description:
-                "Compare two YAML files side-by-side with color-coded diffs. Free online YAML comparison and YAML diff tool — added, removed, and changed values highlighted instantly. 100% client-side, no uploads.",
-              keywords:
-                "YAML compare, YAML diff, YAML comparison tool, compare YAML files, YAML diff online, YAML file compare, YAML vs YAML, online YAML tool, YAML checker",
-              url: "https://www.jsontapose.com/yaml-compare",
-            }
-          : {};
+  const seoProps = SEO_BY_PATH[pathname] ?? {};
 
   return (
     <div className="min-h-[calc(100vh-4rem)] flex flex-col bg-base-100">
@@ -110,6 +130,8 @@ function AppContent({
           <Routes>
             <Route path="/" element={<ComparePage />} />
             <Route path="/yaml-compare" element={<ComparePage />} />
+            <Route path="/client-side-json-diff" element={<ComparePage />} />
+            <Route path="/semantic-json-diff" element={<ComparePage />} />
             <Route path="/treeviewer" element={<JsonTreeViewer />} />
             <Route path="/treeviewer/yaml-compare" element={<JsonTreeViewer />} />
           </Routes>
