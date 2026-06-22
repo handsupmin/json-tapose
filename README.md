@@ -8,6 +8,10 @@
 
 A secure, modern and high-performance JSON comparison tool that displays differences between JSON objects in a side-by-side view.
 
+[![Mentioned in Awesome JSON](https://awesome.re/mentioned-badge-flat.svg)](https://github.com/burningtree/awesome-json#online-tools)
+
+Featured in [Awesome JSON](https://github.com/burningtree/awesome-json#online-tools), the JSON list linked from [sindresorhus/awesome](https://github.com/sindresorhus/awesome#miscellaneous). Added via [burningtree/awesome-json#229](https://github.com/burningtree/awesome-json/pull/229).
+
 ![JSONtapose Screenshot](screenshots/screenshot.png)
 
 ## Features
