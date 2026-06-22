@@ -5,9 +5,6 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 permissions:
   contents: read
@@ -19,6 +16,7 @@ concurrency:
 jobs:
   web-and-extension:
     name: Web and browser extension
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
     steps:
@@ -64,10 +62,19 @@ jobs:
           if-no-files-found: error
 
   desktop-macos:
-    name: Desktop macOS
-    runs-on: macos-latest
+    name: Desktop macOS (${{ matrix.arch }})
+    if: github.ref == 'refs/heads/main'
+    runs-on: ${{ matrix.runner }}
     env:
       CSC_IDENTITY_AUTO_DISCOVERY: "false"
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: arm64
+            runner: macos-15
+          - arch: x64
+            runner: macos-15-intel
 
     steps:
       - name: Check out repository
@@ -92,17 +99,18 @@ jobs:
         run: pnpm build:desktop-main
 
       - name: Package macOS desktop app
-        run: pnpm exec electron-builder --mac --config electron-builder.yml --publish never
+        run: pnpm exec electron-builder --mac dmg --${{ matrix.arch }} --config electron-builder.yml --publish never
 
       - name: Upload macOS desktop artifact
         uses: actions/upload-artifact@v4
         with:
-          name: desktop-macos
-          path: release
+          name: desktop-macos-${{ matrix.arch }}
+          path: release/*.dmg
           if-no-files-found: error
 
   desktop-windows:
-    name: Desktop Windows
+    name: Desktop Windows (x64)
+    if: github.ref == 'refs/heads/main'
     runs-on: windows-latest
 
     steps:
@@ -128,11 +136,79 @@ jobs:
         run: pnpm build:desktop-main
 
       - name: Package Windows desktop app
-        run: pnpm exec electron-builder --win --config electron-builder.yml --publish never
+        run: pnpm exec electron-builder --win --x64 --config electron-builder.yml --publish never
 
-      - name: Upload Windows desktop artifact
+      - name: Upload Windows installer artifact
         uses: actions/upload-artifact@v4
         with:
-          name: desktop-windows
-          path: release
+          name: desktop-windows-installer-x64
+          path: release/*Setup*.exe
           if-no-files-found: error
+
+      - name: Upload Windows portable artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-windows-portable-x64
+          path: |
+            release/*.exe
+            !release/*Setup*.exe
+          if-no-files-found: error
+
+  cleanup-old-artifacts:
+    name: Cleanup old artifacts
+    if: >-
+      ${{
+        github.ref == 'refs/heads/main' &&
+        needs.web-and-extension.result == 'success' &&
+        needs.desktop-macos.result == 'success' &&
+        needs.desktop-windows.result == 'success'
+      }}
+    runs-on: ubuntu-latest
+    needs:
+      - web-and-extension
+      - desktop-macos
+      - desktop-windows
+    permissions:
+      actions: write
+      contents: read
+
+    steps:
+      - name: Delete previous Build Installables artifacts
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const artifactNames = new Set([
+              "web-dist",
+              "browser-extension-unpacked",
+              "desktop-macos-arm64",
+              "desktop-macos-x64",
+              "desktop-macos",
+              "desktop-windows-installer-x64",
+              "desktop-windows-portable-x64",
+              "desktop-windows",
+            ]);
+
+            const { owner, repo } = context.repo;
+            const currentRunId = context.runId;
+            const artifacts = await github.paginate(
+              github.rest.actions.listArtifactsForRepo,
+              { owner, repo, per_page: 100 },
+            );
+
+            const staleArtifacts = artifacts.filter((artifact) => {
+              return (
+                artifactNames.has(artifact.name) &&
+                artifact.workflow_run?.id !== currentRunId
+              );
+            });
+
+            for (const artifact of staleArtifacts) {
+              await github.rest.actions.deleteArtifact({
+                owner,
+                repo,
+                artifact_id: artifact.id,
+              });
+              core.info(`Deleted ${artifact.name} from run ${artifact.workflow_run?.id}`);
+            }
+
+            core.info(`Deleted ${staleArtifacts.length} old artifact(s).`);
