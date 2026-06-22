@@ -62,11 +62,19 @@ jobs:
           if-no-files-found: error
 
   desktop-macos:
-    name: Desktop macOS
+    name: Desktop macOS (${{ matrix.arch }})
     if: github.ref == 'refs/heads/main'
-    runs-on: macos-latest
+    runs-on: ${{ matrix.runner }}
     env:
       CSC_IDENTITY_AUTO_DISCOVERY: "false"
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: arm64
+            runner: macos-15
+          - arch: x64
+            runner: macos-15-intel
 
     steps:
       - name: Check out repository
@@ -91,19 +99,17 @@ jobs:
         run: pnpm build:desktop-main
 
       - name: Package macOS desktop app
-        run: pnpm exec electron-builder --mac --config electron-builder.yml --publish never
+        run: pnpm exec electron-builder --mac dmg --${{ matrix.arch }} --config electron-builder.yml --publish never
 
       - name: Upload macOS desktop artifact
         uses: actions/upload-artifact@v4
         with:
-          name: desktop-macos
-          path: |
-            release/*.dmg
-            release/*.zip
+          name: desktop-macos-${{ matrix.arch }}
+          path: release/*.dmg
           if-no-files-found: error
 
   desktop-windows:
-    name: Desktop Windows
+    name: Desktop Windows (x64)
     if: github.ref == 'refs/heads/main'
     runs-on: windows-latest
 
@@ -130,11 +136,20 @@ jobs:
         run: pnpm build:desktop-main
 
       - name: Package Windows desktop app
-        run: pnpm exec electron-builder --win --config electron-builder.yml --publish never
+        run: pnpm exec electron-builder --win --x64 --config electron-builder.yml --publish never
 
-      - name: Upload Windows desktop artifact
+      - name: Upload Windows installer artifact
         uses: actions/upload-artifact@v4
         with:
-          name: desktop-windows
-          path: release/*.exe
+          name: desktop-windows-installer-x64
+          path: release/*Setup*.exe
+          if-no-files-found: error
+
+      - name: Upload Windows portable artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-windows-portable-x64
+          path: |
+            release/*.exe
+            !release/*Setup*.exe
           if-no-files-found: error

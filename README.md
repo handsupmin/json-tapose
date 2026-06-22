@@ -51,8 +51,10 @@ Builds are visible in **GitHub Actions**:
 - **Build Installables** builds and uploads operator-facing artifacts:
   - `web-dist`: static web build from `dist`
   - `browser-extension-unpacked`: unpacked Chrome/Edge extension from `dist-extension`
-  - `desktop-macos`: macOS Electron builds from `release`
-  - `desktop-windows`: Windows Electron builds from `release`
+  - `desktop-macos-arm64`: macOS Apple Silicon DMG
+  - `desktop-macos-x64`: macOS Intel DMG
+  - `desktop-windows-installer-x64`: Windows x64 NSIS installer
+  - `desktop-windows-portable-x64`: Windows x64 portable executable
 
 To make a fresh build without pushing a new commit, open **Actions -> Build Installables -> Run workflow**. Artifacts appear at the bottom of the completed workflow run.
 
@@ -97,9 +99,10 @@ Clipboard detection is off by default. When enabled in the popup, it detects str
 From GitHub Actions:
 
 1. Open **Actions -> Build Installables**.
-2. Download `desktop-macos` on macOS or `desktop-windows` on Windows.
-3. Unzip the artifact.
-4. Install or run the package from the `release` folder.
+2. On macOS, download `desktop-macos-arm64` for Apple Silicon or `desktop-macos-x64` for Intel.
+3. On Windows, download `desktop-windows-installer-x64` for the installer or `desktop-windows-portable-x64` for a portable executable.
+4. Unzip the artifact.
+5. Install or run the downloaded DMG or executable.
 
 Local packaging:
 
