@@ -56,7 +56,7 @@ Builds are visible in **GitHub Actions**:
   - `desktop-windows-installer-x64`: Windows x64 NSIS installer
   - `desktop-windows-portable-x64`: Windows x64 portable executable
 
-To make a fresh build without pushing a new commit, open **Actions -> Build Installables -> Run workflow**. Artifacts appear at the bottom of the completed workflow run.
+To make a fresh build without pushing a new commit, open **Actions -> Build Installables -> Run workflow**. Artifacts appear at the bottom of the completed workflow run. After a successful run, older Build Installables artifacts are deleted so the latest artifact set remains available.
 
 ## Installation
 

@@ -153,3 +153,62 @@ jobs:
             release/*.exe
             !release/*Setup*.exe
           if-no-files-found: error
+
+  cleanup-old-artifacts:
+    name: Cleanup old artifacts
+    if: >-
+      ${{
+        github.ref == 'refs/heads/main' &&
+        needs.web-and-extension.result == 'success' &&
+        needs.desktop-macos.result == 'success' &&
+        needs.desktop-windows.result == 'success'
+      }}
+    runs-on: ubuntu-latest
+    needs:
+      - web-and-extension
+      - desktop-macos
+      - desktop-windows
+    permissions:
+      actions: write
+      contents: read
+
+    steps:
+      - name: Delete previous Build Installables artifacts
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const artifactNames = new Set([
+              "web-dist",
+              "browser-extension-unpacked",
+              "desktop-macos-arm64",
+              "desktop-macos-x64",
+              "desktop-macos",
+              "desktop-windows-installer-x64",
+              "desktop-windows-portable-x64",
+              "desktop-windows",
+            ]);
+
+            const { owner, repo } = context.repo;
+            const currentRunId = context.runId;
+            const artifacts = await github.paginate(
+              github.rest.actions.listArtifactsForRepo,
+              { owner, repo, per_page: 100 },
+            );
+
+            const staleArtifacts = artifacts.filter((artifact) => {
+              return (
+                artifactNames.has(artifact.name) &&
+                artifact.workflow_run?.id !== currentRunId
+              );
+            });
+
+            for (const artifact of staleArtifacts) {
+              await github.rest.actions.deleteArtifact({
+                owner,
+                repo,
+                artifact_id: artifact.id,
+              });
+              core.info(`Deleted ${artifact.name} from run ${artifact.workflow_run?.id}`);
+            }
+
+            core.info(`Deleted ${staleArtifacts.length} old artifact(s).`);
