@@ -115,7 +115,7 @@ Desktop behavior:
 - macOS: closing the window hides it and keeps JSONtapose available from the menu bar. Click the menu bar icon to show or hide the window. Right-click for the Open/Hide and Quit menu.
 - Windows: closing or minimizing hides the window and keeps JSONtapose available from the system tray. Use the tray icon or context menu to reopen or quit.
 
-Unsigned local macOS builds may require right-clicking the app and choosing **Open** the first time. Production distribution should add Apple and Windows signing credentials before public release.
+Unsigned macOS builds from local packaging or GitHub Actions artifacts may require right-clicking the app and choosing **Open** the first time. Production distribution should add Apple and Windows signing credentials before public release.
 
 ## Operator Runbook
 
