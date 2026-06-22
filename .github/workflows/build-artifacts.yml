@@ -5,9 +5,6 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 permissions:
   contents: read
@@ -19,6 +16,7 @@ concurrency:
 jobs:
   web-and-extension:
     name: Web and browser extension
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
     steps:
@@ -65,6 +63,7 @@ jobs:
 
   desktop-macos:
     name: Desktop macOS
+    if: github.ref == 'refs/heads/main'
     runs-on: macos-latest
     env:
       CSC_IDENTITY_AUTO_DISCOVERY: "false"
@@ -98,11 +97,14 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: desktop-macos
-          path: release
+          path: |
+            release/*.dmg
+            release/*.zip
           if-no-files-found: error
 
   desktop-windows:
     name: Desktop Windows
+    if: github.ref == 'refs/heads/main'
     runs-on: windows-latest
 
     steps:
@@ -134,5 +136,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: desktop-windows
-          path: release
+          path: release/*.exe
           if-no-files-found: error
