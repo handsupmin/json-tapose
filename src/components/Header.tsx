@@ -39,31 +39,34 @@ const Header: React.FC<HeaderProps> = ({ themeController }) => {
   const navigate = useNavigate();
   const { mode } = useFormatMode();
   const { isWideView } = useWideView();
+  const pathname = location.pathname.length > 1
+    ? location.pathname.replace(/\/+$/, "")
+    : location.pathname;
 
   const isCompare =
-    location.pathname === "/" || location.pathname === "/yaml-compare";
+    pathname === "/" || pathname === "/yaml-compare";
   const isTreeViewer =
-    location.pathname === "/treeviewer" ||
-    location.pathname === "/treeviewer/yaml-compare";
+    pathname === "/treeviewer" ||
+    pathname === "/treeviewer/yaml-compare";
 
   // Navigate to the mode-appropriate route when switching format
   const handleModeSwitch = (newMode: "json" | "yaml") => {
     if (newMode === "yaml") {
-      navigate(isTreeViewer ? "/treeviewer/yaml-compare" : "/yaml-compare");
+      navigate(isTreeViewer ? "/treeviewer/yaml-compare/" : "/yaml-compare/");
     } else {
-      navigate(isTreeViewer ? "/treeviewer" : "/");
+      navigate(isTreeViewer ? "/treeviewer/" : "/");
     }
   };
 
   // Navigation tabs configuration — mode-aware paths
   const tabs: HeaderTab[] = [
     {
-      path: mode === "yaml" ? "/yaml-compare" : "/",
+      path: mode === "yaml" ? "/yaml-compare/" : "/",
       label: "Compare",
       isActive: isCompare,
     },
     {
-      path: mode === "yaml" ? "/treeviewer/yaml-compare" : "/treeviewer",
+      path: mode === "yaml" ? "/treeviewer/yaml-compare/" : "/treeviewer/",
       label: "TreeViewer",
       isActive: isTreeViewer,
     },

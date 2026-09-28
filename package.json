@@ -6,7 +6,7 @@
   "main": "desktop-dist/main.js",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "npm run test:seo && tsc -b && vite build",
     "build:desktop-renderer": "vite build --config vite.desktop.config.ts",
     "build:extension": "vite build --config vite.extension.config.ts",
     "build:desktop-main": "tsc -p tsconfig.electron.json",
@@ -14,7 +14,9 @@
     "desktop:pack": "pnpm build:desktop-renderer && pnpm build:desktop-main && electron-builder --dir --config electron-builder.yml",
     "desktop:dist": "pnpm build:desktop-renderer && pnpm build:desktop-main && electron-builder --mac --win --config electron-builder.yml",
     "lint": "eslint .",
-    "test": "node --test --experimental-strip-types src/utils/jsonUtils.test.ts src/extension/clipboard.test.ts",
+    "test": "node --test --experimental-strip-types src/utils/jsonUtils.test.ts src/extension/clipboard.test.ts && npm run test:seo",
+    "test:seo": "node scripts/check-seo.mjs",
+    "indexnow": "node scripts/submit-indexnow.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

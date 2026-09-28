@@ -32,7 +32,7 @@ const SEO_BY_PATH: Record<
       "Explore JSON data in an interactive tree view with expand/collapse at any depth. Free online JSON tree visualizer - paste your JSON and navigate complex nested structures instantly. 100% client-side.",
     keywords:
       "JSON tree viewer, JSON tree visualizer, JSON explorer, interactive JSON viewer, JSON navigator, nested JSON viewer, JSON structure viewer, online JSON tree",
-    url: "https://www.jsontapose.com/treeviewer",
+    url: "https://www.jsontapose.com/treeviewer/",
   },
   "/treeviewer/yaml-compare": {
     title: "YAML Tree Viewer - Interactive YAML Tree Visualizer | JSONtapose",
@@ -40,7 +40,7 @@ const SEO_BY_PATH: Record<
       "Explore YAML data in an interactive tree view with expand/collapse at any depth. Free online YAML tree visualizer - paste your YAML and navigate complex nested structures instantly. 100% client-side.",
     keywords:
       "YAML tree viewer, YAML tree visualizer, YAML explorer, interactive YAML viewer, YAML navigator, nested YAML viewer, YAML structure viewer, online YAML tree",
-    url: "https://www.jsontapose.com/treeviewer/yaml-compare",
+    url: "https://www.jsontapose.com/treeviewer/yaml-compare/",
   },
   "/yaml-compare": {
     title: "YAML Compare & Diff Tool - Free Online YAML Comparison | JSONtapose",
@@ -48,7 +48,7 @@ const SEO_BY_PATH: Record<
       "Compare two YAML files side-by-side with color-coded diffs. Free online YAML comparison and YAML diff tool - added, removed, and changed values highlighted instantly. 100% client-side, no uploads.",
     keywords:
       "YAML compare, YAML diff, YAML comparison tool, compare YAML files, YAML diff online, YAML file compare, YAML vs YAML, online YAML tool, YAML checker",
-    url: "https://www.jsontapose.com/yaml-compare",
+    url: "https://www.jsontapose.com/yaml-compare/",
   },
   "/client-side-json-diff": {
     title: "Client-Side JSON Diff Tool - No Upload | JSONtapose",
@@ -56,7 +56,7 @@ const SEO_BY_PATH: Record<
       "Compare JSON files and API responses locally in your browser. JSONtapose is a client-side JSON diff tool with no upload, no account, and semantic structured comparison.",
     keywords:
       "client-side JSON diff, no upload JSON compare, secure JSON diff, private JSON comparison, browser JSON diff, JSON compare no signup",
-    url: "https://www.jsontapose.com/client-side-json-diff",
+    url: "https://www.jsontapose.com/client-side-json-diff/",
   },
   "/semantic-json-diff": {
     title: "Semantic JSON Diff - Ignore Whitespace and Key Order | JSONtapose",
@@ -64,7 +64,7 @@ const SEO_BY_PATH: Record<
       "Use JSONtapose for semantic JSON diff that compares structure and values instead of plain text formatting. Review API responses without noise from whitespace or key order.",
     keywords:
       "semantic JSON diff, compare JSON ignoring key order, JSON diff ignoring whitespace, structured JSON comparison, API response diff",
-    url: "https://www.jsontapose.com/semantic-json-diff",
+    url: "https://www.jsontapose.com/semantic-json-diff/",
   },
 };
 
@@ -82,8 +82,9 @@ function AppContent({
 
   // Sync format mode with the current route
   useEffect(() => {
+    const pathname = location.pathname.length > 1 ? location.pathname.replace(/\/+$/, "") : location.pathname;
     const yamlRoutes = ["/yaml-compare", "/treeviewer/yaml-compare"];
-    if (yamlRoutes.includes(location.pathname)) {
+    if (yamlRoutes.includes(pathname)) {
       setMode("yaml");
     } else {
       setMode("json");
@@ -107,7 +108,7 @@ function AppContent({
     }
   }, [location.hash]);
 
-  const pathname = location.pathname;
+  const pathname = location.pathname.length > 1 ? location.pathname.replace(/\/+$/, "") : location.pathname;
   const seoProps = SEO_BY_PATH[pathname] ?? {};
 
   return (
@@ -154,9 +155,10 @@ function App() {
   }, [theme]);
 
   // Initialize FormatMode based on the URL at load time to avoid flash on yaml routes
-  const initialMode = ["/yaml-compare", "/treeviewer/yaml-compare"].includes(
-    window.location.pathname
-  )
+  const initialPathname = window.location.pathname.length > 1
+    ? window.location.pathname.replace(/\/+$/, "")
+    : window.location.pathname;
+  const initialMode = ["/yaml-compare", "/treeviewer/yaml-compare"].includes(initialPathname)
     ? "yaml"
     : "json";
 

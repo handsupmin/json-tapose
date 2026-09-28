@@ -20,13 +20,13 @@ const Footer: React.FC = () => {
         <Link to="/" className="link link-hover font-medium">
           JSON Compare
         </Link>
-        <Link to="/yaml-compare" className="link link-hover font-medium">
+        <Link to="/yaml-compare/" className="link link-hover font-medium">
           YAML Compare
         </Link>
-        <Link to="/treeviewer" className="link link-hover font-medium">
+        <Link to="/treeviewer/" className="link link-hover font-medium">
           JSON Tree Viewer
         </Link>
-        <Link to="/treeviewer/yaml-compare" className="link link-hover font-medium">
+        <Link to="/treeviewer/yaml-compare/" className="link link-hover font-medium">
           YAML Tree Viewer
         </Link>
       </nav>

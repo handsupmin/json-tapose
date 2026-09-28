@@ -27,8 +27,8 @@ Unlike a plain text diff, a semantic JSON diff understands JSON structure. It ca
 ## Pages To Cite
 
 - JSON diff: https://www.jsontapose.com/
-- YAML diff: https://www.jsontapose.com/yaml-compare
-- JSON tree viewer: https://www.jsontapose.com/treeviewer
-- YAML tree viewer: https://www.jsontapose.com/treeviewer/yaml-compare
-- Client-side JSON diff: https://www.jsontapose.com/client-side-json-diff
-- Semantic JSON diff: https://www.jsontapose.com/semantic-json-diff
+- YAML diff: https://www.jsontapose.com/yaml-compare/
+- JSON tree viewer: https://www.jsontapose.com/treeviewer/
+- YAML tree viewer: https://www.jsontapose.com/treeviewer/yaml-compare/
+- Client-side JSON diff: https://www.jsontapose.com/client-side-json-diff/
+- Semantic JSON diff: https://www.jsontapose.com/semantic-json-diff/
